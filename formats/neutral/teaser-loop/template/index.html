@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Teaser loop</title>
+    <link rel="stylesheet" href="brand.css">
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/CustomEase.min.js"></script>
+    <script src="brand-snippets.js"></script>
+    <script src="reel-tokens.js"></script>
+    <script src="format-config.js"></script>
+    <style>
+      /* Teaser loop (neutral format): colours, faces and curves come from the pack's --reel-* tokens; pictures come
+         from the brand's own files. It opens on the finished layout and every moving part is periodic, so the last
+         frame flows back into the first. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: __W__px; height: __H__px; overflow: hidden; background: var(--reel-bg); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; color: var(--reel-fg);
+              background-color: var(--reel-bg); background-image: var(--reel-bg-image, none); }
+      #bg { position: absolute; inset: 0; overflow: hidden; }
+      /* feathered edges (set from background_feather): where a crop runs past the picture it fades into the canvas
+         colour, never a hard line; the wave layer carries the same feather inside its own mask */
+      #bg img { position: absolute; display: block; max-width: none; -webkit-mask-composite: source-in; mask-composite: intersect; }
+      /* the wave: a brightened copy of the same picture, seen only through a moving ring mask */
+      /* only the dots light up: the filter subtracts the picture's own background colour, boosts what is left and
+         turns that brightness into opacity, so the background of this layer is fully transparent (never black, even
+         over the feathered edges) and screen blending adds light to the dots alone */
+      #bg .wave { position: absolute; background-size: 100% 100%; filter: url(#wave-dots); mix-blend-mode: screen; opacity: 0; }
+      #field { position: absolute; inset: 0; width: 100%; height: 100%; }
+      #ring { position: absolute; border-radius: 50%; border: 2px solid var(--reel-accent); opacity: 0; pointer-events: none; }
+      #logo { position: absolute; display: block; }
+      #headline { position: absolute; font-family: var(--reel-font-display); font-weight: var(--reel-weight-display);
+                  line-height: var(--reel-display-leading, 1.08); text-transform: var(--reel-display-case, none); letter-spacing: -0.01em; }
+      #headline .ln { display: block; white-space: nowrap; }
+      #headline .focal { position: relative; color: var(--reel-accent); display: inline-block; }
+      /* the accent line: a real underline on a transparent copy of the focal word, so it breaks around descenders
+         (skip-ink) the way a typographer sets it; it draws and sweeps by clip-path, whose box reaches below the word
+         so the underline itself is never clipped */
+      #headline .uline { position: absolute; left: 0; top: 0; font-style: normal; color: transparent; white-space: nowrap;
+                         text-decoration-line: underline; text-decoration-color: var(--reel-accent);
+                         text-decoration-thickness: var(--reel-line); text-underline-offset: 0.16em; text-decoration-skip-ink: auto;
+                         clip-path: inset(-20% 100% -60% 0%); pointer-events: none; }
+      #media { position: absolute; }
+      #media img { display: block; width: 100%; height: 100%; object-fit: contain; }
+      #media.fade { -webkit-mask-image: radial-gradient(ellipse 72% 70% at 52% 52%, #000 58%, transparent 100%);
+                    mask-image: radial-gradient(ellipse 72% 70% at 52% 52%, #000 58%, transparent 100%); }
+      #media.card { border-radius: calc(var(--reel-radius) * 2); overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12); }
+      #media.card img { object-fit: cover; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="teaser-loop" data-start="0" data-width="__W__" data-height="__H__" data-duration="__DUR__" data-rest-at="0">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="wave-dots" color-interpolation-filters="sRGB">
+        <feComponentTransfer><feFuncR type="linear" slope="3"/><feFuncG type="linear" slope="3"/><feFuncB type="linear" slope="3"/></feComponentTransfer>
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1 0 0 0 0"/>
+      </filter></svg>
+      __BACKGROUND__
+      <canvas id="field" width="__W__" height="__H__" data-safe-ignore></canvas>
+      <div id="ring" data-safe-ignore></div>
+      __MEDIA__
+      <img id="logo" alt="logo">
+      <div id="headline" data-slot="headline">__SLOT_headline__</div>
+    </div>
+    <script>
+      (function () {
+        const C = window.REEL_FORMAT, R = window.REEL, B = R.brand || {};
+        const W = C.canvas[0], H = C.canvas[1], L = C.duration, unit = Math.min(W, H), m = C.margin;
+        const $ = (id) => document.getElementById(id);
+        const accent = R.token("accent"), bg = R.token("bg");
+        const [fx, fy] = [W * C.focus[0], H * C.focus[1]];
+        const TAU = Math.PI * 2;
+
+        // background picture: the chosen crop of the source fills the canvas, a little larger so a slow turn never
+        // shows an edge; it breathes and turns around the focus point
+        const bgImg = document.querySelector("#bg img"), waveImg = document.querySelector("#bg .wave");
+        const motion = C.background_motion || "wave", over = motion === "breathe" ? 1.08 : 1;
+        if (bgImg && C.background_edge) $("root").style.backgroundColor = C.background_edge;
+        if (bgImg) {
+          const [x0, y0, x1, y1] = C.background_crop, [sw, sh] = C.background_size;
+          const scale = W / ((x1 - x0) * sw);
+          for (const im of document.querySelectorAll("#bg img, #bg .wave"))
+            Object.assign(im.style, { width: sw * scale + "px", height: sh * scale + "px", left: -x0 * sw * scale + "px", top: -y0 * sh * scale + "px" });
+          gsap.set("#bg", { transformOrigin: `${fx}px ${fy}px`, scale: over, opacity: C.background_opacity });
+          const [ft, fr, fb, fl] = (C.background_feather || [0.07, 0.05, 0.07, 0.05]).map((v) => (v * 100).toFixed(1) + "%");
+          window.__reelFeather = `linear-gradient(to bottom, transparent 0, #000 ${ft}, #000 calc(100% - ${fb}), transparent 100%), ` +
+                                 `linear-gradient(to right, transparent 0, #000 ${fl}, #000 calc(100% - ${fr}), transparent 100%)`;
+          bgImg.style.webkitMaskImage = window.__reelFeather; bgImg.style.maskImage = window.__reelFeather;
+          if (waveImg && motion === "wave") {
+            waveImg.style.opacity = 1;
+            // subtract the picture's background colour: slope k, intercept -k * bg per channel
+            const e = (C.background_edge || bg).replace("#", ""), k = 3;
+            // the three channel functions in order R, G, B (a fixed selector: the bundler cannot parse template selectors)
+            [...document.querySelectorAll("#wave-dots feComponentTransfer > *")].forEach((f, i) => {
+              f.setAttribute("slope", k); f.setAttribute("intercept", (-k * parseInt(e.slice(i * 2, i * 2 + 2), 16) / 255).toFixed(4));
+            });
+          }
+        }
+        // the wave's ring mask, in the picture's own pixels (the image is positioned, so offset the centre)
+        const waveReach = Math.hypot(Math.max(fx, W - fx), Math.max(fy, H - fy));
+        const setWave = (q) => {
+          if (!waveImg || motion !== "wave") return;
+          const r = q * waveReach * 1.1, w = unit * 0.07, cx = fx - parseFloat(waveImg.style.left), cy = fy - parseFloat(waveImg.style.top);
+          const fade = Math.sin(Math.min(1, q * 1.15) * Math.PI);          // born at the core, gone before the next one
+          const g = `radial-gradient(circle at ${cx}px ${cy}px, transparent ${Math.max(0, r - w)}px, rgba(0,0,0,${(0.9 * fade).toFixed(3)}) ${r}px, transparent ${r + w * 0.6}px)`;
+          const m = g + ", " + window.__reelFeather;          // the ring, cut by the same feather as the picture
+          waveImg.style.webkitMaskImage = m; waveImg.style.maskImage = m;
+          waveImg.style.webkitMaskComposite = "source-in, source-in"; waveImg.style.maskComposite = "intersect";
+        };
+
+        // the ring: one soft accent pulse outwards from the focus, twice per loop
+        const ring = $("ring"), rr = unit * 0.03;
+        Object.assign(ring.style, { left: fx - rr + "px", top: fy - rr + "px", width: rr * 2 + "px", height: rr * 2 + "px" });
+
+        // logo that suits the background, top left
+        const hex = bg.replace("#", "");
+        const lum = hex.length >= 6 ? (0.2126 * parseInt(hex.slice(0, 2), 16) + 0.7152 * parseInt(hex.slice(2, 4), 16) + 0.0722 * parseInt(hex.slice(4, 6), 16)) / 255 : 0;
+        const logo = $("logo"), logoSrc = B.logo && (lum < 0.5 ? B.logo.onDark : B.logo.onLight);
+        if (logoSrc) { logo.src = logoSrc; Object.assign(logo.style, { left: W * C.logo_box[0] + "px", top: H * C.logo_box[1] + "px", width: W * C.logo_box[2] + "px" }); } else logo.remove();
+
+        // headline: fitted to its box once fonts load (only the size changes)
+        const hl = $("headline");
+        Object.assign(hl.style, { left: W * C.headline_box[0] + "px", top: H * C.headline_box[1] + "px" });
+        if (C.headline_leading) hl.style.lineHeight = C.headline_leading;
+        const fit = () => {
+          let s = W * C.headline_size; hl.style.fontSize = s + "px";
+          while (s > unit * 0.035 && hl.scrollWidth > W * C.headline_box[2]) { s -= 1; hl.style.fontSize = s + "px"; }
+        };
+        fit();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
+        // media, placed by the slot box
+        const media = $("media");
+        if (media) {
+          const [bx, by, bw] = C.media_box;
+          Object.assign(media.style, { left: W * bx + "px", top: H * by + "px", width: W * bw + "px", height: (W * bw) / C.media_aspect + "px" });
+        }
+
+        // generated field, only when the brand gives no background picture: accent dots stream out along rays from
+        // the focus; a whole number of cycles per loop keeps it seamless
+        const cv = $("field"), g = cv.getContext("2d"), useField = !bgImg && C.field === "radial-dots";
+        const rgb = (() => { const h = accent.replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); })();
+        const reach = Math.hypot(Math.max(fx, W - fx), Math.max(fy, H - fy)) * 1.05, r0 = unit * 0.035;
+        const drawField = (p) => {
+          g.clearRect(0, 0, W, H);
+          if (!useField) return;
+          const phase = (p * 2) % 1;
+          for (let k = 0; k < 150; k++) {
+            const a = (k / 150) * TAU, ca = Math.cos(a), sa = Math.sin(a);
+            for (let j = 0; ; j++) {
+              const r = r0 * Math.pow(1.075, j + phase);
+              if (r > reach) break;
+              const t = r / reach, alpha = Math.max(0, 0.9 - t * 1.2) * Math.min(1, (r - r0) / (r0 * 0.8));
+              if (alpha <= 0.01) continue;
+              g.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha.toFixed(3)})`;
+              g.beginPath(); g.arc(fx + ca * r, fy + sa * r, 0.9 + unit * 0.0016 * (0.6 + t), 0, TAU); g.fill();
+            }
+          }
+        };
+
+        const tl = gsap.timeline({ paused: true });
+        const clock = { p: 0 };
+        const frame = (p) => {
+          drawField(p);
+          const c1 = 0.5 - 0.5 * Math.cos(p * TAU);            // 0 -> 1 -> 0 over the loop
+          if (bgImg && motion === "breathe") gsap.set("#bg", { scale: 1.08 + 0.035 * c1, rotation: 1.6 * Math.sin(p * TAU) });
+          const q = (p * 2) % 1;                                 // the ring and the wave go out twice per loop
+          setWave(q);
+          gsap.set(ring, { scale: 1 + 5 * q, opacity: 0.55 * Math.sin(q * Math.PI) * (1 - q) });
+          if (media && motion === "breathe") gsap.set(media, { y: -unit * 0.008 * Math.sin(p * TAU), scale: 1 + 0.012 * c1, transformOrigin: "50% 60%" });
+        };
+        frame(0);
+        tl.to(clock, { p: 1, duration: L, ease: "none", onUpdate: () => frame(clock.p) }, 0);
+        // the accent line draws under the focal word, holds, then sweeps away before the loop ends
+        const ul = hl.querySelector(".uline");
+        if (ul) {
+          tl.fromTo(ul, { clipPath: "inset(-20% 100% -60% 0%)" }, { clipPath: "inset(-20% 0% -60% 0%)", duration: R.dur("enter") * 1.2, ease: R.ease("enter") }, L * 0.12)
+            .to(ul, { clipPath: "inset(-20% 0% -60% 100%)", duration: R.dur("exit") * 1.4, ease: R.ease("exit") }, L * 0.7)
+            .set(ul, { clipPath: "inset(-20% 100% -60% 0%)" }, L * 0.7 + R.dur("exit") * 1.4 + 0.01);
+        }
+        window.__timelines = window.__timelines || {};
+        window.__timelines["teaser-loop"] = tl;
+      })();
+    </script>
+  </body>
+</html>

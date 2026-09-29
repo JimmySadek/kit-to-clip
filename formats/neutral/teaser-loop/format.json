@@ -1,0 +1,141 @@
+{
+ "schema": 1,
+ "id": "teaser-loop",
+ "name": "Teaser loop",
+ "version": "1",
+ "status": "draft",
+ "about": "A still teaser brought to life as a seamless loop: it opens on the finished layout (so the first frame and thumbnail read at once), a generative field and the accent line move, the media drifts, and the last frame flows back into the first. Made for animated GIFs (LinkedIn, email, web) and muted autoplay loops.",
+ "made_for": "loop",
+ "platforms": [
+  "linkedin-gif",
+  "gif",
+  "website-loop"
+ ],
+ "canvases": [
+  "1080x1080",
+  "1080x1350",
+  "1080x1920",
+  "1200x628"
+ ],
+ "length_s": "6-12",
+ "journey": "README.md",
+ "slots": [
+  {
+   "name": "headline",
+   "type": "text",
+   "maxChars": 64,
+   "required": true,
+   "hint": "the teaser's words; *word* is the focal word (accent colour and line), | breaks a line"
+  },
+  {
+   "name": "background",
+   "type": "image",
+   "required": false,
+   "hint": "the brand's own background art (path); without it a generated field is drawn"
+  },
+  {
+   "name": "background_crop",
+   "type": "box",
+   "size": 4,
+   "required": false,
+   "hint": "[x0, y0, x1, y1] fraction of the background picture mapped onto the canvas; values past 0-1 leave the canvas colour showing"
+  },
+  {
+   "name": "background_opacity",
+   "type": "number",
+   "required": false,
+   "hint": "0.3 to 1: how strongly the background picture shows over the brand background colour (default 1)"
+  },
+  {
+   "name": "background_motion",
+   "type": "choice",
+   "choices": [
+    "wave",
+    "breathe",
+    "none"
+   ],
+   "required": false,
+   "hint": "wave (default): the picture stays still and a band of light travels outward from the focus, so a GIF stays small; breathe: the whole picture scales and turns slowly (video and WebM only: every pixel changes)"
+  },
+  {
+   "name": "background_feather",
+   "type": "box",
+   "size": 4,
+   "required": false,
+   "hint": "[top, right, bottom, left] fractions of the picture that fade into the canvas colour (default 0.07, 0.05, 0.07, 0.05); raise the side where the picture ends inside the canvas"
+  },
+  {
+   "name": "focus",
+   "type": "box",
+   "size": 2,
+   "required": false,
+   "hint": "[x, y] canvas fractions: the point the background breathes around and the ring pulses from"
+  },
+  {
+   "name": "media",
+   "type": "image",
+   "required": false,
+   "hint": "an official product screen, photo or device picture from the brand kit (path); never edited"
+  },
+  {
+   "name": "media_box",
+   "type": "box",
+   "size": 3,
+   "required": false,
+   "hint": "[x, y, w] canvas fractions for the media"
+  },
+  {
+   "name": "media_edge",
+   "type": "choice",
+   "choices": [
+    "none",
+    "fade",
+    "card"
+   ],
+   "required": false,
+   "hint": "none (transparent cut-outs), fade (mockups on dark), card (bare screenshots)"
+  },
+  {
+   "name": "logo_box",
+   "type": "box",
+   "size": 3,
+   "required": false,
+   "hint": "[x, y, w] canvas fractions for the logo"
+  },
+  {
+   "name": "headline_box",
+   "type": "box",
+   "size": 3,
+   "required": false,
+   "hint": "[x, y, max width] canvas fractions for the headline"
+  },
+  {
+   "name": "headline_size",
+   "type": "number",
+   "required": false,
+   "hint": "type size as a fraction of the canvas width (default 0.068)"
+  },
+  {
+   "name": "headline_leading",
+   "type": "number",
+   "required": false,
+   "hint": "line height of the headline (default: the pack's display leading)"
+  },
+  {
+   "name": "field",
+   "type": "choice",
+   "choices": [
+    "radial-dots",
+    "none"
+   ],
+   "required": false,
+   "hint": "generated accent field when there is no background picture"
+  },
+  {
+   "name": "duration",
+   "type": "number",
+   "required": false,
+   "hint": "loop length in seconds, 6 to 12 (default 8)"
+  }
+ ]
+}

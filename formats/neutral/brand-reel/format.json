@@ -1,0 +1,24 @@
+{
+ "schema": 1,
+ "id": "brand-reel",
+ "name": "Brand reel",
+ "version": "1",
+ "status": "draft",
+ "about": "One brand motif transformed through a headline, a stat, three points and a lockup, cut on a beat grid. Works with any brand whose video pack has token contract v1.",
+ "made_for": "brief",
+ "canvases": ["1080x1920", "1080x1350", "1080x1080", "1920x1080"],
+ "beats": 24,
+ "default_bpm": 120,
+ "slots": [
+  {"name": "headline", "type": "text", "maxChars": 32, "required": true, "hint": "one statement, 3 to 6 words; the last word is the accent"},
+  {"name": "stat_value", "type": "text", "maxChars": 7, "required": true, "hint": "a number you can source, e.g. 3x, 120, 98%"},
+  {"name": "stat_label", "type": "text", "maxChars": 36, "required": true, "hint": "what the number measures"},
+  {"name": "points", "type": "list", "items": 3, "maxChars": 26, "required": true, "hint": "three short proof points"},
+  {"name": "tagline", "type": "text", "maxChars": 36, "required": true, "hint": "the line under the logo"}
+ ],
+ "devices": {
+  "entrance": ["draw", "drop", "spin"],
+  "headline": ["rise", "mask", "scale"],
+  "flurry": ["invert", "recolor"]
+ }
+}

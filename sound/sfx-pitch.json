@@ -1,0 +1,171 @@
+{
+ "_about": "Fundamental frequency and note of each effect, measured with a harmonic product spectrum by sound/scripts/pitch.py. Untuned effects fit any key.",
+ "effects": {
+  "chime": {
+   "file": "chime.mp3",
+   "tuned": true,
+   "note": "A",
+   "notes": [
+    "A",
+    "D"
+   ],
+   "fundamental_hz": 1753.1,
+   "clearness": 0.71
+  },
+  "click-soft": {
+   "file": "click-soft.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.03
+  },
+  "click": {
+   "file": "click.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.03
+  },
+  "error": {
+   "file": "error.mp3",
+   "tuned": true,
+   "note": "A#",
+   "notes": [
+    "A#"
+   ],
+   "fundamental_hz": 234.4,
+   "clearness": 0.27
+  },
+  "glitch-1": {
+   "file": "glitch-1.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.04
+  },
+  "glitch-2": {
+   "file": "glitch-2.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.02
+  },
+  "glitch-3": {
+   "file": "glitch-3.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.02
+  },
+  "impact-bass-1": {
+   "file": "impact-bass-1.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.0
+  },
+  "impact-bass-2": {
+   "file": "impact-bass-2.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.02
+  },
+  "key-press": {
+   "file": "key-press.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.03
+  },
+  "notification": {
+   "file": "notification.mp3",
+   "tuned": true,
+   "note": "E",
+   "notes": [
+    "E"
+   ],
+   "fundamental_hz": 1329.2,
+   "clearness": 0.86
+  },
+  "ping": {
+   "file": "ping.mp3",
+   "tuned": true,
+   "note": "D",
+   "notes": [
+    "D"
+   ],
+   "fundamental_hz": 2352.1,
+   "clearness": 0.62
+  },
+  "pop": {
+   "file": "pop.mp3",
+   "tuned": true,
+   "note": "E",
+   "notes": [
+    "E",
+    "C#"
+   ],
+   "fundamental_hz": 659.4,
+   "clearness": 0.22
+  },
+  "riser": {
+   "file": "riser.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.07
+  },
+  "sparkle": {
+   "file": "sparkle.mp3",
+   "tuned": true,
+   "note": "G",
+   "notes": [
+    "G"
+   ],
+   "fundamental_hz": 1569.8,
+   "clearness": 0.19
+  },
+  "typing": {
+   "file": "typing.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.04
+  },
+  "whoosh-cinematic": {
+   "file": "whoosh-cinematic.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.06
+  },
+  "whoosh-short": {
+   "file": "whoosh-short.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.19
+  },
+  "whoosh": {
+   "file": "whoosh.mp3",
+   "tuned": false,
+   "note": null,
+   "notes": [],
+   "fundamental_hz": null,
+   "clearness": 0.19
+  }
+ }
+}

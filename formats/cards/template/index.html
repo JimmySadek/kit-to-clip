@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cards</title>
+    <link rel="stylesheet" href="brand.css">
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/CustomEase.min.js"></script>
+    <script src="brand-snippets.js"></script>
+    <script src="reel-tokens.js"></script>
+    <script src="cards-config.js"></script>
+    <style>
+      /* Kit to Clip cards: every colour, face, curve and duration comes from the pack's --reel-* tokens. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: __W__px; height: __H__px; overflow: hidden; background: var(--reel-bg); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; color: var(--reel-fg);
+              background-color: var(--reel-bg); background-image: var(--reel-bg-image, none); }
+      .display { font-family: var(--reel-font-display); font-weight: var(--reel-weight-display);
+                 text-transform: var(--reel-display-case, none); line-height: var(--reel-display-leading, 1.05); }
+      .body { font-family: var(--reel-font-body); font-weight: var(--reel-weight-body); }
+      .label { font-family: var(--reel-font-label); font-weight: var(--reel-weight-label); font-variant-numeric: tabular-nums; }
+      .accent { color: var(--reel-accent); }
+      .card { position: absolute; display: flex; flex-direction: column; justify-content: center; opacity: 0; visibility: hidden; }
+      .card .ln { display: block; white-space: nowrap; }
+      .card .w { display: inline-block; white-space: nowrap; }
+      .rule { height: var(--reel-line); background: var(--reel-accent); border-radius: var(--reel-radius); transform-origin: left center; }
+      .stat-value { white-space: nowrap; line-height: 1; }
+      .stat-label { color: var(--reel-fg); }
+      .muted, .stat-source, .quote-by, .role { color: var(--reel-muted); }
+      .list-items { list-style: none; display: flex; flex-direction: column; }
+      .list-items li { display: flex; align-items: center; gap: 0.55em; white-space: nowrap; }
+      .list-items .mk { flex: none; width: 0.8em; height: 0.8em; color: var(--reel-accent); display: block; }
+      .list-items .mk svg { width: 100%; height: 100%; display: block; overflow: visible; }
+      /* a line motif marks a point with a short accent dash, not a block */
+      .list-items .mk.mk-line { height: var(--reel-line); width: 0.7em; background: var(--reel-accent); border-radius: var(--reel-radius); }
+      .quote-text, .tagline { white-space: normal; text-wrap: balance; }
+      .card-lower-third { justify-content: flex-end; }
+      .lt { display: inline-flex; flex-direction: column; align-self: flex-start; padding: 0.5em 0.8em; border-radius: var(--reel-radius);
+            background: var(--reel-surface); border-left: var(--reel-line) solid var(--reel-accent); }
+      .card-lockup { align-items: center; text-align: center; }
+      .card-lockup img { display: block; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="cards" data-start="0" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+      __CARDS__
+      __MUSIC__
+    </div>
+    <script>
+      (function () {
+        const C = window.CARDS, R = window.REEL, B = R.brand || {};
+        const W = C.canvas[0], H = C.canvas[1], S = C.safe;
+        const sw = W - S.left - S.right, sh = H - S.top - S.bottom, unit = Math.min(sw, sh);
+        const k = { calm: 1.25, steady: 1, punchy: 0.8 }[R.energy] || 1;
+        const E = { in: R.ease("enter"), out: R.ease("exit"), move: R.ease("move") };
+        const D = { in: R.dur("enter") * k, out: R.dur("exit") * k, move: R.dur("move") * k };
+        const motif = (B.motif && B.motif.svg) || '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="currentColor"/></svg>';
+        const fit = (el, start, min, maxW) => { let s = start; el.style.fontSize = s + "px"; while (s > min && el.scrollWidth > maxW + 1) { s -= 1; el.style.fontSize = s + "px"; } };
+        const hex = R.token("bg").replace("#", "");
+        const lum = hex.length >= 6 ? (0.2126 * parseInt(hex.slice(0, 2), 16) + 0.7152 * parseInt(hex.slice(2, 4), 16) + 0.0722 * parseInt(hex.slice(4, 6), 16)) / 255 : 0;
+        const tl = gsap.timeline({ paused: true });
+
+        // sizes, per card, after the brand fonts load (only font sizes change; the timeline does not depend on them)
+        const layout = () => {
+          for (const el of document.querySelectorAll(".card")) {
+            Object.assign(el.style, { left: S.left + "px", top: S.top + "px", width: sw + "px", height: sh + "px", gap: unit * 0.035 + "px" });
+            const q = (s) => el.querySelector(s);
+            if (q(".hl")) fit(q(".hl"), sw * 0.13, sw * 0.05, sw);
+            if (q(".stat-value")) fit(q(".stat-value"), sw * 0.36, sw * 0.1, sw);
+            if (q(".stat-label")) fit(q(".stat-label"), sw * 0.07, sw * 0.035, sw);
+            if (q(".stat-source")) q(".stat-source").style.fontSize = Math.round(sw * 0.032) + "px";
+            if (q(".rule")) { q(".rule").style.width = sw * 0.4 + "px"; }
+            if (q(".list-title")) fit(q(".list-title"), sw * 0.075, sw * 0.04, sw);
+            for (const li of el.querySelectorAll(".list-items li")) fit(li, sw * 0.07, sw * 0.035, sw);
+            if (q(".list-items")) q(".list-items").style.rowGap = unit * 0.045 + "px";
+            if (q(".quote-text")) { q(".quote-text").style.fontSize = Math.round(sw * 0.075) + "px"; }
+            if (q(".quote-by")) q(".quote-by").style.fontSize = Math.round(sw * 0.038) + "px";
+            if (q(".lt .name")) fit(q(".lt .name"), sw * 0.07, sw * 0.04, sw * 0.9);
+            if (q(".lt .role")) q(".lt .role").style.fontSize = Math.round(sw * 0.038) + "px";
+            if (q(".tagline")) fit(q(".tagline"), sw * 0.06, sw * 0.03, sw);
+            if (q(".cta")) fit(q(".cta"), sw * 0.045, sw * 0.025, sw);
+          }
+        };
+        const lineMotif = B.motif && B.motif.kind === "line";
+        for (const el of document.querySelectorAll(".list-items li")) {
+          const m = document.createElement("span"); m.className = lineMotif ? "mk mk-line" : "mk"; if (!lineMotif) m.innerHTML = motif; el.prepend(m);
+        }
+        for (const img of document.querySelectorAll(".card-lockup img")) {
+          const src = B.logo && (lum < 0.5 ? B.logo.onDark : B.logo.onLight);
+          if (src) { img.src = src; img.style.width = Math.min(sw * 0.62, unit * 0.9) + "px"; } else img.remove();
+        }
+        layout();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+        // each card: shown for its window, an entrance by purpose, an exit before the next one (the last one holds).
+        // The first card opens part way into its entrance, so frame one is never empty.
+        C.cards.forEach((c, i) => {
+          const el = document.getElementById("card-" + i), q = (s) => [...el.querySelectorAll(s)];
+          const t0 = c.at, t1 = c.at + c.dur, first = i === 0, last = i === C.cards.length - 1;
+          const head = first ? 0.35 : 0;          // how far into its entrance the first card already is at 0 s
+          tl.set(el, { autoAlpha: 1 }, t0);
+          // the first card's "from" state is 35% of the way to rest, so it is readable at 0 s and still moves
+          const partial = (from) => Object.fromEntries(Object.entries(from).map(([p, v]) => {
+            if (p === "autoAlpha") return [p, head];
+            if (p === "clipPath") return [p, v.replace(/([\d.]+)%/g, (m, n) => (n * (1 - head)).toFixed(1) + "%")];
+            if (p === "scale" || p === "scaleX") return [p, v + (1 - v) * head];
+            return [p, v * (1 - head)];
+          }));
+          // explicit end states: a card starts hidden, so its children inherit "hidden" and a plain from() would
+          // animate them towards invisible
+          const rest = (from) => Object.fromEntries(Object.keys(from).map((p) => [p,
+            p === "autoAlpha" ? 1 : p === "clipPath" ? "inset(0% 0% 0% 0%)" : p === "scale" || p === "scaleX" ? 1 : 0]));
+          const enter = (targets, from, at, stagger) => {
+            if (!targets.length) return;
+            tl.fromTo(targets, first ? partial(from) : from,
+                      { ...rest(from), duration: D.in * (first ? 1 - head : 1), ease: E.in, stagger: stagger || 0 }, at);   // fromTo applies its start state at once
+          };
+          if (c.card === "headline") enter(q(".w"), { yPercent: 70, autoAlpha: 0 }, t0, D.in * 0.25);
+          if (c.card === "stat") {
+            enter(q(".rule"), { scaleX: 0 }, t0);
+            const sv = el.querySelector(".stat-value"), raw = sv.textContent.trim(), m = raw.match(/^([^\d]*)([\d.,]+)(.*)$/);
+            if (m) {
+              const target = parseFloat(m[2].replace(/,/g, "")), dec = (m[2].split(".")[1] || "").length, sep = m[2].includes(","), num = { v: first ? target * 0.35 : 0 };
+              const show = (v) => m[1] + (sep ? v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }) : v.toFixed(dec)) + m[3];
+              sv.textContent = show(num.v);
+              tl.to(num, { v: target, duration: Math.min(c.dur * 0.5, D.move * 2), ease: E.move, onUpdate: () => { sv.textContent = show(num.v); } }, t0 + 0.05);
+            } else enter([sv], { autoAlpha: 0, y: unit * 0.04 }, t0);
+            enter(q(".stat-label, .stat-source"), { autoAlpha: 0, y: unit * 0.03 }, t0 + D.in * 0.5, D.in * 0.2);
+          }
+          if (c.card === "list") { enter(q(".list-title"), { autoAlpha: 0, y: unit * 0.03 }, t0); enter(q(".list-items li"), { x: -unit * 0.06, autoAlpha: 0 }, t0 + D.in * 0.4, Math.max(0.2, (c.dur - D.in * 2) / 4)); }
+          if (c.card === "quote") { enter(q(".quote-text"), { clipPath: "inset(0% 0% 100% 0%)", y: unit * 0.02 }, t0); enter(q(".quote-by"), { autoAlpha: 0 }, t0 + D.in); }
+          if (c.card === "lower-third") { enter(q(".lt"), { x: -unit * 0.1, autoAlpha: 0 }, t0); }
+          if (c.card === "lockup") { enter(q("img"), { autoAlpha: 0, scale: 0.94 }, t0); enter(q(".rule"), { scaleX: 0 }, t0 + D.in * 0.5); enter(q(".tagline, .cta"), { autoAlpha: 0, y: unit * 0.025 }, t0 + D.in * 0.7, D.in * 0.25); }
+          if (!last) tl.to(el, { autoAlpha: 0, duration: D.out, ease: E.out }, t1 - D.out);
+        });
+        tl.to({}, { duration: C.duration }, 0);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["cards"] = tl;
+      })();
+    </script>
+  </body>
+</html>

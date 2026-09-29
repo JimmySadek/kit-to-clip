@@ -1,0 +1,153 @@
+{
+ "schema": 1,
+ "about": "Reusable scenes for brief videos (announcements, promos, event and launch posts). Each card styles itself only from the pack's token contract, has slots with limits, a tier (takeover fills the frame; support sits over footage or another card) and a purpose. Compose them with formats/scripts/cards.py; place each on a beat, a word or a second (anchors).",
+ "cards": [
+  {
+   "id": "headline",
+   "tier": "takeover",
+   "purpose": "headline",
+   "dur": [
+    2,
+    5
+   ],
+   "about": "One statement, word by word from a mask; *word* is the accent",
+   "slots": [
+    {
+     "name": "text",
+     "maxChars": 48,
+     "required": true,
+     "hint": "3 to 8 words; *focal* word in the accent; | breaks a line"
+    }
+   ]
+  },
+  {
+   "id": "stat",
+   "tier": "takeover",
+   "purpose": "stat",
+   "dur": [
+    2.5,
+    5
+   ],
+   "about": "A number counts up over the accent rule, with what it measures",
+   "slots": [
+    {
+     "name": "value",
+     "maxChars": 8,
+     "required": true,
+     "hint": "a number you can source: 12, 3x, 98%, 1,200"
+    },
+    {
+     "name": "label",
+     "maxChars": 40,
+     "required": true,
+     "hint": "what the number measures"
+    },
+    {
+     "name": "source",
+     "maxChars": 60,
+     "required": false,
+     "hint": "where the number comes from (shown small)"
+    }
+   ]
+  },
+  {
+   "id": "list",
+   "tier": "takeover",
+   "purpose": "list",
+   "dur": [
+    3,
+    6
+   ],
+   "about": "Two to four short points step in on the beat, each with the brand's motif as its marker",
+   "slots": [
+    {
+     "name": "title",
+     "maxChars": 32,
+     "required": false,
+     "hint": "optional line above the points"
+    },
+    {
+     "name": "items",
+     "type": "list",
+     "min": 2,
+     "max": 4,
+     "maxChars": 34,
+     "required": true,
+     "hint": "short points"
+    }
+   ]
+  },
+  {
+   "id": "quote",
+   "tier": "takeover",
+   "purpose": "quote",
+   "dur": [
+    3,
+    7
+   ],
+   "about": "A quote rises line by line, the attribution follows",
+   "slots": [
+    {
+     "name": "quote",
+     "maxChars": 120,
+     "required": true,
+     "hint": "the exact words, from a source you can show"
+    },
+    {
+     "name": "by",
+     "maxChars": 48,
+     "required": true,
+     "hint": "who said it, and their role"
+    }
+   ]
+  },
+  {
+   "id": "lower-third",
+   "tier": "support",
+   "purpose": "lower third",
+   "dur": [
+    2.5,
+    8
+   ],
+   "about": "Name and role on an accent bar in the lower safe area, over footage or another card",
+   "slots": [
+    {
+     "name": "name",
+     "maxChars": 32,
+     "required": true,
+     "hint": "a person, place or product"
+    },
+    {
+     "name": "role",
+     "maxChars": 44,
+     "required": false,
+     "hint": "their role or a short line"
+    }
+   ]
+  },
+  {
+   "id": "lockup",
+   "tier": "takeover",
+   "purpose": "end card",
+   "dur": [
+    2,
+    5
+   ],
+   "about": "The logo lands, the tagline and an optional call to action follow on the accent line",
+   "slots": [
+    {
+     "name": "tagline",
+     "maxChars": 44,
+     "required": false,
+     "hint": "the line under the logo; | breaks it where you want"
+    },
+    {
+     "name": "cta",
+     "maxChars": 36,
+     "required": false,
+     "hint": "where to go: a date, a URL, a booth number"
+    }
+   ]
+  }
+ ]
+}

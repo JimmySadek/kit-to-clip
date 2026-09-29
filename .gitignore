@@ -1,0 +1,19 @@
+# engine runtime (setup/install.sh) and video work stay out of git
+.reel-kit/
+node_modules/
+package.json
+package-lock.json
+skills-lock.json
+.agents/
+.claude/
+clips/
+work/
+videos/
+deliveries/
+reels/
+*.mp4
+*.mov
+*.webm
+*.wav
+__pycache__/
+.DS_Store

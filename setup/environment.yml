@@ -1,0 +1,15 @@
+# Tools the studio needs, installed by setup/install.sh into .reel-kit/env (conda-forge only).
+# ffmpeg must be the GPL build: it carries libx264, which HyperFrames and reel-finish encode with.
+channels:
+  - conda-forge
+dependencies:
+  - nodejs 22.*
+  - ffmpeg 7.1.* gpl*
+  - python 3.12.*
+  - numpy >=1.26,<2.3
+  - scipy >=1.13
+  - py-opencv >=4.9
+  - fonttools >=4.50
+  - libwebp                  # img2webp: animated WebP loops (this ffmpeg build has no WebP encoder)
+  - git
+  - gh

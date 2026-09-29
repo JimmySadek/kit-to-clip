@@ -1,0 +1,12 @@
+Kit to Clip
+Copyright 2026 JimmySadek
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Kit to Clip is an agent skill that runs on top of other open-source tools. None of them is included in this
+repository; the engine setup (setup/install.sh) downloads them on the user's machine:
+
+- HyperFrames (HeyGen), Apache License 2.0: https://github.com/heygen-com/hyperframes
+- GSAP (GreenSock), GSAP Standard License: https://gsap.com/standard-license
+- Node.js, ffmpeg (GPL build, for libx264), Python, NumPy, SciPy, OpenCV and fontTools, from conda-forge
+- A headless Chrome build, downloaded by HyperFrames

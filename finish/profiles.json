@@ -1,0 +1,159 @@
+{
+ "_about": "Destination profiles for reel-finish. sync_required (default true) means a video with sound must pass the sync check (finish.py sync) or say why not (--no-sync). sound holds a destination's audio facts: loudness target and range, music licensing. Safe areas are fractions of the frame kept free of text, logos and key graphics. instagram-reels: Meta Reels Ads Guide (14% top, 35% bottom, 6% sides; Meta unified Reels + Stories in 2026). tiktok: TikTok in-feed safe-zone template at 540x960 (top 126, bottom 320, left 60, right 120). Check the real upload preview before posting.",
+ "defaults": {
+  "loudness_lufs": -14,
+  "true_peak_db": -1.0,
+  "fps": 30,
+  "master_crf": 16,
+  "share_max_mb": 30
+ },
+ "profiles": {
+  "tiktok": {
+   "label": "TikTok feed video",
+   "canvas": [
+    1080,
+    1920
+   ],
+   "safe": {
+    "top": 0.131,
+    "bottom": 0.333,
+    "left": 0.111,
+    "right": 0.222
+   },
+   "safe_source": "TikTok in-feed safe-zone template (540x960: 126/320/60/120 px); verified 2026-09-26 against TikTok's published template",
+   "checked": "2026-09-26",
+   "max_seconds": null
+  },
+  "instagram-reels": {
+   "label": "Instagram Reels / Stories",
+   "canvas": [
+    1080,
+    1920
+   ],
+   "safe": {
+    "top": 0.14,
+    "bottom": 0.35,
+    "left": 0.06,
+    "right": 0.06
+   },
+   "safe_source": "Meta Reels Ads Guide: 14% top, 35% bottom, 6% sides (facebook.com/business/ads-guide, instagram-reels)",
+   "checked": "2026-09-26",
+   "max_seconds": null,
+   "sync_required": true,
+   "sound": {
+    "loudness_lufs": -14,
+    "loudness_range_max": 11,
+    "music": "Instagram's licensed music library is for personal, non-commercial use, and some business accounts cannot use it. For a brand Reel use your own music and effects (made or licensed for commercial use, baked into the file) or the Meta Sound Collection (royalty free, allowed for ads). Do not use popular commercial music.",
+    "source": "Instagram Help 402084904469945 (music and the Sound Collection); Meta Reels ads guide: stereo AAC at 128 kbps or more, sound on by default. Read 2026-09-29.",
+    "note": "-14 LUFS is this kit's default, not an Instagram rule. A loudness range over 11 LU is warned about."
+   }
+  },
+  "youtube-shorts": {
+   "label": "YouTube Shorts",
+   "canvas": [
+    1080,
+    1920
+   ],
+   "safe": {
+    "top": 0.08,
+    "bottom": 0.18,
+    "left": 0.05,
+    "right": 0.12
+   },
+   "safe_source": "heuristic; verify in upload preview",
+   "checked": null,
+   "max_seconds": null
+  },
+  "instagram-feed": {
+   "label": "Instagram feed / carousel video (4:5)",
+   "canvas": [
+    1080,
+    1350
+   ],
+   "safe": {
+    "top": 0.04,
+    "bottom": 0.06,
+    "left": 0.04,
+    "right": 0.04
+   },
+   "safe_source": "heuristic; the grid preview crops to 3:4, keep the title inside it",
+   "checked": null,
+   "max_seconds": null
+  },
+  "youtube": {
+   "label": "YouTube / website landscape",
+   "canvas": [
+    1920,
+    1080
+   ],
+   "safe": {
+    "top": 0.05,
+    "bottom": 0.1,
+    "left": 0.05,
+    "right": 0.05
+   },
+   "safe_source": "title-safe convention; bottom kept for player controls",
+   "checked": null,
+   "max_seconds": null
+  },
+  "website-loop": {
+   "label": "Website / app hero loop (muted autoplay)",
+   "canvas": null,
+   "safe": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+   },
+   "safe_source": "no platform UI; layout decides",
+   "checked": null,
+   "max_seconds": null,
+   "audio": "none",
+   "loop": true
+  },
+  "gif": {
+   "label": "GIF for chat, docs or a website (muted, loops forever)",
+   "canvas": null,
+   "safe": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+   },
+   "safe_source": "no platform UI; layout decides",
+   "checked": null,
+   "max_seconds": null,
+   "audio": "none",
+   "loop": true,
+   "gif": {
+    "fps": 15,
+    "max_width": 720,
+    "max_mb": 8
+   }
+  },
+  "linkedin-gif": {
+   "label": "LinkedIn feed post or single-image ad as an animated GIF (4:5, loops forever, muted)",
+   "canvas": [
+    1080,
+    1350
+   ],
+   "safe": {
+    "top": 0.0,
+    "bottom": 0.0,
+    "left": 0.0,
+    "right": 0.0
+   },
+   "safe_source": "LinkedIn Help a426534, single image ads: JPG, PNG or GIF, max 5 MB, animated GIFs 250 frames or shorter, 4:5 (720x900) recommended for mobile; no interface drawn over the image",
+   "checked": "2026-09-28",
+   "max_seconds": null,
+   "audio": "none",
+   "loop": true,
+   "gif": {
+    "fps": 15,
+    "max_width": 720,
+    "max_mb": 5,
+    "max_frames": 250
+   }
+  }
+ }
+}
