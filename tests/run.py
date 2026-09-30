@@ -484,6 +484,10 @@ else:
         f'"{py}" "{SCORE}" make --style calm --bpm 200 --bars 4 --out "{base}/music-chain" >/dev/null && '
         f'"{py}" "{SCORE}" mix "{base}/music-chain/music.wav" "{base}/fx-chain/sfx.wav" --out "{base}/chain-mix.wav" && '
         f'"{py}" "{FINISH}" audio "{base}/chain-mix.wav"')]
+    # the installer's pinned files: all present next to install.sh, and a missing one is named plainly (no network needed)
+    incomplete = lambda: ["bash", "-c", f'rm -rf "{base}/setup-copy" && mkdir -p "{base}/setup-copy" && cp -R "{SKILL}/setup" "{base}/setup-copy/setup" '
+                          f'&& cp "{SKILL}/SKILL.md" "{base}/setup-copy/SKILL.md" && rm "{base}/setup-copy/setup/package.json" '
+                          f'&& bash "{base}/setup-copy/setup/install.sh" "{base}/setup-copy/engine"']
     snd = lambda n, **kw: str(make_sound_video(base, n, **kw))
     cues = base / "cues.json"
     cues.write_text(json.dumps([{"cue": f"flash {i + 1}", "picture_t": t} for i, t in enumerate(SOUND_CUES)]))
@@ -564,6 +568,8 @@ else:
         ("score: a key it cannot read is refused", lambda: made("x", "--style", "pulse", "--key", "H minor"), 2, "not understood"),
         ("score: sections that do not add up are refused", lambda: made("x", "--style", "pulse", "--sections", "hook:1,build:1,drop:1,end:2"), 2, "add up"),
         ("score: music and effects mix under -3 dBTP and the render leaves the level alone", full_chain, 0, "leave this level alone"),
+        ("setup: the installer's pinned files are all present next to install.sh", lambda: [py, "-c", "import pathlib, sys; d = pathlib.Path(sys.argv[1]); m = [f for f in ('environment.yml', 'package.json', 'package-lock.json', 'skills-lock.json', 'install.sh') if not (d / f).is_file()]; print('setup files present' if not m else 'MISSING ' + ', '.join(m))", str(SKILL / "setup")], 0, "setup files present"),
+        ("setup: a missing pinned file is named plainly, not a bare cp error", incomplete, 1, "package.json is missing"),
         ("finish: clean video passes the motion gate", lambda: finish("clean", "website-loop"), None, "black_flash: none"),
         ("finish: 2-frame black flash fails", lambda: finish("flash", "website-loop"), 1, "ms black at"),
         ("finish: flat first frame fails", lambda: finish("flat-first", "website-loop"), 1, "opens on nothing"),

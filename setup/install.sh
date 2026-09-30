@@ -33,6 +33,12 @@ quiet() { "$@" >>"$LOG" 2>&1; }
 fresh() { [ -f "$KIT/stamp-$1" ] && [ "$(cat "$KIT/stamp-$1")" = "$(shasum -a 256 "$2" | cut -d' ' -f1)" ]; }
 stamp() { shasum -a 256 "$2" | cut -d' ' -f1 > "$KIT/stamp-$1"; }
 
+# The pinned files this script installs from. If one is missing, this copy of the skill is incomplete: say so plainly
+# now, not halfway through with a bare "cp" error.
+for f in environment.yml package.json package-lock.json skills-lock.json; do
+  [ -f "$SETUP/$f" ] || fail "The setup file $f is missing from $SETUP, so this copy of the skill is incomplete. Update the skill (run the same npx skills add command again, or git pull) and run setup again." "missing $SETUP/$f"
+done
+
 export DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 DISABLE_TELEMETRY=1 HYPERFRAMES_SKIP_SKILLS=1
 export MAMBA_ROOT_PREFIX="$KIT/mamba" MAMBA_NO_BANNER=1 CONDA_PKGS_DIRS="$KIT/mamba/pkgs"
 

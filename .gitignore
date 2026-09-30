@@ -1,16 +1,19 @@
-# engine runtime (setup/install.sh) and video work stay out of git
-.reel-kit/
+# Engine runtime (setup/install.sh copies these into the engine folder) and video work stay out of git.
+# Runtime folders and files are anchored to the top of the repo with a leading slash: without it, the same
+# names would also hide the pinned files in setup/ (setup/package.json, setup/package-lock.json and
+# setup/skills-lock.json), and the installer could not run from a GitHub install.
+/.reel-kit/
+/package.json
+/package-lock.json
+/skills-lock.json
+/.agents/
+/.claude/
+/clips/
+/work/
+/videos/
+/deliveries/
+/reels/
 node_modules/
-package.json
-package-lock.json
-skills-lock.json
-.agents/
-.claude/
-clips/
-work/
-videos/
-deliveries/
-reels/
 *.mp4
 *.mov
 *.webm

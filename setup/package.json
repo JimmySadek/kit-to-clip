@@ -1,0 +1,9 @@
+{
+  "name": "reel-studio",
+  "private": true,
+  "description": "Render engine for Kit to Clip (installed by setup/install.sh)",
+  "dependencies": {
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.77"
+  }
+}
