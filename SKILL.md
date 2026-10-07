@@ -1,6 +1,6 @@
 ---
 name: kit-to-clip
-description: Kit to Clip turns a brand kit into finished, on-brand videos with HyperFrames. Use it for any video request in any repo or studio folder, including a plain "hi" in a studio, "make a video", a reel, TikTok, Instagram or LinkedIn post, highlight edit, announcement, teaser, title card, animated GIF, website loop or loader, a video with music or sound effects, and for "make it on-brand", "make it ready for Instagram", "set me up", "check for updates" or "I want a new style". It sets up the video engine on first use, finds the repo's brand (or onboards its brand kit), guides the person with questions to a format, a saved style, a loop or a new style, then builds, checks and delivers each cut for its platform. Written for non-technical people.
+description: Kit to Clip turns a brand kit into finished, on-brand videos with HyperFrames. Use it for any video request in any repo or studio folder, including a plain "hi" in a studio, "make a video", a reel, TikTok, Instagram or LinkedIn post, highlight edit, announcement, teaser, title card, animated GIF, website loop or loader, a video with music or sound effects, and for "make it on-brand", "make it ready for Instagram", "make it like this video" (a reel or link they like), "set me up", "check for updates" or "I want a new style". It sets up the video engine on first use, finds the repo's brand (or onboards its brand kit), guides the person with questions to a format, a saved style, a loop or a new style, then builds, checks and delivers each cut for its platform. Written for non-technical people.
 ---
 
 # Kit to Clip
@@ -18,7 +18,7 @@ when the step you are on needs it.
 | Finish | `finish/README.md` | platform profiles, checks before and after the render, mastering, delivery files |
 | Loops | `loops/README.md` | seamless loops and loaders: method, loop formats, exports (GIF, WebM, APNG, WebP, snippet) |
 | Sound | `sound/README.md` | videos with music and sound effects: sound first, effects from the motion, sync check, listening checkpoint |
-| Guides | `references/brand-onboarding.md`, `references/style-workshop.md` | a new brand's first setup; designing a new style |
+| Guides | `references/brand-onboarding.md`, `references/style-workshop.md`, `references/reference-video.md`, `references/open-source-effects.md` | a new brand's first setup; designing a new style; learning from a video they like; borrowing an effect from a public project |
 
 Brands are not in here. Each brand kit is its own skill (e.g. `acme-brand`) and connects through its video pack, a
 `kit-to-clip/` folder inside the kit.
@@ -158,6 +158,8 @@ Ask ✋ **What are we making?** with one option per approved format that fits (n
 | An announcement, promo, event or launch post from words and numbers | cards: `formats/README.md`, "Cards" (a sequence of headline, stat, list, quote, lower-third, lockup) |
 | A video in a saved style | "Using a saved style" below |
 | ✨ A new style of video | the style workshop: `references/style-workshop.md` |
+| "Make it like this video", a reel or link they like, "what does this video do well?" | `references/reference-video.md`: it reads the link with the media fetcher (a helper skill: check for it and ask before installing), measures cuts and beats, writes `reference.md`, then opens the style workshop |
+| An effect from a public project ("use the brush from this repo", particles, a shader) | `references/open-source-effects.md`: licence first, then make it seekable and on-brand |
 | Something else (captions on a video, a title card, a one-off) | the `hyperframes` workflows, then the brand and finish modules |
 
 If they already said what they want ("make a Fold Cut of this clip", "make this post move"), skip the question.

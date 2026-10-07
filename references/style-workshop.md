@@ -6,7 +6,7 @@ do the work. The brand is the one the front door found (or a neutral look); its 
 kit's own references set what is allowed.
 
 ```
-✋ name ─▶ ✋ starting point ─▶ ✋ purpose + platforms ─▶ ✋ mood ─▶ ✋ length + pace ─▶ ✋ words on screen ─▶ ✋ sound
+✋ name ─▶ ✋ starting point ─▶ ✋ references ─▶ ✋ purpose + platforms ─▶ ✋ mood ─▶ ✋ length + pace ─▶ ✋ words ─▶ ✋ sound
      ─▶ ✋ pick 1 of 3 concepts ─▶ ✋ approve the recipe ─▶ build ─▶ ✋ stills (≤3 rounds) ─▶ ✋ test render ─▶ ✋ save
 ```
 
@@ -21,18 +21,27 @@ always lets them describe something new. If they answer several questions in one
    `styles.py init --title "<title>" --author "<name>" [--brand <id>] [--from <format or style>]`. The style is
    saved with the brand (`<brand kit>/kit-to-clip/styles/`), in a studio's `styles/`, or in `reels/styles/` without a brand.
 2. **Starting point:** a clip (highlight, match, demo) · words and graphics only (announcement, stat, promo) ·
-   an existing video that needs graphics on top · a short loop (website, screens at a venue).
-3. **Purpose + platforms** (multi-select platforms): TikTok · Instagram Reels · Instagram feed 4:5 · YouTube
+   an existing video that needs graphics on top · a short loop (website, screens at a venue) · **a video they like**
+   (a link or a file: read it first with `references/reference-video.md`, then come back here and skip what its
+   `reference.md` already answers).
+3. **References:** "Any pictures or videos of work you like, yours or others'? Drop them in, or skip." Look at
+   each one and say in one line what you take from it (materials, framing, type, pace), never its marks. Keep them
+   with the style: `styles.py refs --style <slug> <files>` (pictures, `reference.md`, contact sheets; not videos).
+   Read them again before drawing the concepts. A video link goes through `reference-video.md` first.
+4. **Purpose + platforms** (multi-select platforms): TikTok · Instagram Reels · Instagram feed 4:5 · YouTube
    Shorts · YouTube or website 16:9. Ask the purpose in the same question's wording ("to hype a tournament?
    to teach a shot?") only if it's not clear yet.
-4. **Mood:** Hype (fast cuts, slams, big type) · Premium (slow moves, lots of space, one accent) · Playful
+5. **Mood:** Hype (fast cuts, slams, big type) · Premium (slow moves, lots of space, one accent) · Playful
    (bounces, stickers, surprises) · Coach (freeze, annotate, explain). Tie each to what the brand allows (its
    pack's `guide.md` names the kit references to read) and to its motion energy (`--reel-energy`).
-5. **Length + pace:** 6-10 s teaser · 15-20 s · 25-30 s · 45-60 s. Say what fits each platform.
-6. **Words on screen:** big titles in the brand's display face · clean captions · numbers and stat chips · almost none.
-7. **Sound:** a score the brand's pack already has (its formats may ship one) · the clip's own sound · silent
-   (muted autoplay) · a new score made for this style (takes longer; synthesise it in code with fixed seeds: no
-   downloads, no licensed music).
+6. **Length + pace:** 6-10 s teaser · 15-20 s · 25-30 s · 45-60 s. Say what fits each platform.
+7. **Words on screen:** big titles in the brand's display face · clean captions · numbers and stat chips · almost none.
+8. **Sound:** a score the brand's pack already has (its formats may ship one) · their own track · the clip's own
+   sound · silent (muted autoplay) · a new score made for this style (takes longer; synthesise it in code with fixed
+   seeds: no downloads, no licensed music). Music sets the pace more than any other choice, so ask it before the
+   concepts. With music, name the **beat roles** in plain words and confirm them: *the reveal* lands on the first
+   strong beat, *the big move* on the next strong beat (or the drop), *small accents* on the beats between, and the
+   end card *holds* about two beats (`sound/README.md` has the steps).
 
 If they want to remix an existing format or style, start from its files (the format folder that
 `formats.py list --all` shows, or the saved style's folder that `styles.py list --json` shows) and ask only what
@@ -62,6 +71,8 @@ answers and the brand's rules. After they pick, write the **recipe** into the st
 | `structure` | the beat sheet: `[{"from": 0, "to": 2, "beat": "hook", "does": "..."}]` |
 | `slots` | what each new video must supply: `[{"name": "clip", "kind": "video", "required": true, "note": "..."}]` |
 | `type`, `sound` | words-on-screen treatment, sound choice and file |
+| `references` | the files kept in `refs/` (`styles.py refs` fills it) |
+| `motion_rules` | written moves, one line each: "the title enters left to right in 0.6 s on an arc, motion blur, lands sharply" |
 | `dos`, `donts` | rules learned while designing (add to them during the stills rounds) |
 
 Show a short summary (the beat sheet and the slots) and ask ✋ **Approve the recipe** / **Change something**.
@@ -96,3 +107,5 @@ Show a short summary (the beat sheet and the slots) and ask ✋ **Approve the re
   faces overflow first.
 - New effects that could pass for reality (removed players, fire) need a small honesty line on screen.
 - Keep it to one signature moment. Three competing effects read as noise on a phone.
+- A texture or effect the brand does not have (watercolour, particles, a shader) can come from a public project:
+  `references/open-source-effects.md` (licence first, then make it seekable).

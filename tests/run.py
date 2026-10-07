@@ -31,6 +31,8 @@ DELIVER = SKILL / "formats" / "scripts" / "deliver.py"
 EFFECTS = SKILL / "sound" / "scripts" / "effects.py"
 PITCH = SKILL / "sound" / "scripts" / "pitch.py"
 SCORE = SKILL / "sound" / "scripts" / "score.py"
+REFERENCE = SKILL / "scripts" / "reference.py"
+STYLES = SKILL / "scripts" / "styles.py"
 EXPORT = REPO / "packaging" / "export-engine.sh"     # workshop only: the public repo has no packaging/
 
 
@@ -115,6 +117,9 @@ def make_composition(base, name, gsap):
 
 VIDEOS = {  # ffmpeg recipes (540x960, 30 fps)
     "clean": ["-f", "lavfi", "-i", "testsrc2=s=540x960:r=30:d=4"],
+    "three-colors": ["-f", "lavfi", "-i", "color=c=red:s=540x960:r=30:d=1", "-f", "lavfi", "-i", "color=c=blue:s=540x960:r=30:d=1",
+                     "-f", "lavfi", "-i", "color=c=green:s=540x960:r=30:d=1", "-filter_complex", "[0:v][1:v][2:v]concat=n=3:v=1:a=0"],
+    "still": ["-f", "lavfi", "-i", "color=c=0x0F3D2E:s=540x960:r=30:d=3"],
     "flash": ["-f", "lavfi", "-i", "testsrc2=s=540x960:r=30:d=4", "-vf",
               "drawbox=x=0:y=0:w=iw:h=ih:color=black:t=fill:enable='between(n,60,61)'"],
     "flat-first": ["-f", "lavfi", "-i", "testsrc2=s=540x960:r=30:d=4", "-vf",
@@ -404,6 +409,20 @@ def cases(base, gsap):
     leaky = base / "leaky"
     (leaky / "notes").mkdir(parents=True)
     (leaky / "notes" / "a.md").write_text("made on " + "/Us" + "ers/someone/Desktop\n")   # split: this file is scanned too
+    helper_homes = base / "helper"
+    old_fetcher = helper_homes / "old" / ".claude" / "skills" / "youtube-fetcher"
+    (old_fetcher).mkdir(parents=True)
+    (old_fetcher / "SKILL.md").write_text("---\nname: youtube-fetcher\n---\n")
+    new_fetcher = helper_homes / "new" / "youtube-fetcher"
+    (new_fetcher / "scripts").mkdir(parents=True)
+    (new_fetcher / "SKILL.md").write_text("---\nname: youtube-fetcher\n---\n")
+    (new_fetcher / "scripts" / "fetch_media.py").write_text("")
+    (helper_homes / "empty").mkdir()
+    helper = lambda home, *extra: ["env", f"HOME={helper_homes / home}", "KIT_TO_CLIP_FETCHER=", *extra, py, str(REFERENCE), "helper"]
+    ref = lambda *a: [py, str(REFERENCE), *a]
+    (base / "ref-still.png").write_bytes(b"png")
+    refs = lambda f: ["bash", "-c", f'"{py}" "{STYLES}" --root "{base / "ref-styles"}" init --title "Ref" --author T >/dev/null 2>&1; '
+                                    f'"{py}" "{STYLES}" --root "{base / "ref-styles"}" refs --style ref "{f}"']
     anc = make_anchor_projects(base, gsap)
     anchors = lambda name, *extra: fin("anchors", "--project", str(anc / name), "--bpm", "120", *extra)
     TRACE = SKILL / "finish" / "scripts" / "trace.mjs"
@@ -650,6 +669,15 @@ else:
         ("brand sheet: text on the accent is what the brand's buttons use", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in sheet()) + f' && cat "{base / "sheet.json"}"'], 0, '"value": "#FFFFFF",\n   "from": "text on the site'),
         ("brand sheet: a face that differs from the kit is a conflict", lambda: sheet("--kit", str(cap_kit)), 0, "1 conflict(s) with the kit"),
         ("brand sheet: an incomplete capture stops", lambda: [py, str(SHEET), str(base / "capture-empty"), "--out", str(base / "x.md")], 2, "not a complete capture"),
+        ("reference: no media fetcher installed is reported with the install command", lambda: helper("empty"), 3, "skills add JimmySadek/video-fetcher-to-markdown"),
+        ("reference: an older fetcher (captions only) is reported as outdated", lambda: helper("old"), 3, "older copy"),
+        ("reference: a fetcher with fetch_media.py is ready", lambda: helper("empty", f"KIT_TO_CLIP_FETCHER={new_fetcher}"), 0, "media fetcher ready"),
+        ("reference: hard cuts are found where the colour changes", lambda: ref("cuts", vid("three-colors")), 0, "cuts at: 1.00, 2.00"),
+        ("reference: a still shot has no cuts", lambda: ref("cuts", vid("still")), 0, "cuts at: none"),
+        ("reference: clicks in a video are found as hits", lambda: ref("beats", str(make_sound_video(base, "ref-clicks"))), 0, "hits;"),
+        ("reference: a video without sound has no beats", lambda: ref("beats", vid("still")), 1, "no sound"),
+        ("styles: a picture is kept as a reference", lambda: refs(base / "ref-still.png"), 0, "1 reference(s)"),
+        ("styles: a raw video is refused as a reference", lambda: refs(vid("still")), 1, "is a video"),
         ("guide: the brand-pack guide's example pack bridges", lambda: [py, str(BRIDGE), "--brand", "acme", "--brand-skill", str(guide_kit), "--project", str(base / "guide-project")], 0, "token contract: v1"),
     ]
 

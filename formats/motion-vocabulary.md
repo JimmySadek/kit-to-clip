@@ -15,6 +15,8 @@ these words decide the move.
 | Orbit | The view circles the subject | `rotationY` on a wrapper with `perspective` on the parent |
 | Whip pan | A very fast pan that blurs into the next scene | A fast x move with a blur filter, the cut hidden inside it |
 | Rack focus | Sharpness shifts from one layer to another | Blur one layer while the other clears |
+| Motion blur | A fast object smears along its path, like a camera shutter | A short directional blur during the fastest part of the move, clear again before it lands (a CSS `filter: blur()` on a stretched copy, or an SVG motion-blur filter); never on text that must be read |
+| Arc | The object travels on a curve, not a straight line, so it feels thrown | GSAP `motionPath` or separate x and y tweens with different eases |
 
 ## Cuts and transitions
 
@@ -42,6 +44,14 @@ these words decide the move.
 - **Beat grid:** cuts and hits land on beats (at 120 BPM a beat is 0.5 s); motion fills the space between them.
 - **Burst, anticipation, reveal, rest:** vary density; give the eye a still moment after a busy run.
 - **Hold:** keep the end card still long enough to read (about 2 beats for a logo, longer for a call to action).
+- **Beat roles:** the reveal on the first strong beat, the big move on the next strong beat, small accents between.
+
+## Written motion rules
+
+A motion rule is one sentence a person can direct with and a build can follow: what moves, direction, duration,
+path, and how it lands. "The title enters left to right in 0.6 s on a 180° arc with motion blur and lands sharply."
+Brand packs keep a few in `guide.md`; a style keeps its own in `style.json` `motion_rules`. Turn every rule into
+numbers (durations from `REEL.dur`, eases from `REEL.ease`) and check the stills against the sentence.
 
 ## Formats and parts
 

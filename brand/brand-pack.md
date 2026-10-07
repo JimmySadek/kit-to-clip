@@ -12,7 +12,7 @@ is a complete minimal pack for a made-up brand, Acme, to copy from.
 | **Fonts as files, with licences**: display, body, label | Video renders offline; a font name without a file renders as a fallback face | Ask for the files, or approve a clearly marked free substitute |
 | **Logos as files per background** (on dark, on light) | Never type, redraw or recolour a logo | Use the brand name as plain text and say so |
 | **A signature motif**: the brand's most reduced shape or line (a facet, a stroke, a dot) | Neutral formats transform it through the video and land it on the end card | Choose one with the brand owner; never invent a mark that looks like a logo |
-| **Motion feel**: energy (calm, steady, punchy), enter/exit/move easing and durations | Two brands in the same format must move differently | Propose values, sample stills, get approval |
+| **Motion feel**: energy (calm, steady, punchy), enter/exit/move easing and durations, and a few **written motion rules** ("headlines enter left to right in 0.6 s on a low arc, a touch of motion blur, land sharply") in `guide.md` | Two brands in the same format must move differently; written rules carry the feel the numbers miss | Propose values and two or three rules, sample stills, get approval |
 | **Rules and claims**: what the brand never does, what may be claimed | Keeps generated copy truthful and on-voice | Ask; default to showing only facts the user supplied |
 | **Approved stills** (`kit-to-clip/approved/`) | The reference for "this is what the brand looks like in motion" | Make sample stills and get approval before rendering |
 
