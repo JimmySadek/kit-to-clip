@@ -10,6 +10,7 @@ formats/scripts/formats.py, not here.
   styles.py init --title "Court Cam" --author "<name>" [--brand <id>] [--from <format or style>]
   styles.py save --style court-cam --project videos/court-cam-draft [--approve]
   styles.py new  --style court-cam --out videos/<job>  copy the template, re-apply the brand, add GSAP
+  styles.py refs --style court-cam <file> [<file> ...]  keep reference pictures, videos' notes and sheets in refs/
 
 Where styles live (<styles>):
   --root <dir>                  <dir>/styles
@@ -125,7 +126,7 @@ def cmd_init(a):
         "status": "draft", "brand": brand, "remix_of": a.from_style,
         "made_for": None, "platforms": [], "canvas": None, "length_s": None, "mood": None,
         "structure": [], "slots": [], "type": None, "sound": None, "signature": None,
-        "dos": [], "donts": [],
+        "dos": [], "donts": [], "references": [], "motion_rules": [],
     }
     dump(d, data)
     (d / "style.md").write_text(f"# {a.title}\n\nBy {a.author}, {today}. Status: draft.\n\n"
@@ -172,6 +173,29 @@ def cmd_save(a):
     print(f"saved {a.style} v{data['version']} ({data['status']}): template {size / 1e6:.1f} MB, {len(shots)} approved stills")
 
 
+def cmd_refs(a):
+    d = find_style(a, a.style)
+    if not d:
+        sys.exit(f"styles: no style '{a.style}'; run init first")
+    data = load(d)
+    refs = d / "refs"
+    refs.mkdir(exist_ok=True)
+    kept = data.get("references") or []
+    for name in a.files:
+        src = Path(name).expanduser()
+        if not src.is_file():
+            sys.exit(f"styles: not a file: {src}")
+        if src.suffix.lower() in VIDEO:
+            sys.exit(f"styles: {src.name} is a video; keep its reference.md and contact sheet instead")
+        shutil.copy2(src, refs / src.name)
+        if src.name not in kept:
+            kept.append(src.name)
+    data["references"] = kept
+    data["updated"] = datetime.date.today().isoformat()
+    dump(d, data)
+    print(f"{a.style}: {len(kept)} reference(s) in {refs}")
+
+
 def cmd_new(a):
     d = find_style(a, a.style)
     if not d or not (d / "template" / "index.html").exists():
@@ -205,6 +229,8 @@ def main():
     p.add_argument("--approve", action="store_true"); p.set_defaults(fn=cmd_save)
     p = sub.add_parser("new"); p.add_argument("--style", required=True); p.add_argument("--out", required=True)
     p.add_argument("--canvas"); p.set_defaults(fn=cmd_new)
+    p = sub.add_parser("refs"); p.add_argument("--style", required=True); p.add_argument("files", nargs="+")
+    p.set_defaults(fn=cmd_refs)
     a = ap.parse_args()
     a.fn(a)
 

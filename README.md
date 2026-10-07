@@ -1,8 +1,12 @@
 # Kit to Clip
 
-Brand kit in, finished clip out. Kit to Clip is an agent skill for Claude Code (and other agents that read
+<p align="center">
+  <img src="assets/banner.png" alt="Kit to Clip: a brand kit turned into finished 9:16, 1:1 and 16:9 videos" width="100%">
+</p>
+
+**Brand kit in, finished clip out.** Kit to Clip is an agent skill for Claude Code (and other agents that read
 Agent Skills) that makes on-brand videos with [HyperFrames](https://github.com/heygen-com/hyperframes). It reads
-your brand's **video pack**, build from a **formats library**, and finish every cut for where it will be posted:
+your brand's **video pack**, builds from a **formats library**, and finishes every cut for where it will be posted:
 safe zones, loudness, share-size copies, a cover and a contact sheet.
 
 ```bash
@@ -11,6 +15,17 @@ npx skills add JimmySadek/kit-to-clip
 
 Then open any repo in Claude Code and say **"make a video"**. The first time, the front door sets up the video engine
 (about 1.6 GB of disk space, 5 to 10 minutes) in one hidden folder, `~/.kit-to-clip`. No API keys, no accounts, telemetry off.
+
+## What you can make
+
+| Say | You get |
+|---|---|
+| "Make a reel from this clip" | A 9:16 cut for Instagram Reels, TikTok and YouTube Shorts, inside each app's safe zone |
+| "Announce our launch" | Cards (headline, stat, list, quote, lower third, logo) timed to the music |
+| "Make our logo loop" / "an animated GIF for LinkedIn" | A seamless loop or loader: GIF, transparent WebM or MOV, APNG, WebP, an HTML snippet |
+| "Add music and sound effects" | Sound first: the picture lands on the beats, effects come from the motion, and the sync is checked on the file |
+| "Make it like this video" + a link | The reference read (speech, frames, cuts, beats), then a style of your own built on its principles |
+| "I want a new style" | A saved style your team can reuse in minutes |
 
 > Status: early. Tested on macOS (Apple silicon). The neutral brand reel format is a draft, Lottie export is not
 > supported, and the quick brand builder (a small provisional brand for repos that have none) is not built yet.
@@ -27,7 +42,7 @@ One skill, `kit-to-clip`, with modules it reads only when a step needs them:
 | `finish/` | Platform profiles and checks: safe zones, script errors lint misses, the first three seconds, a motion gate, a sync check for sound, -14 LUFS mastering that lands on target, delivery |
 | `loops/` | Seamless loops and loaders: the loop method, loop formats, and exports (GIF, transparent WebM and MOV, APNG, animated WebP, an HTML snippet) |
 | `sound/` | Videos with music and effects, sound first: tempo and beats, picture on the beats, effects made from the motion, a sync check on the finished file, a listening checkpoint, and an optional built-in music maker (four styles, any key) |
-| `references/` | Brand onboarding and the style workshop |
+| `references/` | Brand onboarding, the style workshop, learning from a video you like, and borrowing an effect from an open-source project |
 
 ## How it works
 
@@ -61,6 +76,17 @@ pack: [`brand/brand-pack.md`](brand/brand-pack.md).
 A format is a repeatable recipe with **slots** (the content each video supplies). Neutral formats live in
 `formats/neutral/` and style themselves from any pack's tokens. A brand can add its own formats (for example a
 highlight edit made for its footage) in its pack's `formats/` folder; they appear only for that brand.
+
+## A video you like
+
+Say **"make it like this video"** with a link (Instagram, TikTok, YouTube, X and more). Kit to Clip reads it, measures
+its cuts and whether they land on the music, and turns the borrowed principles (never the footage, music or words)
+into the starting point of a style in your brand.
+
+Reading links uses a companion skill, [Video Fetcher to Markdown](https://github.com/JimmySadek/video-fetcher-to-markdown):
+transcript with local Whisper, a contact sheet of frames, and the file. Kit to Clip checks for it and asks before
+installing it (`npx skills add JimmySadek/video-fetcher-to-markdown`); its download and speech tools go into the
+engine folder, not your system.
 
 ## Setup details
 

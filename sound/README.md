@@ -22,7 +22,7 @@ Ask before anything else, with options named for this video (offer every row tha
 
 | Option | What it needs |
 |---|---|
-| They supply a track | the file. Get its beats: `npx hyperframes beats <file>` (the HyperFrames `music-to-video` workflow builds on it) |
+| They supply a track | the file. Get its beats: add it to the project as the root `<audio>`, then `npx hyperframes beats <project>` writes `beats/<audio>.json` (the HyperFrames `music-to-video` workflow builds on it). For a track outside a project, `python3 <kit-to-clip>/scripts/reference.py beats <file>` reports its tempo and strongest hits (it uses a throwaway project and saves nothing) |
 | Music from the library | the HyperFrames `media-use` music search, which **needs the HeyGen login**. Say so now, before any build, and ask for the login (`media-use resolve --doctor` shows whether it is there) |
 | No music, effects only | the effects still need a tempo to sit on: pick one in step 2 and say the video has no music |
 | Music made offline | the built-in music maker: four styles, any key, no login and no licence (section "Music made offline"). An option, never a requirement |
@@ -77,6 +77,11 @@ clearer. A picture that visibly stops well before its beat (a long ease-out) als
 picture, the music follows the beat, and the gap is real. End the move on the beat or shorten the ease.
 
 ## 3. Picture on the beats
+
+Give each beat a role before timing anything, and say them to the person in plain words: **the reveal** (the
+first strong beat: the hero arrives), **the big move** (the next strong beat or the drop: the scale-up, the slam),
+**small accents** (the beats between: a tick, a pulse, a word), and **the hold** (the end card rests about two beats).
+Big moves only on strong beats; accents never compete with them.
 
 Time every tween to a beat (`beat time = beat x 60 / bpm`) and mark the element that hits with `data-anchor="beat:N"`.
 Then:
