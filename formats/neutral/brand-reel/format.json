@@ -3,7 +3,7 @@
  "id": "brand-reel",
  "name": "Brand reel",
  "version": "1",
- "status": "draft",
+ "status": "trial",
  "about": "One brand motif transformed through a headline, a stat, three points and a lockup, cut on a beat grid. Works with any brand whose video pack has token contract v1.",
  "made_for": "brief",
  "canvases": ["1080x1920", "1080x1350", "1080x1080", "1920x1080"],

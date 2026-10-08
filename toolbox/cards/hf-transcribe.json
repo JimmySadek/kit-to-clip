@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "id": "hf-transcribe",
+  "name": "Transcription (HyperFrames)",
+  "about": "speech to word-level timings for captions and transcript cuts, locally (whisper.cpp, or Parakeet without Homebrew)",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "transcribe"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "separate-program",
+    "model_spdx": "MIT",
+    "model": "whisper.cpp ggml models"
+  },
+  "upstream": {
+    "github": "heygen-com/hyperframes"
+  },
+  "pinned": "0.8.77",
+  "detect": {
+    "files": [
+      "{engine}/node_modules/.bin/hyperframes"
+    ],
+    "commands": [
+      "whisper-cli|parakeet-mlx"
+    ]
+  },
+  "recipe": "recipes/hf-transcribe.md",
+  "fallback": "the video reader's Whisper (video-reader-tools), or type the words in",
+  "install": {
+    "brew": "whisper-cpp",
+    "command": "python3 {skill}/scripts/toolbox.py install parakeet"
+  }
+}

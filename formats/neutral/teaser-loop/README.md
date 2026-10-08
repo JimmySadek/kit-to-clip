@@ -1,4 +1,4 @@
-# Teaser loop (neutral format, draft)
+# Teaser loop (neutral format, trial)
 
 A still teaser brought to life as a seamless loop, for animated GIFs (LinkedIn, email, web) and muted autoplay.
 It **opens on the finished layout**, so the first frame and the thumbnail read at once, then only a few things move:

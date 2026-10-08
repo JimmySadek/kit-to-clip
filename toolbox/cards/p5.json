@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "id": "p5",
+  "name": "p5.js",
+  "about": "creative-coding canvas for generative patterns, drawn frame by frame from time (the base p5.brush paints on)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 2,
+  "size_mb": 45,
+  "homepage": "https://p5js.org",
+  "capabilities": [
+    "generative-art"
+  ],
+  "licence": {
+    "spdx": "LGPL-2.1",
+    "usage": "file-in-project",
+    "url": "https://github.com/processing/p5.js/blob/main/license.txt"
+  },
+  "upstream": {
+    "npm": "p5",
+    "github": "processing/p5.js"
+  },
+  "pinned": "2.3.4",
+  "install": {
+    "packages": [
+      "p5@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/p5/lib/p5.min.js": "p5.min.js",
+      "node_modules/p5/license.txt": "p5-LICENSE.txt",
+      "node_modules/libtess/LICENSE": "libtess-LICENSE.txt"
+    }
+  },
+  "read_before_use": [
+    "https://beta.p5js.org/reference/",
+    "https://github.com/processing/p5.js/blob/main/license.txt"
+  ],
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {p5.min.js} {scratch}/p5.min.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/p5.min.js",
+        "min_bytes": 500000,
+        "contains": "randomSeed"
+      }
+    ]
+  },
+  "recipe": "recipes/generative.md",
+  "fallback": "SVG patterns animated with GSAP"
+}

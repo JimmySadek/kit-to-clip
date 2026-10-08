@@ -26,6 +26,11 @@
       what the render will do to a mix before finish sees it: HyperFrames turns a track down when its AAC true peak is over
       -1 dBFS. Reports loudness, range, true peaks and the predicted loss.
 
+  finish.py flash <render>
+      the flash guard on its own (it also runs inside finish and loop): fails when any part of the picture about the
+      size of a quarter of the central field of view flashes more than 3 times in one second (WCAG 2.3.1, general and
+      saturated-red flashes). A screening aid, not a certified Harding test.
+
   finish.py check  --project <dir>
       loads the composition in headless Chrome and fails on script errors, missing files or no registered
       timeline (things HyperFrames lint does not catch). Needs node + puppeteer-core (HyperFrames ships it).
@@ -33,7 +38,9 @@
   finish.py loop   <render> --out <dir> [--name n] [--export mp4,webm,mov,apng,webp,gif] [--gif-profile gif]
       loop and loader deliveries from one render (a transparent MOV or WebM from `hyperframes render --format mov`
       keeps its alpha in webm, mov, apng, webp and gif): fails when the loop seam jumps, when an export's encoder is
-      missing, or when the GIF breaks its profile's size or frame cap. Writes a poster PNG and report.json.
+      missing, when the GIF breaks its profile's size or frame cap, or when it flashes (WCAG 2.3.1). Writes a poster PNG,
+      a still for reduced motion (--rest-at, default the last frame), and report.json whose embed_html shows the still to
+      people who turn motion off and adds a pause button to loops over 5 s (WCAG 2.2.2).
 
   finish.py snippet --project <dir> --out <dir> [--name n]
       a live HTML snippet: the composition plays and loops in any browser without HyperFrames (single-file
@@ -221,6 +228,7 @@ def motion_gate(video):
     durs = [float(x) for x in re.findall(r"freeze_duration: ([\d.]+)", txt)]
     # a freeze that runs into the end has no duration line: that is the end card holding, which is fine
     warnings += [f"picture frozen {d:.1f} s from {a:.2f} s (intended hold?)" for a, d in zip(starts, durs)]
+    checks["flash"] = flash_check(video)
     return checks, warnings
 
 
@@ -244,6 +252,107 @@ def loop_seam(video, workdir):
     if not seam or not pairs:
         return None, None
     return float(seam[-1]), pairs[len(pairs) // 2]
+
+
+# ---------------------------------------------------------------- flash guard (WCAG 2.3.1)
+FLASH_GRID = 6            # 6 x 6 cells: one cell is about a quarter of a 10-degree field of view on a typical screen
+FLASH_DELTA = 0.10        # a general flash: opposing changes of at least 10% relative luminance ...
+FLASH_DARK = 0.80         # ... where the darker state is below 0.80
+FLASH_MAX_PER_S = 3       # more than three flashes in any one second fails
+RED_RATIO = 0.80          # saturated red: R / (R + G + B) >= 0.8 (sRGB values)
+
+
+def _transitions(series, delta):
+    """Times (frame indices) where a cell's value finishes a swing of at least `delta`, ignoring smaller wiggles.
+    Each swing is one transition; two opposing transitions make one flash."""
+    out, lo_i, hi_i, direction = [], 0, 0, 0
+    lo = hi = series[0]
+    for i, v in enumerate(series):
+        if direction >= 0:                       # rising (or unknown): track the peak, a fall of delta ends the rise
+            if v > hi:
+                hi, hi_i = v, i
+            if hi - v >= delta and hi - lo >= delta:
+                out.append((hi_i, "up", lo, hi))
+                direction, lo, lo_i = -1, v, i
+            elif direction == 0 and v < lo:
+                lo, lo_i = v, i
+        if direction < 0:                        # falling: track the trough, a rise of delta ends the fall
+            if v < lo:
+                lo, lo_i = v, i
+            if v - lo >= delta and hi - lo >= delta:
+                out.append((lo_i, "down", lo, hi))
+                direction, hi, hi_i = 1, v, i
+    if direction > 0 and hi - lo >= delta:
+        out.append((hi_i, "up", lo, hi))
+    elif direction < 0 and hi - lo >= delta:
+        out.append((lo_i, "down", lo, hi))
+    return out
+
+
+def flash_check(video):
+    """WCAG 2.3.1 (three flashes or below) on the encoded file, per cell of a 6 x 6 grid: general flashes (relative
+    luminance swings of 10% or more with the darker state under 0.80) and saturated-red flashes. Returns a check dict.
+    A screening aid, not a certified Harding test: run one of those before broadcast."""
+    np = _numpy()
+    info = probe(video)
+    fps = info.get("fps") or 30
+    w = 96
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf", f"scale={w}:-2:flags=area,format=rgb24", "-f", "rawvideo", "-"],
+                       capture_output=True)
+    if r.returncode or not r.stdout:
+        return {"pass": True, "detail": "could not read the frames (not checked)"}
+    h_probe = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0",
+                              str(video)], capture_output=True, text=True).stdout.strip().split(",")
+    try:
+        sw, sh = int(h_probe[0]), int(h_probe[1])
+        h = int(round(w * sh / sw / 2) * 2)
+    except (ValueError, IndexError):
+        h = 54
+    frames = np.frombuffer(r.stdout, np.uint8)
+    n = frames.size // (w * h * 3)
+    if n < 2:
+        return {"pass": True, "detail": "too short to flash"}
+    rgb = frames[: n * w * h * 3].reshape(n, h, w, 3).astype(float) / 255.0
+    lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+    lum = lin[..., 0] * 0.2126 + lin[..., 1] * 0.7152 + lin[..., 2] * 0.0722
+    total = rgb.sum(axis=3) + 1e-6
+    red = (rgb[..., 0] / total >= RED_RATIO) & (rgb[..., 0] > 0.2)
+    ys = np.array_split(np.arange(h), FLASH_GRID)
+    xs = np.array_split(np.arange(w), FLASH_GRID)
+    worst = (0, None, None, "general")             # (flashes in one second, time, cell, kind)
+    window = max(1, int(round(fps)))
+    for gy, yy in enumerate(ys):
+        for gx, xx in enumerate(xs):
+            cell = lum[:, yy[0]:yy[-1] + 1, xx[0]:xx[-1] + 1].mean(axis=(1, 2))
+            trans = [t for t in _transitions(list(cell), FLASH_DELTA) if t[2] < FLASH_DARK]
+            redcell = red[:, yy[0]:yy[-1] + 1, xx[0]:xx[-1] + 1].mean(axis=(1, 2))
+            rtrans = _transitions(list(redcell), 0.5)            # half the cell turning saturated red, and back
+            for kind, tlist in (("general", trans), ("red", rtrans)):
+                times = [t[0] for t in tlist]
+                j = 0
+                for i in range(len(times)):
+                    while times[i] - times[j] >= window:
+                        j += 1
+                    flashes = (i - j + 1) // 2
+                    if flashes > worst[0]:
+                        worst = (flashes, times[j] / fps, (gx, gy), kind)
+    count, at, cell, kind = worst
+    ok = count <= FLASH_MAX_PER_S
+    where = f" at {at:.2f} s (grid cell {cell[0] + 1},{cell[1] + 1} of {FLASH_GRID}x{FLASH_GRID})" if at is not None else ""
+    word = ("saturated-red " if kind == "red" else "") + ("flash" if count == 1 else "flashes")
+    return {"pass": ok, "detail": (f"at most {count} {word} in any second{where}" if ok else
+                                   f"{count} {word} in one second{where}: over the safe limit of {FLASH_MAX_PER_S} (WCAG 2.3.1); "
+                                   "slow the cuts or reduce the brightness change")}
+
+
+def cmd_flash(a):
+    src = Path(a.video)
+    if not src.exists():
+        print(f"finish: {src} not found", file=sys.stderr)
+        sys.exit(2)
+    c = flash_check(src)
+    print(("✓" if c["pass"] else "✗") + f" flash guard: {c['detail']}")
+    sys.exit(0 if c["pass"] else 1)
 
 
 def gif_fps(g, duration):
@@ -456,10 +565,24 @@ def cmd_loop(a):
                                   if seam is not None else "could not measure"}
     if not alpha and any(e in wanted for e in ("webm", "mov", "apng", "webp")):
         rep["warnings"].append("the render has no transparency, so every export is opaque (render with --format mov for alpha)")
+    rep["checks"]["flash"] = flash_check(src)
     base = out / name
     poster = base.with_name(name + "-poster.png")
     run(["ffmpeg", "-v", "error", "-y", *dec, "-i", str(src), "-frames:v", "1", str(poster)])
     rep["outputs"]["poster"] = str(poster)
+    # reduced motion (WCAG 2.3.3, MDN prefers-reduced-motion): a still of the loop at rest, shown instead of the motion
+    still = base.with_name(name + "-still.png")
+    if a.rest_at is not None:          # an exact moment: seek on the output side, which is frame-accurate
+        run(["ffmpeg", "-v", "error", "-y", *dec, "-i", str(src), "-ss", f"{a.rest_at:.3f}", "-frames:v", "1", str(still)])
+        where = f"at {a.rest_at:.2f} s"
+    else:                              # the last frame: decode the final half second and keep the last image
+        run(["ffmpeg", "-v", "error", "-y", "-sseof", "-0.5", *dec, "-i", str(src), "-update", "1", str(still)])
+        where = "on the last frame"
+    ok = still.exists() and still.stat().st_size > 0
+    rep["checks"]["reduced_motion"] = {"pass": ok, "detail": f"still {where}, for people who turn motion off" if ok
+                                       else "could not write the still"}
+    if ok:
+        rep["outputs"]["still"] = str(still)
     enc = {
         "mp4": (".mp4", ["-c:v", "libx264", "-preset", "slow", "-crf", "20", "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart"], "libx264"),
         "webm": (".webm", ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "32", "-row-mt", "1", "-auto-alt-ref", "0",
@@ -517,10 +640,22 @@ def cmd_loop(a):
                 mid.unlink(missing_ok=True)
             rep["checks"].update({f"{k} ({a.gif_profile})": v for k, v in gc.items()})
             rep["outputs"]["gif"] = str(dst)
-    if "webm" in rep["outputs"]:
-        fall = f'<source src="{Path(rep["outputs"]["mp4"]).name}" type="video/mp4">' if "mp4" in rep["outputs"] else ""
-        rep["embed_html"] = (f'<video autoplay muted loop playsinline poster="{poster.name}"><source src="{Path(rep["outputs"]["webm"]).name}" '
-                             f'type="video/webm">{fall}</video>')
+    if "webm" in rep["outputs"] or "mp4" in rep["outputs"]:
+        sources = "".join(f'<source src="{Path(rep["outputs"][k]).name}" type="video/{k}">' for k in ("webm", "mp4") if k in rep["outputs"])
+        stillname = Path(rep["outputs"].get("still", poster)).name
+        long_loop = (info["duration"] or 0) > 5
+        # WCAG 2.2.2: moving content that lasts more than 5 s and plays with other content needs a pause control
+        button = ('<button class="k2c-pause" type="button" aria-label="Pause animation" '
+                  'onclick="var v=this.previousElementSibling.previousElementSibling;if(v.paused){v.play();this.textContent=\'❚❚\';'
+                  'this.setAttribute(\'aria-label\',\'Pause animation\')}else{v.pause();this.textContent=\'▶\';'
+                  'this.setAttribute(\'aria-label\',\'Play animation\')}">❚❚</button>') if long_loop else ""
+        rep["embed_html"] = (
+            f'<div class="k2c-loop-wrap"><video class="k2c-loop" autoplay muted loop playsinline poster="{poster.name}">{sources}</video>'
+            f'<img class="k2c-still" src="{stillname}" alt="">{button}</div>\n'
+            '<style>.k2c-loop-wrap{position:relative;display:inline-block}.k2c-still{display:none}'
+            '.k2c-pause{position:absolute;right:8px;bottom:8px;font:14px/1 sans-serif;padding:6px 8px;border:0;border-radius:4px;'
+            'background:rgba(0,0,0,.55);color:#fff;cursor:pointer}'
+            '@media (prefers-reduced-motion: reduce){.k2c-loop,.k2c-pause{display:none}.k2c-still{display:block;max-width:100%}}</style>')
     (out / f"{name}-loop.report.json").write_text(json.dumps(rep, indent=1))
     failed = not all(c["pass"] for c in rep["checks"].values())
     print(("✗" if failed else "✓") + f" loop {name} ({'transparent' if alpha else 'opaque'}): "
@@ -969,6 +1104,7 @@ def main():
     p6.add_argument("--export", default="mp4,webm,gif", help=f"comma list of {', '.join(LOOP_EXPORTS)}")
     p6.add_argument("--gif-profile", default="gif", help="profile whose gif settings (fps, width, size and frame caps) apply, e.g. linkedin-gif")
     p6.add_argument("--allow-seam", action="store_true", help="the loop jumps back on purpose (e.g. a loader that restarts)")
+    p6.add_argument("--rest-at", type=float, help="seconds: the frame shown to people who turn motion off (default: the last frame)")
     p7 = sub.add_parser("snippet"); p7.add_argument("--project", required=True); p7.add_argument("--out", required=True); p7.add_argument("--name")
     p8 = sub.add_parser("anchors"); p8.add_argument("--project", required=True); p8.add_argument("--bpm", type=float)
     p8.add_argument("--beats"); p8.add_argument("--words")
@@ -978,11 +1114,12 @@ def main():
     p9.add_argument("--out", help="where to write the sync report (default: next to the render, <name>.sync.json)")
     p9.add_argument("--window", default="-33,45", help="pass window in ms, picture time minus sound time (default -33,45)")
     p10 = sub.add_parser("audio"); p10.add_argument("file", help="the mix (wav, mp3, m4a or a video) that goes into the composition")
+    p11 = sub.add_parser("flash"); p11.add_argument("video", help="a render: fails on more than 3 flashes in any second (WCAG 2.3.1)")
     p5 = sub.add_parser("hook"); p5.add_argument("--project", required=True)
     p5.add_argument("--by", type=float, default=3.0, help="readable text or a logo must be on screen by this second")
     a = ap.parse_args()
     {"plan": cmd_plan, "finish": cmd_finish, "check": cmd_check, "safe": cmd_safe, "hook": cmd_hook, "loop": cmd_loop,
-     "snippet": cmd_snippet, "anchors": cmd_anchors, "sync": cmd_sync, "audio": cmd_audio}[a.cmd](a)
+     "snippet": cmd_snippet, "anchors": cmd_anchors, "sync": cmd_sync, "audio": cmd_audio, "flash": cmd_flash}[a.cmd](a)
 
 
 if __name__ == "__main__":

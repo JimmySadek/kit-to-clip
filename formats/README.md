@@ -14,6 +14,7 @@ Inside a studio folder use its `work/`, `videos/` and `deliveries/`. In any othe
 
 ```bash
 python3 <kit-to-clip>/formats/scripts/formats.py list --project .              # approved formats this project can use
+python3 <kit-to-clip>/formats/scripts/formats.py list --project . --trial          # approved + trials (new formats)
 python3 <kit-to-clip>/formats/scripts/formats.py list --project . --all --json  # also drafts; full rows as data
 ```
 
@@ -65,10 +66,11 @@ Neutral formats hold no brand: they style themselves only from the pack's token 
 
 | Format | Status | What it is |
 |---|---|---|
-| `neutral/brand-reel/` | draft | 24 beats: motif, headline, stat, three points, flurry, lockup. Slots with character limits, `--variant auto` for variety. See its `README.md` |
-| `neutral/teaser-loop/` | draft | a still teaser as a seamless loop (GIF, web): opens on the finished layout; background wave or breathe, accent ring and line. See its `README.md` |
+| `neutral/brand-reel/` | trial | 24 beats: motif, headline, stat, three points, flurry, lockup. Slots with character limits, `--variant auto` for variety. See its `README.md` |
+| `neutral/teaser-loop/` | trial | a still teaser as a seamless loop (GIF, web): opens on the finished layout; background wave or breathe, accent ring and line. See its `README.md` |
+| `neutral/explainer/` | trial | a narrated explainer: voice first, each scene on its spoken word, burned-in captions, five illustration styles (clean, cut-paper, risograph, sketchbook, isometric). Needs the voice and transcribe powers. See its `README.md` |
 
-Drafts are not offered in the front door until approved. Directing words (push in, match cut, carry,
+Drafts are not offered in the front door. Trials are offered, labelled "new" (`formats.py list --trial`), until the maintainer approves them. Directing words (push in, match cut, carry,
 anticipation, beat grid): `references/motion-vocabulary.md`.
 
 ## Cards: build a brief video from reusable scenes

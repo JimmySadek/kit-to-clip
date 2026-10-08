@@ -1,6 +1,6 @@
 ---
 name: kit-to-clip
-description: Kit to Clip turns a brand kit into finished, on-brand videos with HyperFrames. Use it for any video request in any repo or studio folder, including a plain "hi" in a studio, "make a video", a reel, TikTok, Instagram or LinkedIn post, highlight edit, announcement, teaser, title card, animated GIF, website loop or loader, a video with music or sound effects, and for "make it on-brand", "make it ready for Instagram", "make it like this video" (a reel or link they like), "set me up", "check for updates" or "I want a new style". It sets up the video engine on first use, finds the repo's brand (or onboards its brand kit), guides the person with questions to a format, a saved style, a loop or a new style, then builds, checks and delivers each cut for its platform. Written for non-technical people.
+description: Kit to Clip turns a brand kit into finished, on-brand videos with HyperFrames. Use it for any video request in any repo or studio folder, including a plain "hi" in a studio, "make a video", a reel, TikTok, Instagram or LinkedIn post, highlight edit, announcement, teaser, title card, animated GIF, website loop or loader, Lottie, a video with music, sound effects or a voice-over, a narrated explainer, captions, a 3D logo, slow motion, a cutout or "text behind the player", and for "make it on-brand", "make it ready for Instagram", "make it like this video", "set me up", "check for updates" or "I want a new style". It sets up the engine on first use, remembers the person's brands and taste, finds or onboards the brand, guides them with questions to a format, style or loop, adds free local powers when a job needs them (with a yes), then builds, checks and delivers each cut for its platform. Written for non-technical people.
 ---
 
 # Kit to Clip
@@ -19,6 +19,7 @@ when the step you are on needs it.
 | Loops | `loops/README.md` | seamless loops and loaders: method, loop formats, exports (GIF, WebM, APNG, WebP, snippet) |
 | Sound | `sound/README.md` | videos with music and sound effects: sound first, effects from the motion, sync check, listening checkpoint |
 | Guides | `references/brand-onboarding.md`, `references/style-workshop.md`, `references/reference-video.md`, `references/open-source-effects.md` | a new brand's first setup; designing a new style; learning from a video they like; borrowing an effect from a public project |
+| Toolbox | `toolbox/README.md` | the extra powers a job can call on (voice, cutouts, Lottie, particles, slow motion…): which are ready, how to add one with a ✋ yes, the fallback when not, the licence and update watches |
 
 Brands are not in here. Each brand kit is its own skill (e.g. `acme-brand`) and connects through its video pack, a
 `kit-to-clip/` folder inside the kit.
@@ -34,6 +35,8 @@ formats module (recipe + content) ───────────────�
 - Plain, short sentences. No jargon: say "the video engine", not "HyperFrames CLI"; say "the stills", not "snapshots".
 - Every decision goes through the AskUserQuestion tool: one decision per question, 2-4 options named for this
   video, a one-line consequence each, and a recommended option first when you have a reason.
+- Use what you remember (`memory.py recall`, Step 2) to recommend, and say so ("you liked the hard cuts last time"),
+  but always ask: the person's taste can change, and a remembered choice is never applied silently.
 - **Show before you spend, cheapest first: an ASCII layout, then stills, then the render.** Before you build, and before
   any change that moves, adds or removes something on screen, draw the layout in ASCII and ask ✋ for a yes. Show the
   canvas size, the destination's safe-zone lines with their pixel values (`finish.py plan --profile <p>` prints them;
@@ -86,8 +89,12 @@ We make art for brands people care about. Resourceful and creative beats quick a
   `REEL_WORKSPACE`. It also turns telemetry off and stops `hyperframes init` from installing skills globally.
 - Load `hyperframes` (router) and the workflow it picks before building. If it is not available as a skill, read
   `$REEL_STUDIO/.claude/skills/hyperframes/SKILL.md` after env.sh, and the workflow skill it names from there.
-- Never run `npx hyperframes skills update` or `npx skills add -g` from a workflow. If a HyperFrames workflow says
-  to, skip that step when the skill is already present, and tell the user.
+- Skills and tools arrive only through Kit to Clip: the engine's HyperFrames and GSAP skills are pinned in
+  `setup/skills-lock.json` and installed by setup; every other power goes through the toolbox (Step 4). So never run
+  `npx hyperframes skills update` or `npx skills add -g` from a workflow, even when a HyperFrames workflow says to.
+  Instead: the skill is present → skip that step; it is missing → `python3 <kit-to-clip>/scripts/toolbox.py check
+  hyperframes` and re-run setup, which restores every pinned skill; it is not in the lock at all → say so plainly (a
+  Kit to Clip update can add it) and carry on with what is installed.
 
 ## Where things are
 
@@ -109,9 +116,14 @@ We make art for brands people care about. Resourceful and creative beats quick a
    (it is safe to run again; finished steps are skipped), and only then explain what they need to do. Common causes:
    no internet, less than 3 GB free, a space in the folder path.
 
+4. **Powers and licences, at most weekly:** `python3 <kit-to-clip>/scripts/toolbox.py updates --if-due` (quiet unless a
+   week has passed). When it reports an update or a licence change, mention it in one line at a natural pause; never
+   install or move a version without a ✋ yes.
+
 **Updates** ("check for updates"): a packaged studio's `setup/studio.md` says how. Otherwise the skill updates where
 it was installed from (a git checkout: `git pull`; `npx skills add`: run the same command again), and re-running
-`setup/install.sh` refreshes only what changed.
+`setup/install.sh` refreshes only what changed. Then run `toolbox.py updates` and `toolbox.py licence --online --deps`
+and report what is new for the installed powers (`toolbox/README.md`, "Stay current and clean").
 
 ## Step 1: workspace (any-repo mode only)
 
@@ -122,9 +134,14 @@ and use `reels/clips`, `reels/work`, `reels/videos` and `reels/deliveries` where
 `videos/` and `deliveries/`. Run video engine commands inside the project under `reels/videos/`: `npx hyperframes`
 finds the engine through `reels/node_modules`.
 
-## Step 2: the brand
+## Step 2: the brand (and what we remember)
 
-Run `python3 <kit-to-clip>/scripts/brand.py detect` (add `--json` to read it as data). It reports one state:
+First recall this person's history: `python3 <kit-to-clip>/scripts/memory.py recall --repo <repo>` (exit 3 means no
+memory yet). It names the brand used last time (here or in another repo), the usual platforms and formats, and what
+they liked or avoided. Use it to **order and recommend** options, never to skip a question: the remembered brand
+becomes the first option, labelled ("Acme, as last time"), next to the others and "something new". Say in one line when
+a recommendation comes from their history. Then run `python3 <kit-to-clip>/scripts/brand.py detect` (add `--json` to
+read it as data). It reports one state:
 
 | State | What it means | Do this |
 |---|---|---|
@@ -132,7 +149,7 @@ Run `python3 <kit-to-clip>/scripts/brand.py detect` (add `--json` to read it as 
 | `pointer` | `reels/brand.json` names a kit installed elsewhere, and it has a pack | Use it and say where it comes from |
 | `kit` | a brand kit with no video pack yet | Offer ✋ **Set up this brand for video** (brand onboarding, `references/brand-onboarding.md`; about 20 minutes, saved into the kit) / **Neutral look for now** |
 | `unchosen` | brand work in the repo, no chosen identity | Say "identity not chosen", then ask ✋ a brand from one of the repo's directions (onboarding from that source) / a neutral look |
-| `none` | no brand in the repo | Say "no brand here", then ask ✋ which brand this repo is for: one per installed pack and installed kit the report lists (a kit still needs onboarding: say so), or a neutral look. After they pick an installed one, run `brand.py use --kit <name>` so the repo remembers it, and detect again |
+| `none` | no brand in the repo | Say "no brand here", then ask ✋ which brand this repo is for: the remembered brand first when there is one ("same as last time"), then one per installed pack and installed kit the report lists (a kit still needs onboarding: say so), or a neutral look. After they pick an installed one, run `brand.py use --kit <name>` so the repo remembers it, and detect again |
 
 Never guess colours, fonts or logos. A brand known only from its website: onboarding starts from a brand sheet
 (`brand/README.md`, "Brand sheet from a website"). A quick provisional brand for a repo with none is not built yet:
@@ -143,24 +160,25 @@ say so, and offer the neutral look.
 List what this brand can use, after env.sh:
 
 ```bash
-python3 <kit-to-clip>/formats/scripts/formats.py list --brand <id> --project .   # approved formats: neutral + this brand's own
+python3 <kit-to-clip>/formats/scripts/formats.py list --brand <id> --project . --trial   # approved + trial formats: neutral + this brand's own
 python3 <kit-to-clip>/scripts/styles.py list                                      # saved styles for this brand
 ```
 
-Ask ✋ **What are we making?** with one option per approved format that fits (name it, and say what it needs, e.g.
+Ask ✋ **What are we making?** with one option per approved format that fits (a `trial` format is offered too, named with "new", e.g. "Explainer (new)") (name it, and say what it needs, e.g.
 "a clip" for `made_for: clip`), one per approved saved style, plus:
 
 | They want | Goes to |
 |---|---|
 | A format from the list | its `journey` file (the path `formats.py` prints): read it and follow it step by step |
 | A loop, a loader, an animated GIF or a moving version of a still (e.g. a LinkedIn teaser) | `loops/README.md` |
-| A video with sound: music, sound effects, a soundtrack, effects on the moves | `sound/README.md`: sound first, with a hard gate. Steps 0 to 2 (setup, workspace, brand) run as usual; then the music source is the first creative question, before any picture, and the tempo is chosen so the length is whole bars, put the picture on the beats, make the effects from the motion, check the sync on the file, and stop for a ✋ listening checkpoint before polish. Never build the picture first. If library music needs the HeyGen login, say so at the start and ask; the built-in music maker (four styles) needs no login |
+| A video with sound: music, sound effects, a soundtrack, effects on the moves | `sound/README.md`: sound first, with a hard gate. Steps 0 to 2 (setup, workspace, brand) run as usual; then the music source is the first creative question, before any picture, and the tempo is chosen so the length is whole bars, put the picture on the beats, make the effects from the motion, check the sync on the file, and stop for a ✋ listening checkpoint before polish. Never build the picture first. Music comes from the built-in music maker (four styles), a track they supply, or a free power from the toolbox (`music-generate`); Kit to Clip uses no accounts or paid libraries |
 | An announcement, promo, event or launch post from words and numbers | cards: `formats/README.md`, "Cards" (a sequence of headline, stat, list, quote, lower-third, lockup) |
 | A video in a saved style | "Using a saved style" below |
 | ✨ A new style of video | the style workshop: `references/style-workshop.md` |
 | "Make it like this video", a reel or link they like, "what does this video do well?" | `references/reference-video.md`: it reads the link with the media fetcher (a helper skill: check for it and ask before installing), measures cuts and beats, writes `reference.md`, then opens the style workshop |
 | An effect from a public project ("use the brush from this repo", particles, a shader) | `references/open-source-effects.md`: licence first, then make it seekable and on-brand |
-| Something else (captions on a video, a title card, a one-off) | the `hyperframes` workflows, then the brand and finish modules |
+| Captions or subtitles on a video, a voice-over, a cutout, "text behind the player" | Step 4 powers (`transcribe`, `voice-over`, `cutout`, `video-mask`), then the `hyperframes` workflow (`embedded-captions` for captions) and the brand and finish modules |
+| Something else (a title card, a one-off) | the `hyperframes` workflows, then the brand and finish modules |
 
 If they already said what they want ("make a Fold Cut of this clip", "make this post move"), skip the question.
 Neutral formats need a pack with token contract 1 (`brand/scripts/bridge.py --list` shows it); drafts are not offered
@@ -168,6 +186,13 @@ unless they ask for them by name. If a clip was mentioned, check it is in `clips
 
 **Direct requests** skip the front door's questions but not its rules: "make it ready for Instagram" goes straight
 to the finish module; "put our brand on this project" to the brand module; env.sh and the brand check still apply.
+
+## Step 4: powers for this job
+
+Before building, list what the job needs beyond the built-in engine (a voice, a cutout, a Lottie file, particles,
+smooth slow motion…) and follow `toolbox/README.md`: `python3 <kit-to-clip>/scripts/toolbox.py which <capability>`
+for each, ✋ before adding anything, the fallback when they say no. Read a power's recipe before using it. Skip this
+step when the job needs only what is built in.
 
 ## Using a saved style
 
@@ -180,6 +205,18 @@ to the finish module; "put our brand on this project" to the brand module; env.s
    (`<deliveries>/<job>/<style>/<platform>/`). One platform per cut; never stretch or crop a finished render.
 
 A style marked `draft` is still being designed: offer to continue its workshop instead of using it.
+
+## Remember what was learned (every job)
+
+The memory lives on this computer only (`<engine>/memory`), never in a repo and never uploaded.
+- **After a delivery** (or when a job is dropped): `memory.py record --brand <id> --brand-name "<name>" --format <f>
+  --platforms <a,b> --repo <repo> --powers <ids> --outcome delivered|draft|abandoned`.
+- **When a ✋ answer shows taste**, in a word or a reason ("too slow", "love the hard cuts", picking motion option B
+  over A): `memory.py prefer --like|--dislike "<what>" --reason "<why>" --topic <motion|sound|type|colour|format|platform|pace|general>`,
+  adding `--brand <id>` when it is about that brand only. Don't record trivia: only what should change the next video.
+- **When something worked or failed on this computer** and the next job should know: `memory.py lesson add "<what>" --power <id>`.
+- **"What do you remember?"**: `memory.py show`. **"Forget …"**: `memory.py forget --brand <id> | --pref <n> | --all`.
+  Do it at once and confirm.
 
 ## Ground rules for every video
 

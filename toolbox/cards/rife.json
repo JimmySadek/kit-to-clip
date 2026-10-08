@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "id": "rife",
+  "name": "Smooth slow motion (RIFE)",
+  "about": "invents frames between frames: 2x, 4x or 8x slow motion that plays smoothly, on this computer's GPU",
+  "kind": "release",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 420,
+  "homepage": "https://github.com/nihui/rife-ncnn-vulkan",
+  "capabilities": [
+    "slow-motion"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "separate-program",
+    "model_spdx": "MIT",
+    "model": "RIFE v4.6 (hzwer, Practical-RIFE)",
+    "url": "https://github.com/nihui/rife-ncnn-vulkan/blob/master/LICENSE"
+  },
+  "upstream": {
+    "github": "nihui/rife-ncnn-vulkan"
+  },
+  "pinned": "20221029",
+  "install": {
+    "repo": "nihui/rife-ncnn-vulkan",
+    "tag": "{version}",
+    "asset": "rife-ncnn-vulkan-{version}-macos.zip",
+    "sha256": {
+      "20221029": "4a63a1f3c9c715773c57d2ee51df1b315ed20cd6c63103e45c483ecc4400b595"
+    },
+    "extract": "zip",
+    "entries": {
+      "cli": "rife-ncnn-vulkan-{version}-macos/rife-ncnn-vulkan"
+    },
+    "main": "cli"
+  },
+  "smoke": {
+    "timeout": 600,
+    "steps": [
+      {
+        "sh": "ffmpeg -v error -y -f lavfi -i \"color=0x1d4ed8:s=320x180:r=30:d=1\" -f lavfi -i \"color=white:s=40x40:r=30:d=1\" -filter_complex \"[0][1]overlay=x='20+240*t':y=70\" -pix_fmt yuv420p {scratch}/move.mp4"
+      },
+      {
+        "sh": "bash {skill}/toolbox/helpers/slowmo.sh {scratch}/move.mp4 {scratch}/slow.mp4 --factor 4"
+      },
+      {
+        "sh": "test \"$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 {scratch}/slow.mp4)\" -ge 116"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/slow.mp4",
+        "min_bytes": 5000
+      }
+    ]
+  },
+  "recipe": "recipes/footage.md",
+  "fallback": "plain slow speed (frames repeat)"
+}

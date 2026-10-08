@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "id": "blender",
+  "name": "Blender (3D)",
+  "about": "heavy 3D: extrude a logo or product, real lighting and materials, cinematic camera moves, rendered to frames with transparency (Apple silicon Macs: Blender 5 has no Intel build)",
+  "kind": "app",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 1200,
+  "homepage": "https://www.blender.org",
+  "capabilities": [
+    "3d-render"
+  ],
+  "licence": {
+    "spdx": "GPL-3.0-or-later",
+    "usage": "separate-program",
+    "url": "https://www.blender.org/about/license/"
+  },
+  "upstream": {
+    "index": "https://www.blender.org/download/",
+    "pattern": "blender-(\\d+\\.\\d+\\.\\d+)-macos-arm64\\.dmg",
+    "github": "blender/blender"
+  },
+  "pinned": "5.2.2",
+  "install": {
+    "url": "https://download.blender.org/release/Blender5.2/blender-{version}-macos-arm64.dmg",
+    "asset": "blender-{version}-macos-arm64.dmg",
+    "sha256": {
+      "5.2.2": "dc4125399b8bfefe283cc1624d6cfc7809d1cac20ace51072127eb371f31f210"
+    },
+    "extract": "dmg",
+    "entries": {
+      "cli": "Blender.app/Contents/MacOS/Blender"
+    },
+    "main": "cli"
+  },
+  "recipe": "recipes/blender.md",
+  "fallback": "browser 3D with Three.js (built into the engine)",
+  "smoke": {
+    "timeout": 900,
+    "steps": [
+      {
+        "sh": "{cli} -b --factory-startup --python {skill}/toolbox/helpers/blender_logo.py -- {fixtures}/mark.svg {scratch}/out --frames 8 --fps 24 --size 200 --samples 8 > {scratch}/log.txt 2>&1"
+      },
+      {
+        "sh": "test $(ls {scratch}/out/frame_*.png | wc -l) -eq 8"
+      },
+      {
+        "sh": "ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of csv=p=0 {scratch}/out/logo.mov | grep -q yuva"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/out/logo.webm",
+        "min_bytes": 2000
+      },
+      {
+        "file": "{scratch}/log.txt",
+        "contains": "blender_logo: 8 frames"
+      }
+    ]
+  }
+}

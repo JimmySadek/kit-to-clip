@@ -1,0 +1,3 @@
+/* Clean: the brand's tokens only, one accent ring per scene. */
+.scene-art .ring { fill: none; stroke: var(--reel-accent); stroke-linecap: round; }
+.scene-art .dot { fill: var(--reel-accent); }

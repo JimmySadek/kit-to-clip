@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "id": "roughjs",
+  "name": "Rough.js",
+  "about": "sketchy, hand-drawn shapes, lines and fills as SVG paths (seeded, so the wobble never changes)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 1,
+  "homepage": "https://roughjs.com",
+  "capabilities": [
+    "hand-drawn"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "roughjs",
+    "github": "rough-stuff/rough"
+  },
+  "pinned": "4.6.6",
+  "install": {
+    "packages": [
+      "roughjs@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/roughjs/bundled/rough.js": "rough.js",
+      "node_modules/roughjs/LICENSE": "rough-LICENSE.txt"
+    }
+  },
+  "read_before_use": [
+    "https://github.com/rough-stuff/rough/wiki"
+  ],
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {rough.js} {scratch}/rough.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/rough.js",
+        "min_bytes": 20000,
+        "contains": "hachureGap"
+      }
+    ]
+  },
+  "recipe": "recipes/roughjs.md",
+  "fallback": "SVG strokes drawn on with GSAP"
+}

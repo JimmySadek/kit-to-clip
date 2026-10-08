@@ -1,4 +1,4 @@
-# Brand reel (neutral format, draft)
+# Brand reel (neutral format, trial)
 
 A 24-beat brand reel (12 s at 120 BPM) for any brand whose video pack has token contract v1: the brand's motif
 arrives, steps aside for a headline told word by word, turns beside a stat that counts up over the accent rule, marks
@@ -27,5 +27,5 @@ set that shares at most one device with each of the last three brand reels for t
 and `.reel-format.json` records it. Energy from the pack (`calm`, `steady`, `punchy`) scales every duration.
 
 **Checks** before offering a render: `npx hyperframes lint`, `finish.py check`, `finish.py safe --platform <p>`, then
-look at stills. Status is draft: tried on a dark, punchy brand with a shape motif and a light test brand (calm, line
+look at stills. Status is trial (offered as "new"; the maintainer decides when it is approved): tried on a dark, punchy brand with a shape motif and a light test brand (calm, line
 motif) on 28 Sep 2026; it is not offered in the front door until approved.

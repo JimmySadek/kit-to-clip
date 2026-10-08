@@ -3,7 +3,7 @@
  "id": "teaser-loop",
  "name": "Teaser loop",
  "version": "1",
- "status": "draft",
+ "status": "trial",
  "about": "A still teaser brought to life as a seamless loop: it opens on the finished layout (so the first frame and thumbnail read at once), a generative field and the accent line move, the media drifts, and the last frame flows back into the first. Made for animated GIFs (LinkedIn, email, web) and muted autoplay loops.",
  "made_for": "loop",
  "platforms": [

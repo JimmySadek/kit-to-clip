@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Brand reel (neutral format, draft): one brand motif transformed through a headline, a stat, three points and a
+"""Brand reel (neutral format, trial): one brand motif transformed through a headline, a stat, three points and a
 lockup, cut on a beat grid. Works with any brand whose video pack has token contract v1 (brand/brand-pack.md in
 Kit to Clip).
 

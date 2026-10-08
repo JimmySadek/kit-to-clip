@@ -86,6 +86,7 @@ def main():
     ap.add_argument("command", choices=["list"])
     ap.add_argument("--project", help="where the video will be made (default: the current folder)")
     ap.add_argument("--all", action="store_true", help="include drafts, trials and retired formats")
+    ap.add_argument("--trial", action="store_true", help="approved formats plus trials (new formats being tried, offered as \"new\")")
     ap.add_argument("--brand", help="only this brand's formats, plus the neutral ones")
     ap.add_argument("--made-for", choices=MADE_FOR)
     ap.add_argument("--json", action="store_true")
@@ -95,7 +96,7 @@ def main():
     for r in collect(project):
         if a.brand and r["brand"] not in ("any", a.brand.lower()):
             continue
-        if not r.get("broken") and not a.all and r.get("status") != "approved":
+        if not r.get("broken") and not a.all and r.get("status") not in (("approved", "trial") if a.trial else ("approved",)):
             continue
         if a.made_for and not r.get("broken") and r.get("made_for") != a.made_for:
             continue

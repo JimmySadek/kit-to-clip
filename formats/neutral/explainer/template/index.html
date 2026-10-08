@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8">
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/CustomEase.min.js"></script>
+<link rel="stylesheet" href="brand.css">
+<script src="brand-snippets.js"></script>
+<script src="reel-tokens.js"></script>
+<script src="format-config.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+  html, body { width: __W__px; height: __H__px; margin: 0; overflow: hidden; background: var(--reel-bg); }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; color: var(--reel-fg);
+          background: var(--reel-bg-image, var(--reel-bg)); font-family: var(--reel-font-body); }
+  .bg { position: absolute; inset: 0; }
+  .scene { position: absolute; left: var(--safe-left); right: var(--safe-right); top: var(--safe-top);
+           bottom: calc(var(--safe-bottom) + var(--u) * 18); display: flex; flex-direction: column;
+           justify-content: center; gap: calc(var(--u) * 3); visibility: hidden; }
+  .scene-art { position: relative; flex: 0 1 46%; min-height: calc(var(--u) * 30); display: flex;
+               align-items: center; justify-content: center; }
+  .scene-art svg.art { height: calc(var(--u) * 36); width: auto; max-width: 100%; aspect-ratio: 1; overflow: visible; }
+  .scene-visual { position: relative; z-index: 2; max-width: 80%; max-height: 100%; object-fit: contain; }
+  .scene-headline { margin: 0; font-family: var(--reel-font-display); font-weight: var(--reel-weight-display);
+                    text-transform: var(--reel-display-case, none); line-height: var(--reel-display-leading, 1.02);
+                    font-size: calc(var(--u) * 8.4); letter-spacing: -0.01em; }
+  .scene-sub { margin: 0; font-weight: var(--reel-weight-body); font-size: calc(var(--u) * 3.9); line-height: 1.25;
+               color: var(--reel-muted); max-width: 92%; }
+  .captions { position: absolute; left: var(--safe-left); right: var(--safe-right);
+              bottom: calc(var(--safe-bottom) + var(--u) * 3); height: calc(var(--u) * 12); }
+  .cap-line { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; visibility: hidden;
+              font-family: var(--reel-font-label); font-weight: var(--reel-weight-label); font-size: calc(var(--u) * 5);
+              line-height: 1.15; }
+  .cap-word { color: var(--reel-fg); }
+  .end-card { position: absolute; left: var(--safe-left); right: var(--safe-right); top: var(--safe-top); bottom: var(--safe-bottom);
+              display: flex; align-items: center; justify-content: center; visibility: hidden; }
+  .end-logo { max-width: 70%; max-height: 22%; object-fit: contain; }
+  .bug { position: absolute; left: var(--safe-left); top: var(--safe-top); height: calc(var(--u) * 5.5); width: 30%;
+         background: no-repeat left top / contain; opacity: .9; }
+  .end-name { font-family: var(--reel-font-display); font-weight: var(--reel-weight-display); font-size: calc(var(--u) * 9); }
+</style></head>
+<body>
+<div id="root" data-composition-id="explainer" data-start="0" data-width="__W__" data-height="__H__" data-duration="__DUR__" data-style="__STYLE__">
+<div class="bg"></div>
+__SCENES__
+<div class="captions">__CAPTIONS__</div>
+<div class="bug"></div>
+<div class="end-card"><img class="end-logo" alt=""><div class="end-name"></div></div>
+__AUDIO__
+</div>
+<script src="style.js"></script>
+<script>
+(function () {
+  const F = window.REEL_FORMAT, R = window.REEL, root = document.getElementById("root");
+  const [W, H] = F.canvas, u = Math.min(W, H) / 100;
+  root.style.setProperty("--u", u + "px");
+  for (const k of ["top", "bottom", "left", "right"]) root.style.setProperty("--safe-" + k, F.safe[k] + "px");
+
+  // end card: the logo for this background (dark or light), else the brand's name as text
+  const lum = (hex) => { const m = /#?([0-9a-f]{6})/i.exec(hex || ""); if (!m) return 0;
+    const n = parseInt(m[1], 16); return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255; };
+  const brand = R.brand || {}, logo = brand.logo || {};
+  const dark = lum(getComputedStyle(document.documentElement).getPropertyValue("--reel-bg").trim()) < 0.45;
+  const endLogo = document.querySelector(".end-logo"), endName = document.querySelector(".end-name");
+  const src = (dark ? logo.onDark : logo.onLight) || logo.onDark || logo.onLight;
+  if (src) { endLogo.src = src; endName.remove(); } else { endLogo.remove(); endName.textContent = brand.name || ""; }
+  // a small logo in the corner from the first frame: the video never opens on an empty background (finish.py hook)
+  const bug = document.querySelector(".bug");
+  if (src) bug.style.backgroundImage = `url("${src}")`; else bug.remove();   // a background, not a second <img> of the same file
+
+  const style = window.EXPLAINER_STYLE || { decorate() {}, animate() {} };
+  if (style.background) style.background(document.querySelector(".bg"), R);
+  document.querySelectorAll(".scene").forEach((el, i) => style.decorate(el.querySelector(".scene-art"), i, Number(el.dataset.scene), R));
+
+  const tl = gsap.timeline({ paused: true });
+  gsap.set(".scene, .cap-line, .end-card", { autoAlpha: 0 });
+  const enter = R.ease("enter"), exit = R.ease("exit"), expressive = R.ease("expressive");
+  const dIn = R.dur("enter"), dOut = Math.min(R.dur("exit"), dIn * 0.8), dEx = R.dur("expressive"), st = R.stagger();
+  F.scenes.forEach((sc, i) => {
+    const el = document.getElementById("scene-" + sc.n), h = el.querySelector(".scene-headline");
+    const sub = el.querySelector(".scene-sub"), art = el.querySelector(".scene-art");
+    // the first scene's art is already on screen at 0 s (never open on an empty background); later scenes build in
+    const opening = i === 0 && sc.start < 0.5;
+    tl.set(el, { autoAlpha: 1 }, opening ? 0 : sc.start);
+    tl.fromTo(h, { y: 6 * u, opacity: 0 }, { y: 0, opacity: 1, duration: dIn, ease: enter }, sc.start);   // on its word
+    if (sub) tl.fromTo(sub, { y: 3 * u, opacity: 0 }, { y: 0, opacity: 1, duration: dIn, ease: enter }, sc.start + st * 4);
+    if (!opening) {
+      tl.fromTo(art, { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: dEx, ease: expressive }, sc.start + st * 2);
+      if (style.animate) style.animate(tl, art, sc, R, u);
+    }
+    const leave = Math.max(sc.start + dIn + 0.1, sc.end - dOut);        // exits are quicker than entrances
+    tl.to([art, h, sub].filter(Boolean), { opacity: 0, y: -3 * u, duration: dOut, ease: exit, stagger: st }, leave);
+    tl.set(el, { autoAlpha: 0 }, sc.end);
+  });
+  F.captions.forEach((c) => {
+    tl.set("#" + c.id, { autoAlpha: 1 }, c.start);
+    c.words.forEach((w, k) => {
+      tl.set("#" + w.id, { color: "var(--reel-accent)" }, w.start);
+      if (k > 0) tl.set("#" + c.words[k - 1].id, { color: "var(--reel-fg)" }, w.start);
+    });
+    tl.set("#" + c.id, { autoAlpha: 0 }, c.end);
+  });
+  if (document.querySelector(".bug")) tl.to(".bug", { autoAlpha: 0, duration: dOut, ease: exit }, F.voice_end - 0.05);
+  tl.fromTo(".end-card", { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: dEx, ease: expressive }, F.voice_end + 0.1);
+  tl.set({}, {}, F.duration);                                            // the timeline lasts the whole video
+  window.__timelines = window.__timelines || {};
+  window.__timelines["explainer"] = tl;
+})();
+</script>
+</body></html>

@@ -1,0 +1,5 @@
+/* Cut paper: layered paper shapes with soft shadows, a paper grain, the headline on a paper strip. */
+.bg .grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .16; mix-blend-mode: multiply; }
+.scene-art .layer { filter: drop-shadow(0 calc(var(--u) * .8) calc(var(--u) * 1.2) rgba(0, 0, 0, .28)); }
+.scene-headline { background: var(--reel-surface); color: var(--reel-fg); padding: calc(var(--u) * 1.6) calc(var(--u) * 2.4);
+                  align-self: flex-start; box-shadow: 0 calc(var(--u) * .6) calc(var(--u) * 1.4) rgba(0, 0, 0, .25); }

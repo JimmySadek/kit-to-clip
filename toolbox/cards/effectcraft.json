@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "id": "effectcraft",
+  "name": "EffectCraft",
+  "about": "layered motion projects (After Effects style): SVG to animatable layers, tapered strokes, Lottie export, headless renders",
+  "kind": "release",
+  "maturity": "early",
+  "rank": 1,
+  "size_mb": 140,
+  "homepage": "https://getartcraft.com/apps/effectcraft",
+  "capabilities": [
+    "lottie-export",
+    "svg-to-layers",
+    "editable-project"
+  ],
+  "licence": {
+    "spdx": "MIT OR Apache-2.0",
+    "usage": "separate-program",
+    "url": "https://github.com/storytold/effectcraft"
+  },
+  "upstream": {
+    "github": "storytold/effectcraft"
+  },
+  "pinned": "0.6.0",
+  "install": {
+    "repo": "storytold/effectcraft",
+    "tag": "v{version}",
+    "asset": "effectcraft-cli-{version}-macos-universal.zip",
+    "sums": "SHA256SUMS.txt",
+    "sha256": {
+      "0.6.0": "d545e4681e8812e9bb4d480f6d48882f34fa6664aeda53f51ef2a2e0bc8f64bb"
+    },
+    "extract": "zip",
+    "entries": {
+      "cli": "effectcraft-cli-{version}-macos-universal/effectcraft-cli"
+    },
+    "main": "cli"
+  },
+  "read_before_use": [
+    "https://github.com/storytold/effectcraft/blob/main/docs/agents.md",
+    "https://github.com/storytold/effectcraft/blob/main/docs/control-protocol.md"
+  ],
+  "watch": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
+    ".mcp.json",
+    "skills",
+    "docs/agents.md",
+    "docs/control-protocol.md",
+    "docs/gaps.md"
+  ],
+  "recipe": "recipes/effectcraft.md",
+  "fallback": "WebM with transparency, APNG or the live snippet; the HTML project as the editable source",
+  "smoke": {
+    "timeout": 300,
+    "steps": [
+      {
+        "sh": "{cli} --empty --save-as {scratch}/p.ecproj --json run comp.new '{\"name\":\"m\",\"width\":512,\"height\":512,\"frameRate\":30,\"duration\":2}' file.import \"{\\\"paths\\\":[\\\"$(cd {fixtures} && pwd)/mark.svg\\\"],\\\"addToComp\\\":true}\""
+      },
+      {
+        "sh": "{cli} --project {scratch}/p.ecproj --save --json exec layer.create --params '{\"op\":\"shapesFromVector\",\"layers\":[\"#1\"]}'"
+      },
+      {
+        "sh": "{cli} --project {scratch}/p.ecproj --save --json exec edit.clear --params '{\"layers\":[\"#2\"]}'"
+      },
+      {
+        "sh": "for g in group group#2 group#3; do {cli} --project {scratch}/p.ecproj --save --json run layer.addShapeItem \"{\\\"layer\\\":\\\"#1\\\",\\\"kind\\\":\\\"trim\\\",\\\"group\\\":\\\"contents/$g\\\"}\" prop.addKey \"{\\\"layer\\\":\\\"#1\\\",\\\"path\\\":\\\"contents/$g/contents/trim/end\\\",\\\"time\\\":0,\\\"value\\\":0}\" prop.addKey \"{\\\"layer\\\":\\\"#1\\\",\\\"path\\\":\\\"contents/$g/contents/trim/end\\\",\\\"time\\\":1.5,\\\"value\\\":100}\" || exit 1; done"
+      },
+      {
+        "sh": "{cli} --project {scratch}/p.ecproj --json exec file.exportLottie --params \"{\\\"comp\\\":\\\"m\\\",\\\"path\\\":\\\"$(cd {scratch} && pwd)/mark.json\\\"}\""
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/mark.json",
+        "min_bytes": 1000,
+        "contains": "\"ty\":4",
+        "absent": "data:image"
+      }
+    ]
+  }
+}

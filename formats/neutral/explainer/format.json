@@ -1,0 +1,16 @@
+{
+ "schema": 1,
+ "id": "explainer",
+ "name": "Explainer",
+ "version": "1",
+ "status": "trial",
+ "about": "A narrated explainer: the voice comes first, every scene lands on its spoken word, captions are burned in, in one of five illustration styles (clean, cut paper, risograph, sketchbook, isometric). Works with any brand whose video pack has token contract v1.",
+ "made_for": "brief",
+ "canvases": ["1080x1920", "1080x1350", "1080x1080", "1920x1080"],
+ "styles": ["clean", "cut-paper", "risograph", "sketchbook", "isometric"],
+ "needs": ["voice-over or a recorded voice", "transcribe"],
+ "slots": [
+  {"name": "scenes", "type": "list", "min": 2, "max": 8, "required": true,
+   "hint": "one scene per sentence of the script: {\"say\": the sentence's first words as spoken, \"headline\": up to 34 characters, \"sub\": optional, up to 60, \"visual\": optional image or SVG path}"}
+ ]
+}

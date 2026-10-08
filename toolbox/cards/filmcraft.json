@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "id": "filmcraft",
+  "name": "FilmCraft",
+  "about": "frame-exact edits (holds anywhere, exact speed ramps, ranges) and timelines an editor can re-cut (FCPXML, EDL, AAF, OTIO)",
+  "kind": "release",
+  "maturity": "early",
+  "rank": 1,
+  "size_mb": 130,
+  "homepage": "https://getartcraft.com/apps/filmcraft",
+  "capabilities": [
+    "frame-exact-edit",
+    "timeline-export"
+  ],
+  "licence": {
+    "spdx": "MIT OR Apache-2.0",
+    "usage": "separate-program",
+    "url": "https://github.com/storytold/filmcraft"
+  },
+  "upstream": {
+    "github": "storytold/filmcraft"
+  },
+  "pinned": "0.4.0",
+  "install": {
+    "repo": "storytold/filmcraft",
+    "tag": "v{version}",
+    "asset": "filmcraft-cli-{version}-macos-universal.zip",
+    "sums": "SHA256SUMS.txt",
+    "sha256": {
+      "0.4.0": "24977aa79378eade28a64ad70fe2bb4d8a1424915f2436f86fe6903d418b40dd"
+    },
+    "extract": "zip",
+    "entries": {
+      "cli": "filmcraft-cli-{version}-macos-universal/filmcraft-cli"
+    },
+    "main": "cli"
+  },
+  "read_before_use": [
+    "https://github.com/storytold/filmcraft/blob/main/docs/agents.md",
+    "https://github.com/storytold/filmcraft/blob/main/docs/control-protocol.md"
+  ],
+  "watch": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
+    ".mcp.json",
+    "skills",
+    "docs/agents.md",
+    "docs/control-protocol.md"
+  ],
+  "smoke": {
+    "timeout": 900,
+    "steps": [
+      {
+        "sh": "ffmpeg -v error -y -f lavfi -i \"color=0x1d4ed8:s=320x180:r=30:d=4\" -f lavfi -i \"color=white:s=40x40:r=30:d=4\" -f lavfi -i \"sine=frequency=440:duration=4\" -filter_complex \"[0][1]overlay=x='20+60*t':y=70\" -pix_fmt yuv420p -c:a aac -shortest {scratch}/clip.mp4"
+      },
+      {
+        "sh": "printf '{\"clip\":\"%s\",\"out\":\"%s\",\"fcpxml\":\"%s\",\"edits\":[{\"from\":0,\"to\":1},{\"hold\":1},{\"from\":1,\"to\":3,\"speed\":2}]}' \"$(cd {scratch} && pwd)/clip.mp4\" \"$(cd {scratch} && pwd)/edit.mp4\" \"$(cd {scratch} && pwd)/edit.fcpxml\" > {scratch}/spec.json && node {skill}/toolbox/helpers/filmcraft_edit.mjs {cli} {scratch}/spec.json > {scratch}/result.json"
+      },
+      {
+        "sh": "d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 {scratch}/edit.mp4); awk -v d=$d 'BEGIN{exit !(d>2.9 && d<3.1)}'"
+      },
+      {
+        "sh": "ffmpeg -hide_banner -i {scratch}/edit.mp4 -vf freezedetect=n=-55dB:d=0.8 -an -f null - 2>&1 | grep -q 'freeze_start: 1'"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/result.json",
+        "contains": "\"ok\":true"
+      },
+      {
+        "file": "{scratch}/edit.fcpxml",
+        "contains": "fcpxml"
+      }
+    ]
+  },
+  "recipe": "recipes/filmcraft.md",
+  "fallback": "still frames extracted with ffmpeg and placed in the video; the cut times as a list"
+}

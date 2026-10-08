@@ -25,6 +25,7 @@ FORMATS = SKILL / "formats" / "scripts" / "formats.py"
 DETECT = SKILL / "scripts" / "brand.py"
 PACK_GUIDE = SKILL / "brand" / "brand-pack.md"
 TEASER = SKILL / "formats" / "neutral" / "teaser-loop" / "build.py"
+EXPLAINER = SKILL / "formats" / "neutral" / "explainer" / "build.py"
 ASSETS = SKILL / "brand" / "scripts" / "assets.py"
 PACK = "kit-to-clip"                   # the video pack folder inside a brand kit
 DELIVER = SKILL / "formats" / "scripts" / "deliver.py"
@@ -34,6 +35,10 @@ SCORE = SKILL / "sound" / "scripts" / "score.py"
 REFERENCE = SKILL / "scripts" / "reference.py"
 STYLES = SKILL / "scripts" / "styles.py"
 EXPORT = REPO / "packaging" / "export-engine.sh"     # workshop only: the public repo has no packaging/
+TOOLBOX_PY = SKILL / "scripts" / "toolbox.py"
+MEMORY_PY = SKILL / "scripts" / "memory.py"
+LEAKSCAN = REPO / "packaging" / "leakscan.py"       # workshop only
+INSTALLER = SKILL / "setup" / "install.sh"
 
 
 def find_engine():
@@ -391,6 +396,44 @@ SLOTS_BAD = {"headline": "A headline that is far too long for this format", "sta
 
 
 # ---------------------------------------------------------------- cases: (name, argv builder, exit, text in output)
+def make_toolbox(base):
+    """Card folders for the toolbox: a blocked licence, a missing checksum, an empty box, and a local 'release' (a zip
+    served by file://) with a right and a wrong checksum, plus a fake installed browser library to vendor."""
+    import hashlib, zipfile
+    tb = base / "toolbox"
+    card = lambda **kw: {"schema": 1, "name": kw.get("id"), "about": "test power", "maturity": "stable",
+                         "capabilities": ["voice-over"], "fallback": "text", "upstream": {"github": "x/y"}, **kw}
+    def write(folder, c):
+        (tb / folder).mkdir(parents=True, exist_ok=True)
+        (tb / folder / f"{c['id']}.json").write_text(json.dumps(c))
+    write("nc", card(id="ncvoice", kind="pip", pinned="1", install={"packages": ["x"]}, licence={"spdx": "CC-BY-NC-4.0"}))
+    write("nosum", card(id="nosum", kind="release", pinned="1", install={"repo": "x/y", "tag": "v1", "asset": "a.zip"}, licence={"spdx": "MIT"}))
+    (tb / "empty").mkdir(parents=True)
+    zpath = tb / "localtool.zip"
+    with zipfile.ZipFile(zpath, "w") as z:
+        info = zipfile.ZipInfo("localtool/run.sh")
+        info.external_attr = 0o755 << 16
+        z.writestr(info, '#!/bin/bash\necho "hello from the tool" > "$1"\n')
+    good = hashlib.sha256(zpath.read_bytes()).hexdigest()
+    release = lambda cid, sha: card(id=cid, kind="release", pinned="1.0", licence={"spdx": "MIT"},
+                                    install={"url": zpath.as_uri(), "asset": "localtool.zip", "sha256": {"1.0": sha},
+                                             "extract": "zip", "entries": {"cli": "localtool/run.sh"}},
+                                    smoke={"steps": [["{cli}", "{scratch}/out.txt"]], "expect": [{"file": "{scratch}/out.txt", "contains": "hello"}]})
+    write("local", release("localtool", good))
+    write("local", release("badsum", "0" * 64))
+    lib = card(id="fakelib", kind="npm", pinned="1.0.0", licence={"spdx": "MIT"}, install={"packages": ["fakelib@{version}"]},
+               vendor={"files": {"node_modules/fakelib/dist/fake.js": "fake.js"}}, homepage="https://example.org")
+    write("local", lib)
+    dist = tb / "tools" / "fakelib" / "1.0.0" / "node_modules" / "fakelib" / "dist"
+    dist.mkdir(parents=True)
+    (dist / "fake.js").write_text("window.fake = 1;\n")
+    (tb / "tools" / "fakelib" / "installed.json").write_text(json.dumps({"version": "1.0.0", "kind": "npm", "entries": {"fake.js": str(dist / "fake.js")}}))
+    (tb / "project").mkdir()
+    (tb / "state").mkdir()
+    (tb / "state" / "updates.json").write_text(json.dumps({"checked": __import__("datetime").datetime.now().isoformat(timespec="seconds"), "results": []}))
+    return tb
+
+
 def cases(base, gsap):
     comp = lambda n: str(make_composition(base, n, gsap))
     vid = lambda n: str(make_video(base, n))
@@ -507,6 +550,63 @@ else:
     incomplete = lambda: ["bash", "-c", f'rm -rf "{base}/setup-copy" && mkdir -p "{base}/setup-copy" && cp -R "{SKILL}/setup" "{base}/setup-copy/setup" '
                           f'&& cp "{SKILL}/SKILL.md" "{base}/setup-copy/SKILL.md" && rm "{base}/setup-copy/setup/package.json" '
                           f'&& bash "{base}/setup-copy/setup/install.sh" "{base}/setup-copy/engine"']
+    tbox = make_toolbox(base)
+    tbx = lambda folder, *a: ["env", f"KIT_TO_CLIP_CARDS={tbox / folder}", f"KIT_TO_CLIP_TOOLS={tbox / 'tools'}",
+                              f"KIT_TO_CLIP_STATE={tbox / 'state'}", py, str(TOOLBOX_PY), *a]
+    lic = lambda expr, usage: [py, "-c", f"import sys; sys.path.insert(0, {str(TOOLBOX_PY.parent)!r}); import toolbox; "
+                                         f"print(toolbox.classify({expr!r}, {usage!r})['verdict'])"]
+    def legacy(case):
+        """Run install.sh's legacy-cleanup block alone, against a fake studio and home."""
+        root = base / f"legacy-{case}"
+        for name in ("reel-studio", "reel-brand", "reel-formats", "reel-finish", "hyperframes"):
+            (root / "studio" / ".claude" / "skills" / name).mkdir(parents=True, exist_ok=True)
+        (root / "setup").mkdir(parents=True, exist_ok=True)
+        if case == "user":
+            (root / "home" / ".claude" / "skills" / "kit-to-clip").mkdir(parents=True, exist_ok=True)
+            (root / "home" / ".claude" / "skills" / "kit-to-clip" / "SKILL.md").write_text("---\nname: kit-to-clip\n---\n")
+        script = (f'BLOCK=$(awk \'/^ONE_SKILL=""/{{f=1}} f{{print}} f && /^fi$/{{exit}}\' "{INSTALLER}"); '
+                  f'STUDIO="{root}/studio"; HOME="{root}/home"; SETUP="{root}/setup"; LOG="{root}/log"; eval "$BLOCK"; '
+                  f'echo "left: $(ls "{root}/studio/.claude/skills" | tr "\\n" ";")"')
+        return ["bash", "-c", script]
+    FLASH_CLIPS = {
+        "strobe5": ["-f", "lavfi", "-i", "color=black:s=320x180:r=30:d=3", "-vf", "format=gray,geq=lum='if(mod(floor(N/3),2),235,16)'"],
+        "blink1": ["-f", "lavfi", "-i", "color=black:s=320x180:r=30:d=3", "-vf", "format=gray,geq=lum='if(mod(floor(N/15),2),235,16)'"],
+        "smallbox": ["-f", "lavfi", "-i", "color=0x101010:s=1080x1920:r=30:d=3", "-vf", "drawbox=x=1000:y=60:w=40:h=40:color=white:t=fill:enable='mod(floor(n/3),2)'"],
+        "red5": ["-f", "lavfi", "-i", "color=black:s=320x180:r=30:d=3", "-vf", "format=gbrp,geq=r='if(mod(floor(N/3),2),230,0)':g=0:b=0"],
+        "fade": ["-f", "lavfi", "-i", "color=black:s=320x180:r=30:d=3", "-vf", "format=gray,geq=lum='16+219*N/90'"],
+        "moving": ["-f", "lavfi", "-i", "color=0x1d4ed8:s=320x320:r=30:d=6", "-f", "lavfi", "-i", "color=white:s=80x80:r=30:d=6",
+                   "-filter_complex", "[0][1]overlay=x='120+60*sin(2*PI*t/6)':y=120"],
+    }
+    def clip(name):
+        f = base / "flash" / f"{name}.mp4"
+        if not f.exists():
+            f.parent.mkdir(exist_ok=True)
+            subprocess.run(["ffmpeg", "-v", "error", "-y", *FLASH_CLIPS[name], "-pix_fmt", "yuv420p", str(f)], check=True)
+        return str(f)
+    mem = lambda name, *a: ["env", f"KIT_TO_CLIP_MEMORY={base / 'mem' / name}", py, str(MEMORY_PY), *a]
+    memsh = lambda name: f'KIT_TO_CLIP_MEMORY="{base / "mem" / name}" "{py}" "{MEMORY_PY}"'
+    two_sessions = lambda: ["bash", "-c", (
+        f'rm -rf "{base}/mem/two"; {memsh("two")} record --brand acme --brand-name Acme --format brand-reel --platforms tiktok --repo "{base}/repo-a" >/dev/null && '
+        f'{memsh("two")} prefer --dislike "slow fades" --reason "felt sleepy" --topic motion >/dev/null && '
+        f'{memsh("two")} recall --repo "{base}/repo-b"')]
+    leak_mem = base / "leak-mem"
+    (leak_mem / "memory").mkdir(parents=True)
+    (leak_mem / "memory" / "profile.json").write_text("{}")
+    exd = base / "explainer-in"
+    exd.mkdir()
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=220:duration=4", str(exd / "voice.wav")], check=True)
+    said = [("Padle", 0.10, 0.45), ("moves", 0.50, 0.80), ("fast.", 0.85, 1.20), ("Read", 1.40, 1.60), ("the", 1.62, 1.70),
+            ("rally", 1.72, 2.10), ("now.", 2.15, 2.40), ("That", 2.70, 2.90), ("is", 2.92, 3.00), ("how.", 3.02, 3.40)]
+    (exd / "transcript.json").write_text(json.dumps([{"text": t, "start": a, "end": b} for t, a, b in said]))
+    (exd / "script.txt").write_text("Padel moves fast. Read the rally now. That is how.")
+    (exd / "scenes.json").write_text(json.dumps([{"say": "Padel moves fast", "headline": "Padel moves fast.", "sub": "Every rally tells a story."},
+                                                 {"say": "Read the rally", "headline": "Read the rally"}, {"say": "That is how", "headline": "That is how."}]))
+    (exd / "scenes-lost.json").write_text(json.dumps([{"say": "Padel moves fast", "headline": "A"}, {"say": "Serve and volley", "headline": "B"}]))
+    (exd / "scenes-long.json").write_text(json.dumps([{"say": "Padel moves", "headline": "A headline that is far too long for one scene"}, {"say": "That is", "headline": "B"}]))
+    ex_out = repo / "reels" / "videos" / "explainer"
+    explainer = lambda scenes="scenes.json", out=ex_out, *extra: [py, str(EXPLAINER), "--brand", "test", "--voice", str(exd / "voice.wav"),
+                                                                  "--transcript", str(exd / "transcript.json"), "--scenes", str(exd / scenes),
+                                                                  "--script", str(exd / "script.txt"), "--out", str(out), "--platform", "tiktok", *extra]
     snd = lambda n, **kw: str(make_sound_video(base, n, **kw))
     cues = base / "cues.json"
     cues.write_text(json.dumps([{"cue": f"flash {i + 1}", "picture_t": t} for i, t in enumerate(SOUND_CUES)]))
@@ -678,8 +778,55 @@ else:
         ("reference: a video without sound has no beats", lambda: ref("beats", vid("still")), 1, "no sound"),
         ("styles: a picture is kept as a reference", lambda: refs(base / "ref-still.png"), 0, "1 reference(s)"),
         ("styles: a raw video is refused as a reference", lambda: refs(vid("still")), 1, "is a video"),
+        ("toolbox: every shipped card and capability is valid", lambda: [py, str(TOOLBOX_PY), "lint"], 0, "all valid"),
+        ("toolbox: a card with a non-commercial licence fails lint", lambda: tbx("nc", "lint"), 1, "blocked by policy"),
+        ("toolbox: a downloaded power without a checksum fails lint", lambda: tbx("nosum", "lint"), 1, "needs sha256 or sums"),
+        ("toolbox: install refuses a blocked licence", lambda: tbx("nc", "install", "ncvoice"), 4, "licence block"),
+        ("toolbox: nothing to provide a capability prints its fallback", lambda: tbx("empty", "which", "voice-over"), 3, "fallback: on-screen text"),
+        ("toolbox: an unknown capability is a usage error", lambda: tbx("empty", "which", "teleport"), 2, "unknown capability"),
+        ("toolbox: a download whose checksum is wrong is refused", lambda: tbx("local", "install", "badsum"), 1, "checksum mismatch"),
+        ("toolbox: a download with the right checksum installs", lambda: tbx("local", "install", "localtool"), 0, "localtool 1.0 installed"),
+        ("toolbox: the installed power passes its smoke test", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in tbx("local", "install", "localtool")) + " >/dev/null 2>&1 && " + " ".join(f'"{x}"' for x in tbx("local", "smoke", "localtool"))], 0, "✅ localtool: passed"),
+        ("toolbox: a power that is not installed fails its smoke test", lambda: tbx("local", "smoke", "badsum"), 1, "not installed"),
+        ("toolbox: vendor copies browser files into the project", lambda: tbx("local", "vendor", "fakelib", str(tbox / "project")), 0, "vendor/fake.js"),
+        ("toolbox: vendor credits the library in CREDITS.md", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in tbx("local", "vendor", "fakelib", str(tbox / "project"))) + f' >/dev/null && cat "{tbox}/project/CREDITS.md"'], 0, "fakelib 1.0.0 (MIT)"),
+        ("toolbox: the update watch stays quiet when checked this week", lambda: tbx("empty", "updates", "--if-due"), 0, "last checked 0 day(s) ago"),
+        ("licence: non-commercial is blocked", lambda: lic("CC-BY-NC-4.0", "library"), 0, "block"),
+        ("licence: free text with a non-commercial clause is blocked", lambda: lic("Free for non-commercial or academic use", "library"), 0, "block"),
+        ("licence: an unknown licence is reviewed, never allowed", lambda: lic("", "library"), 0, "review"),
+        ("licence: GPL inside our code needs a review", lambda: lic("GPL-3.0", "library"), 0, "review"),
+        ("licence: GPL as a separate program is fine", lambda: lic("GPL-3.0", "separate-program"), 0, "allow"),
+        ("licence: MIT OR AGPL lets us choose MIT", lambda: lic("MIT OR AGPL-3.0", "library"), 0, "allow"),
+        ("licence: MIT AND AGPL is blocked", lambda: lic("MIT AND AGPL-3.0", "library"), 0, "block"),
+        ("installer: old reel-* skill folders go when kit-to-clip is in the user's skills", lambda: legacy("user"), 0, "left: hyperframes;"),
+        ("installer: old reel-* skill folders stay when no kit-to-clip is found", lambda: legacy("none"), 0, "left: hyperframes;reel-brand;reel-finish;reel-formats;reel-studio;"),
+        ("flash: a full-frame strobe at 5 flashes a second fails", lambda: fin("flash", clip("strobe5")), 1, "over the safe limit of 3"),
+        ("flash: a blink once a second passes", lambda: fin("flash", clip("blink1")), 0, "at most 1 flash in any second"),
+        ("flash: a tiny strobing corner box passes (small-area rule)", lambda: fin("flash", clip("smallbox")), 0, "at most 0 flashes"),
+        ("flash: a red strobe fails", lambda: fin("flash", clip("red5")), 1, "over the safe limit"),
+        ("flash: a slow fade passes", lambda: fin("flash", clip("fade")), 0, "at most 0 flashes"),
+        ("loop: a still for reduced motion is written from the last frame", lambda: fin("loop", clip("moving"), "--out", str(base / "out" / "rm"), "--export", "mp4"), None, "still on the last frame"),
+        ("loop: the embed shows the still to people who turn motion off", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in fin("loop", clip("moving"), "--out", str(base / "out" / "rm2"), "--export", "mp4,webm")) + f' >/dev/null; cat "{base}/out/rm2/moving-loop.report.json"'], None, "prefers-reduced-motion: reduce"),
+        ("loop: a loop over 5 s gets a pause button", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in fin("loop", clip("moving"), "--out", str(base / "out" / "rm3"), "--export", "mp4")) + f' >/dev/null; cat "{base}/out/rm3/moving-loop.report.json"'], None, "k2c-pause"),
+        ("explainer: builds for the test brand, scenes on their words", lambda: explainer(), 0, "3 scenes on their words"),
+        ("explainer: captions follow the approved script's spelling", lambda: explainer(), 0, "'Padle' -> 'Padel'"),
+        ("explainer: every scene starts on its spoken word (anchors)", lambda: fin("anchors", "--project", str(ex_out)), 0, "3 anchored element(s)"),
+        ("explainer: passes the console check", lambda: fin("check", "--project", str(ex_out)), 0, "seeks cleanly"),
+        ("explainer: opens on content, not empty background (hook)", lambda: fin("hook", "--project", str(ex_out)), 0, "first frame shows"),
+        ("explainer: stays inside the TikTok safe box", lambda: fin("safe", "--project", str(ex_out), "--platform", "tiktok"), 0, "stay inside"),
+        ("explainer: a scene whose words are not in the voice is refused", lambda: explainer("scenes-lost.json", ex_out.with_name("explainer-lost")), 2, "was not found in the transcript"),
+        ("explainer: a headline over its limit is refused", lambda: explainer("scenes-long.json", ex_out.with_name("explainer-long")), 2, "the limit is 34"),
+        ("explainer: every illustration style builds", lambda: ["bash", "-c", " && ".join(" ".join(f'"{x}"' for x in explainer("scenes.json", ex_out.with_name(f"explainer-{st}"), "--style", st)) + " >/dev/null" for st in ("cut-paper", "risograph", "sketchbook", "isometric")) + " && echo all styles built"], 0, "all styles built"),
+        ("memory: an empty memory says so and exits 3", lambda: mem("fresh", "recall"), 3, "No memory yet"),
+        ("memory: a brand used in one repo is offered first in another", lambda: two_sessions(), 0, "Offer first: the acme brand"),
+        ("memory: likes and dislikes come back with their reasons", lambda: two_sessions(), 0, "Avoid: slow fades (felt sleepy)"),
+        ("memory: the newest word on the same thing wins", lambda: ["bash", "-c", f'{memsh("flip")} prefer --dislike "hard cuts" >/dev/null && {memsh("flip")} prefer --like "hard cuts" --reason "changed my mind" >/dev/null && {memsh("flip")} show'], 0, "!avoids (general): hard cuts"),
+        ("memory: forgetting a brand removes its jobs and preferences", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in two_sessions()) + f' >/dev/null && {memsh("two")} forget --brand acme >/dev/null && {memsh("two")} recall'], 0, "!acme"),
+        ("memory: it lives in the engine folder by default, never in the repo", lambda: ["env", "-u", "KIT_TO_CLIP_MEMORY", f"REEL_STUDIO={base / 'eng'}", py, "-c", f"import sys; sys.path.insert(0, {str(MEMORY_PY.parent)!r}); import memory; print(memory.memory_dir())"], 0, str(base / "eng" / "memory")),
         ("guide: the brand-pack guide's example pack bridges", lambda: [py, str(BRIDGE), "--brand", "acme", "--brand-skill", str(guide_kit), "--project", str(base / "guide-project")], 0, "token contract: v1"),
-    ]
+    ] + ([
+        ("leakscan: a person's memory in an export is caught", lambda: [py, str(LEAKSCAN), str(leak_mem)], 1, "local memory or toolbox state"),
+    ] if LEAKSCAN.is_file() else [])
 
 
 def main():

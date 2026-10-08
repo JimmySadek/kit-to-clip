@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "id": "rapier",
+  "name": "Rapier 2D physics",
+  "about": "2D physics (falling, bouncing, piling up), simulated once in Node and baked to positions per frame",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 12,
+  "homepage": "https://rapier.rs",
+  "capabilities": [
+    "physics"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "library"
+  },
+  "upstream": {
+    "npm": "@dimforge/rapier2d-compat",
+    "github": "dimforge/rapier.js"
+  },
+  "pinned": "0.21.0",
+  "install": {
+    "packages": [
+      "@dimforge/rapier2d-compat@{version}"
+    ],
+    "entries": {
+      "module": "node_modules/@dimforge/rapier2d-compat/dist/rapier.mjs"
+    },
+    "main": "module"
+  },
+  "read_before_use": [
+    "https://rapier.rs/docs/user_guides/javascript/getting_started_js"
+  ],
+  "smoke": {
+    "timeout": 120,
+    "steps": [
+      {
+        "sh": "printf '%s' '{\"width\":400,\"height\":400,\"fps\":30,\"duration\":1,\"gravity\":1800,\"walls\":true,\"bodies\":[{\"shape\":\"box\",\"size\":40,\"x\":200,\"y\":60},{\"shape\":\"ball\",\"size\":40,\"x\":210,\"y\":0}]}' > {scratch}/spec.json"
+      },
+      {
+        "sh": "node {skill}/toolbox/helpers/physics_bake.mjs {scratch}/spec.json {scratch}/baked.json --rapier {module}"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/baked.json",
+        "min_bytes": 500,
+        "contains": "\"frames\""
+      }
+    ]
+  },
+  "recipe": "recipes/physics.md",
+  "fallback": "hand-keyed bounces with GSAP eases"
+}

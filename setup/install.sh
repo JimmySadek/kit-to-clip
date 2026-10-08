@@ -148,11 +148,19 @@ EOF
 [ -z "$MISSING" ] || fail "These skills did not install: $MISSING" "skills experimental_install"
 ok "$(ls -d "$STUDIO"/.claude/skills/*/ | wc -l | tr -d ' ') skills in place"
 
-# Kit to Clip used to be four skills (reel-studio, reel-brand, reel-formats, reel-finish). A studio updated to the
-# one-skill layout drops those folders, so the agent never sees two copies of the engine.
-if [ -f "$STUDIO/.claude/skills/kit-to-clip/SKILL.md" ]; then
+# Kit to Clip used to be four skills (reel-studio, reel-brand, reel-formats, reel-finish). Once the one-skill layout is
+# in use anywhere (inside this studio, in the person's own skills folder, or this setup is running from the skill
+# itself), those folders are old copies of the engine, so drop them and the agent never sees two engines.
+ONE_SKILL=""
+for k in "$STUDIO/.claude/skills/kit-to-clip/SKILL.md" "$HOME/.claude/skills/kit-to-clip/SKILL.md" "$SETUP/../SKILL.md"; do
+  if [ -f "$k" ] && grep -q '^name: kit-to-clip$' "$k"; then ONE_SKILL="$k"; break; fi
+done
+if [ -n "$ONE_SKILL" ]; then
+  echo "one-skill layout found at $ONE_SKILL" >>"$LOG"
   for old in reel-studio reel-brand reel-formats reel-finish; do
-    if [ -d "$STUDIO/.claude/skills/$old" ]; then rm -rf "${STUDIO:?}/.claude/skills/$old"; echo "removed old skill folder $old" >>"$LOG"; fi
+    if [ -d "$STUDIO/.claude/skills/$old" ]; then
+      if rm -rf "${STUDIO:?}/.claude/skills/$old"; then echo "removed old skill folder $old" >>"$LOG"; else echo "could not remove old skill folder $old" >>"$LOG"; fi
+    fi
   done
 fi
 

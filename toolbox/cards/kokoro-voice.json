@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "id": "kokoro-voice",
+  "name": "Free voice (Kokoro)",
+  "about": "a natural voice reading a script, on this computer: 12 voices, English, Spanish, French, Italian, Portuguese, Hindi, Japanese, Chinese",
+  "kind": "pip",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 500,
+  "homepage": "https://github.com/thewh1teagle/kokoro-onnx",
+  "capabilities": [
+    "voice-over"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "separate-program",
+    "model_spdx": "Apache-2.0",
+    "model": "Kokoro-82M (hexgrad)",
+    "url": "https://github.com/thewh1teagle/kokoro-onnx"
+  },
+  "upstream": {
+    "pypi": "kokoro-onnx",
+    "github": "thewh1teagle/kokoro-onnx",
+    "hf": "hexgrad/Kokoro-82M"
+  },
+  "pinned": "0.6.1",
+  "install": {
+    "packages": [
+      "kokoro-onnx=={version}",
+      "soundfile==0.14.0"
+    ],
+    "main": "python"
+  },
+  "smoke": {
+    "timeout": 900,
+    "steps": [
+      {
+        "sh": "HYPERFRAMES_PYTHON={python} {engine}/node_modules/.bin/hyperframes tts 'Kit to Clip voice check.' -v am_michael -o {scratch}/voice.wav --json > {scratch}/tts.json"
+      },
+      {
+        "sh": "ffprobe -v error -show_entries format=duration -of csv=p=0 {scratch}/voice.wav > {scratch}/duration.txt && awk '{exit !($1 > 0.8)}' {scratch}/duration.txt"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/voice.wav",
+        "min_bytes": 20000
+      },
+      {
+        "file": "{scratch}/tts.json",
+        "contains": "\"ok\":true"
+      }
+    ]
+  },
+  "recipe": "recipes/voice.md",
+  "fallback": "on-screen text instead of a voice"
+}

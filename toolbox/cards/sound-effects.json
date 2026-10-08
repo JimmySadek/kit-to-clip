@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "sound-effects",
+  "name": "Sound effects from the motion (built in)",
+  "about": "whooshes, hits and risers placed on the motion and tuned to the music's key",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "sound-effects"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "library"
+  },
+  "detect": {
+    "files": [
+      "{skill}/sound/scripts/effects.py"
+    ]
+  },
+  "guide": "sound/README.md",
+  "fallback": "no sound effects"
+}

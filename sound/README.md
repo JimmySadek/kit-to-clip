@@ -18,12 +18,12 @@ steps 1 to 3 are done.
 
 ## 1. The music source (✋, first question)
 
-Ask before anything else, with options named for this video (offer every row that can work; the music maker needs nothing installed beyond the engine):
+Ask before anything else, with options named for this video (offer every row that can work; the music maker needs nothing installed beyond the engine). Kit to Clip is free and local: never offer a source that needs an account, a key or a payment (the HyperFrames `media-use` library needs a HeyGen login, so it is not used):
 
 | Option | What it needs |
 |---|---|
 | They supply a track | the file. Get its beats: add it to the project as the root `<audio>`, then `npx hyperframes beats <project>` writes `beats/<audio>.json` (the HyperFrames `music-to-video` workflow builds on it). For a track outside a project, `python3 <kit-to-clip>/scripts/reference.py beats <file>` reports its tempo and strongest hits (it uses a throwaway project and saves nothing) |
-| Music from the library | the HyperFrames `media-use` music search, which **needs the HeyGen login**. Say so now, before any build, and ask for the login (`media-use resolve --doctor` shows whether it is there) |
+| An original track from a description | the `music-generate` power (`toolbox.py which music-generate`): free, runs on this computer, ✋ before adding it. Offer it when the brief asks for a song-like track the four built-in styles cannot give |
 | No music, effects only | the effects still need a tempo to sit on: pick one in step 2 and say the video has no music |
 | Music made offline | the built-in music maker: four styles, any key, no login and no licence (section "Music made offline"). An option, never a requirement |
 

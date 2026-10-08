@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "motion",
+  "name": "Motion (springs)",
+  "about": "real spring physics for app-like, bouncy UI motion, sampled by video time",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 13,
+  "homepage": "https://motion.dev",
+  "capabilities": [
+    "spring-motion"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "motion",
+    "github": "motiondivision/motion"
+  },
+  "pinned": "14.0.0",
+  "install": {
+    "packages": [
+      "motion@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/motion/dist/motion.js": "motion.js"
+    }
+  },
+  "read_before_use": [
+    "https://motion.dev/docs/spring.md",
+    "https://motion.dev/docs/animate.md",
+    "https://motion.dev/llms.txt"
+  ],
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {motion.js} {scratch}/motion.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/motion.js",
+        "min_bytes": 100000,
+        "contains": "MotionGlobalConfig"
+      }
+    ]
+  },
+  "recipe": "recipes/motion.md",
+  "fallback": "GSAP elastic and back eases"
+}

@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "music-maker",
+  "name": "Music maker (built in)",
+  "about": "background music in four styles (pulse, calm, uplift, cinematic), sized to whole bars",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "music"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "library"
+  },
+  "detect": {
+    "files": [
+      "{skill}/sound/scripts/score.py"
+    ]
+  },
+  "guide": "sound/README.md",
+  "fallback": "no music: sound effects only, or the footage's own sound"
+}

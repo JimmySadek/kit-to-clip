@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "parakeet",
+  "name": "Fast transcription (Parakeet)",
+  "about": "speech to word timings for captions, on Apple silicon, no Homebrew needed (25 European languages)",
+  "kind": "pip",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 900,
+  "homepage": "https://github.com/senstella/parakeet-mlx",
+  "capabilities": [
+    "transcribe"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "separate-program",
+    "model_spdx": "CC-BY-4.0",
+    "model": "parakeet-tdt-0.6b-v3 (NVIDIA), MLX build by mlx-community: credit NVIDIA when captions ship",
+    "url": "https://github.com/senstella/parakeet-mlx"
+  },
+  "upstream": {
+    "pypi": "parakeet-mlx",
+    "github": "senstella/parakeet-mlx",
+    "hf": "mlx-community/parakeet-tdt-0.6b-v3"
+  },
+  "pinned": "0.5.3",
+  "install": {
+    "packages": [
+      "parakeet-mlx=={version}"
+    ],
+    "entries": {
+      "cli": "venv/bin/parakeet-mlx"
+    },
+    "main": "cli"
+  },
+  "smoke": {
+    "timeout": 1200,
+    "steps": [
+      {
+        "sh": "say -v Samantha -o {scratch}/speech.aiff 'Read the rally. Every point tells a story.' && ffmpeg -v error -y -i {scratch}/speech.aiff -ar 16000 -ac 1 {scratch}/speech.wav"
+      },
+      {
+        "sh": "HYPERFRAMES_PARAKEET={cli} {engine}/node_modules/.bin/hyperframes transcribe {scratch}/speech.wav -d {scratch} --json > {scratch}/result.json"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/result.json",
+        "contains": "\"engine\":\"parakeet\""
+      },
+      {
+        "file": "{scratch}/transcript.json",
+        "contains": "rally"
+      }
+    ]
+  },
+  "recipe": "recipes/hf-transcribe.md",
+  "fallback": "whisper.cpp (Homebrew), the video reader's Whisper, or type the words in"
+}

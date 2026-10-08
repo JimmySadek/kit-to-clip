@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "id": "finish",
+  "name": "Finishing and checks (built in)",
+  "about": "platform profiles, safe areas, loudness, share copies, covers, contact sheets, the flash guard and reduced-motion stills",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "platform-finish",
+    "flash-guard",
+    "reduced-motion"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "library"
+  },
+  "detect": {
+    "files": [
+      "{skill}/finish/scripts/finish.py"
+    ]
+  },
+  "guide": "finish/README.md",
+  "fallback": "none: always available"
+}

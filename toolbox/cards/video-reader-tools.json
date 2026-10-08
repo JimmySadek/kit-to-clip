@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "id": "video-reader-tools",
+  "name": "Downloader and Whisper (for the video reader)",
+  "about": "yt-dlp downloads a link's file; Whisper writes its transcript when the site has no captions",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 2,
+  "size_mb": 1500,
+  "capabilities": [
+    "transcribe"
+  ],
+  "licence": {
+    "spdx": "Unlicense AND MIT",
+    "usage": "separate-program",
+    "model_spdx": "MIT",
+    "model": "Whisper (OpenAI) weights"
+  },
+  "upstream": {
+    "pypi": "yt-dlp",
+    "github": "yt-dlp/yt-dlp"
+  },
+  "detect": {
+    "commands": [
+      "yt-dlp",
+      "mlx_whisper|whisper"
+    ]
+  },
+  "install": {
+    "command": "python3 {skill}/scripts/reference.py tools --install"
+  },
+  "guide": "references/reference-video.md",
+  "fallback": "ask for the file and type the words in"
+}

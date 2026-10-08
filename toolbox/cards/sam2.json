@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "id": "sam2",
+  "name": "Object masks in video (SAM 2)",
+  "about": "follows any object through a clip from one click or box (ball, racket, product, person) and cuts it out, on this computer",
+  "kind": "pip",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 1100,
+  "homepage": "https://github.com/facebookresearch/sam2",
+  "capabilities": [
+    "video-mask",
+    "cutout"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "separate-program",
+    "model_spdx": "Apache-2.0",
+    "model": "SAM 2.1 hiera small (Meta)",
+    "url": "https://github.com/facebookresearch/sam2/blob/main/LICENSE"
+  },
+  "upstream": {
+    "github": "facebookresearch/sam2"
+  },
+  "pinned": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+  "install": {
+    "packages": [
+      "git+https://github.com/facebookresearch/sam2.git@{version}"
+    ],
+    "env": {
+      "SAM2_BUILD_CUDA": "0"
+    },
+    "post": [
+      {
+        "sh": "mkdir -p {tools}/checkpoints && curl -fsSL --retry 3 -o {tools}/checkpoints/sam2.1_hiera_small.pt https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt && echo '6d1aa6f30de5c92224f8172114de081d104bbd23dd9dc5c58996f0cad5dc4d38  {tools}/checkpoints/sam2.1_hiera_small.pt' | shasum -a 256 -c -"
+      }
+    ],
+    "main": "python"
+  },
+  "smoke": {
+    "timeout": 1800,
+    "steps": [
+      {
+        "sh": "ffmpeg -v error -y -f lavfi -i \"color=0x1d4ed8:s=320x240:r=15:d=2\" -f lavfi -i \"color=0xffd400:s=36x36:r=15:d=2\" -filter_complex \"[1]geq=lum='if(lt(hypot(X-18,Y-18),17),255,0)':a='if(lt(hypot(X-18,Y-18),17),255,0)',format=yuva420p[b];[0][b]overlay=x='30+110*t':y='100+30*sin(3*t)'\" -pix_fmt yuv420p {scratch}/ball.mp4"
+      },
+      {
+        "sh": "{python} {skill}/toolbox/helpers/sam2_mask.py {scratch}/ball.mp4 {scratch}/out --point 48,118 > {scratch}/log.txt"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/out/object.webm",
+        "min_bytes": 2000
+      },
+      {
+        "file": "{scratch}/out/report.json",
+        "contains": "\"frames_lost\": 0"
+      }
+    ]
+  },
+  "recipe": "recipes/sam2.md",
+  "fallback": "text in front, or a cutout on a frozen frame (hf-cutout / rembg)"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "hf-cutout",
+  "name": "Background removal (HyperFrames)",
+  "about": "cuts people out of photos and whole clips (transparent PNG, WebM or ProRes), locally",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 200,
+  "capabilities": [
+    "cutout",
+    "video-mask"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "separate-program",
+    "model_spdx": "Apache-2.0",
+    "model": "u2net_human_seg (U-2-Net, via rembg releases)",
+    "url": "https://github.com/xuebinqin/U-2-Net/blob/master/LICENSE"
+  },
+  "upstream": {
+    "github": "heygen-com/hyperframes"
+  },
+  "pinned": "0.8.77",
+  "detect": {
+    "files": [
+      "{engine}/node_modules/.bin/hyperframes"
+    ]
+  },
+  "recipe": "recipes/hf-cutout.md",
+  "fallback": "use the image with its background, or a soft vignette mask"
+}

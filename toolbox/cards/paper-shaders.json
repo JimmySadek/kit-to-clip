@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "id": "paper-shaders",
+  "name": "Paper Shaders",
+  "about": "living shader backgrounds in brand colours: mesh gradients, grain, liquid metal, noise (WebGL)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 2,
+  "homepage": "https://shaders.paper.design",
+  "capabilities": [
+    "shader-background"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "@paper-design/shaders",
+    "github": "paper-design/shaders"
+  },
+  "pinned": "0.0.81",
+  "install": {
+    "packages": [
+      "@paper-design/shaders@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/@paper-design/shaders/dist/empty-pixel.js": "paper-shaders/empty-pixel.js",
+      "node_modules/@paper-design/shaders/dist/get-shader-color-from-string.js": "paper-shaders/get-shader-color-from-string.js",
+      "node_modules/@paper-design/shaders/dist/get-shader-noise-texture.js": "paper-shaders/get-shader-noise-texture.js",
+      "node_modules/@paper-design/shaders/dist/index.js": "paper-shaders/index.js",
+      "node_modules/@paper-design/shaders/dist/shader-color-spaces.js": "paper-shaders/shader-color-spaces.js",
+      "node_modules/@paper-design/shaders/dist/shader-mount.js": "paper-shaders/shader-mount.js",
+      "node_modules/@paper-design/shaders/dist/shader-sizing.js": "paper-shaders/shader-sizing.js",
+      "node_modules/@paper-design/shaders/dist/shader-utils.js": "paper-shaders/shader-utils.js",
+      "node_modules/@paper-design/shaders/dist/shaders/color-panels.js": "paper-shaders/shaders/color-panels.js",
+      "node_modules/@paper-design/shaders/dist/shaders/dithering.js": "paper-shaders/shaders/dithering.js",
+      "node_modules/@paper-design/shaders/dist/shaders/dot-grid.js": "paper-shaders/shaders/dot-grid.js",
+      "node_modules/@paper-design/shaders/dist/shaders/dot-orbit.js": "paper-shaders/shaders/dot-orbit.js",
+      "node_modules/@paper-design/shaders/dist/shaders/fluted-glass.js": "paper-shaders/shaders/fluted-glass.js",
+      "node_modules/@paper-design/shaders/dist/shaders/gem-smoke.js": "paper-shaders/shaders/gem-smoke.js",
+      "node_modules/@paper-design/shaders/dist/shaders/god-rays.js": "paper-shaders/shaders/god-rays.js",
+      "node_modules/@paper-design/shaders/dist/shaders/grain-gradient.js": "paper-shaders/shaders/grain-gradient.js",
+      "node_modules/@paper-design/shaders/dist/shaders/halftone-cmyk.js": "paper-shaders/shaders/halftone-cmyk.js",
+      "node_modules/@paper-design/shaders/dist/shaders/halftone-dots.js": "paper-shaders/shaders/halftone-dots.js",
+      "node_modules/@paper-design/shaders/dist/shaders/heatmap.js": "paper-shaders/shaders/heatmap.js",
+      "node_modules/@paper-design/shaders/dist/shaders/image-dithering.js": "paper-shaders/shaders/image-dithering.js",
+      "node_modules/@paper-design/shaders/dist/shaders/lens-distortion.js": "paper-shaders/shaders/lens-distortion.js",
+      "node_modules/@paper-design/shaders/dist/shaders/liquid-metal.js": "paper-shaders/shaders/liquid-metal.js",
+      "node_modules/@paper-design/shaders/dist/shaders/mesh-gradient.js": "paper-shaders/shaders/mesh-gradient.js",
+      "node_modules/@paper-design/shaders/dist/shaders/metaballs.js": "paper-shaders/shaders/metaballs.js",
+      "node_modules/@paper-design/shaders/dist/shaders/neuro-noise.js": "paper-shaders/shaders/neuro-noise.js",
+      "node_modules/@paper-design/shaders/dist/shaders/paper-texture.js": "paper-shaders/shaders/paper-texture.js",
+      "node_modules/@paper-design/shaders/dist/shaders/perlin-noise.js": "paper-shaders/shaders/perlin-noise.js",
+      "node_modules/@paper-design/shaders/dist/shaders/pulsing-border.js": "paper-shaders/shaders/pulsing-border.js",
+      "node_modules/@paper-design/shaders/dist/shaders/simplex-noise.js": "paper-shaders/shaders/simplex-noise.js",
+      "node_modules/@paper-design/shaders/dist/shaders/smoke-ring.js": "paper-shaders/shaders/smoke-ring.js",
+      "node_modules/@paper-design/shaders/dist/shaders/spiral.js": "paper-shaders/shaders/spiral.js",
+      "node_modules/@paper-design/shaders/dist/shaders/static-mesh-gradient.js": "paper-shaders/shaders/static-mesh-gradient.js",
+      "node_modules/@paper-design/shaders/dist/shaders/static-radial-gradient.js": "paper-shaders/shaders/static-radial-gradient.js",
+      "node_modules/@paper-design/shaders/dist/shaders/swirl.js": "paper-shaders/shaders/swirl.js",
+      "node_modules/@paper-design/shaders/dist/shaders/voronoi.js": "paper-shaders/shaders/voronoi.js",
+      "node_modules/@paper-design/shaders/dist/shaders/warp.js": "paper-shaders/shaders/warp.js",
+      "node_modules/@paper-design/shaders/dist/shaders/water.js": "paper-shaders/shaders/water.js",
+      "node_modules/@paper-design/shaders/dist/shaders/waves.js": "paper-shaders/shaders/waves.js",
+      "node_modules/@paper-design/shaders/dist/types.js": "paper-shaders/types.js",
+      "node_modules/@paper-design/shaders/dist/vertex-shader.js": "paper-shaders/vertex-shader.js"
+    }
+  },
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {index.js} {scratch}/index.js && cp {mesh-gradient.js} {scratch}/mesh-gradient.js && cp {shader-mount.js} {scratch}/shader-mount.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/index.js",
+        "min_bytes": 4000,
+        "contains": "meshGradientFragmentShader"
+      },
+      {
+        "file": "{scratch}/shader-mount.js",
+        "min_bytes": 15000,
+        "contains": "class ShaderMount"
+      },
+      {
+        "file": "{scratch}/mesh-gradient.js",
+        "min_bytes": 2000,
+        "contains": "u_colors"
+      }
+    ]
+  },
+  "recipe": "recipes/paper-shaders.md",
+  "fallback": "CSS gradients animated with GSAP"
+}

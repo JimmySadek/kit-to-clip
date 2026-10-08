@@ -1,0 +1,5 @@
+/* Sketchbook: ruled paper, pencil loops and arrows drawn on, the headline as written in the margin. */
+.bg { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--u) * 4.6),
+      color-mix(in srgb, var(--reel-fg) 9%, transparent) calc(var(--u) * 4.6), transparent calc(var(--u) * 4.7)); }
+.scene-art .pencil { fill: none; stroke: var(--reel-fg); stroke-linecap: round; stroke-linejoin: round; }
+.scene-art .marker { fill: none; stroke: var(--reel-accent); stroke-linecap: round; opacity: .9; }

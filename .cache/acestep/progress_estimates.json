@@ -1,0 +1,1 @@
+{"records": [{"device": "mps", "infer_steps": 8, "batch_size": 1, "duration_sec": 16.0, "duration_bucket": "short", "per_step_sec": 2.863743245601654, "updated_at": 1791484737.458865}], "updated_at": 1791484737.458981}

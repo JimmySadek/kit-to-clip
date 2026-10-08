@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "id": "vectorcraft",
+  "name": "VectorCraft",
+  "about": "vector files (Illustrator style): .ai/.eps/.pdf to SVG, image trace, path simplify",
+  "kind": "release",
+  "maturity": "early",
+  "rank": 1,
+  "size_mb": 160,
+  "homepage": "https://getartcraft.com/apps/vectorcraft",
+  "capabilities": [
+    "logo-convert",
+    "path-simplify",
+    "image-trace"
+  ],
+  "licence": {
+    "spdx": "MIT OR Apache-2.0",
+    "usage": "separate-program",
+    "url": "https://github.com/storytold/vectorcraft"
+  },
+  "upstream": {
+    "github": "storytold/vectorcraft"
+  },
+  "pinned": "0.6.0",
+  "install": {
+    "repo": "storytold/vectorcraft",
+    "tag": "v{version}",
+    "asset": "vectorcraft-cli-{version}-macos-universal.zip",
+    "sums": "SHA256SUMS.txt",
+    "sha256": {
+      "0.6.0": "47dce4f9c551dddbd8efe0f44c8af43a4123c488173c1df486987ae19a1d2bbc"
+    },
+    "extract": "zip",
+    "entries": {
+      "cli": "vectorcraft-cli-{version}-macos-universal/vectorcraft-cli"
+    },
+    "main": "cli"
+  },
+  "read_before_use": [
+    "https://github.com/storytold/vectorcraft/blob/main/docs/mcp.md",
+    "https://github.com/storytold/vectorcraft/blob/main/docs/control-protocol.md"
+  ],
+  "watch": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
+    ".mcp.json",
+    "skills",
+    "docs/mcp.md",
+    "docs/control-protocol.md"
+  ],
+  "recipe": "recipes/vectorcraft.md",
+  "fallback": "ask the brand for an SVG; use paths as they are",
+  "smoke": {
+    "timeout": 300,
+    "steps": [
+      {
+        "sh": "{cli} convert {fixtures}/mark.svg {scratch}/mark.pdf"
+      },
+      {
+        "sh": "{cli} convert {scratch}/mark.pdf {scratch}/back.svg"
+      },
+      {
+        "sh": "{cli} run --in {fixtures}/jagged.svg --cmd select.all --cmd object.path.simplify --params '{\"tolerance\":1.5}' --export {scratch}/smooth.svg > {scratch}/simplify.log"
+      },
+      {
+        "sh": "{python3} -c \"import json,sys; r=[json.loads(l) for l in open(sys.argv[1]) if 'simplify' in l][0]['result']; sys.exit(0 if r['after'] < r['before'] / 3 else 1)\" {scratch}/simplify.log"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/back.svg",
+        "min_bytes": 200,
+        "contains": "<path"
+      },
+      {
+        "file": "{scratch}/smooth.svg",
+        "min_bytes": 200,
+        "contains": "<path"
+      }
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Teaser loop (neutral format, draft): a still teaser brought to life as a seamless loop. It opens on the finished
+"""Teaser loop (neutral format, trial): a still teaser brought to life as a seamless loop. It opens on the finished
 layout, so the first frame (and the thumbnail) reads at once; the background breathes around its focus, an accent ring
 pulses, the accent line draws under the focal word and sweeps away, the media floats, and every motion is periodic,
 so the last frame flows into the first. Works with any brand whose video pack has token contract v1.

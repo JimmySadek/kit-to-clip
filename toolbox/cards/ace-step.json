@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "id": "ace-step",
+  "name": "Music generator (ACE-Step 1.5)",
+  "about": "an original track from a description: genre, mood, tempo, key, length (instrumental or with lyrics), on this computer",
+  "kind": "pip",
+  "maturity": "early",
+  "rank": 1,
+  "size_mb": 12000,
+  "homepage": "https://github.com/ace-step/ACE-Step-1.5",
+  "capabilities": [
+    "music-generate"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "separate-program",
+    "model_spdx": "MIT",
+    "model": "ACE-Step 1.5 (ACE Studio, StepFun)",
+    "url": "https://github.com/ace-step/ACE-Step-1.5/blob/main/LICENSE"
+  },
+  "upstream": {
+    "github": "ace-step/ACE-Step-1.5",
+    "hf": "ACE-Step/Ace-Step1.5"
+  },
+  "pinned": "ca1e85fe9430179831e6bc6be790c332190a3866",
+  "install": {
+    "packages": [
+      "git+https://github.com/ace-step/ACE-Step-1.5.git@{version}"
+    ],
+    "main": "python"
+  },
+  "recipe": "recipes/music-generate.md",
+  "fallback": "the built-in music maker (four styles)",
+  "smoke": {
+    "timeout": 1800,
+    "steps": [
+      {
+        "sh": "{python} {skill}/toolbox/helpers/ace_music.py 'calm piano and soft pads' {scratch}/music.wav --bpm 120 --key 'C major' --bars 5 --seed 3 > {scratch}/log.txt 2>&1"
+      },
+      {
+        "sh": "d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 {scratch}/music.wav); awk -v d=$d 'BEGIN{exit !(d>9.9 && d<10.1)}'"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/music.wav",
+        "min_bytes": 500000
+      },
+      {
+        "file": "{scratch}/music.json",
+        "contains": "\"bars\": 5"
+      }
+    ]
+  }
+}

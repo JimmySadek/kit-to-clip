@@ -1,0 +1,6 @@
+/* Isometric: stacked blocks on an isometric grid in the accent, the surface and the text colour. */
+.scene-art .face-top { fill: var(--reel-accent); }
+.scene-art .face-left { fill: color-mix(in srgb, var(--reel-accent) 70%, var(--reel-fg)); }
+.scene-art .face-right { fill: color-mix(in srgb, var(--reel-accent) 45%, var(--reel-bg)); }
+.scene-art .face-top.alt { fill: var(--reel-surface); }
+.scene-art .grid { stroke: color-mix(in srgb, var(--reel-fg) 14%, transparent); stroke-width: .6; fill: none; }

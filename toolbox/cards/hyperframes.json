@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "id": "hyperframes",
+  "name": "The video engine (HyperFrames)",
+  "about": "draws videos from HTML and code, frame by frame; motion, text, Lottie, 3D, footage edits, beats, website capture",
+  "kind": "builtin",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "video-render",
+    "timeline-motion",
+    "text-effects",
+    "lottie-play",
+    "3d",
+    "footage-edit",
+    "beat-sync",
+    "brand-from-website"
+  ],
+  "licence": {
+    "spdx": "Apache-2.0",
+    "usage": "separate-program",
+    "url": "https://github.com/heygen-com/hyperframes/blob/main/LICENSE"
+  },
+  "upstream": {
+    "npm": "hyperframes",
+    "github": "heygen-com/hyperframes"
+  },
+  "pinned": "0.8.77",
+  "homepage": "https://hyperframes.dev",
+  "detect": {
+    "files": [
+      "{engine}/.reel-kit/ready",
+      "{engine}/node_modules/.bin/hyperframes"
+    ]
+  },
+  "watch": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
+    "skills",
+    "packages/cli/README.md"
+  ],
+  "recipe": "recipes/hyperframes.md",
+  "fallback": "none: this is the engine itself; run setup"
+}

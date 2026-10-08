@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "id": "p5-brush",
+  "name": "p5.brush",
+  "about": "watercolour, pencil, charcoal and marker brushes, hatching and flow fields on a p5.js canvas (needs the p5 power)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 47,
+  "homepage": "https://github.com/acamposuribe/p5.brush",
+  "capabilities": [
+    "generative-art"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "p5.brush",
+    "github": "acamposuribe/p5.brush"
+  },
+  "pinned": "2.2.3",
+  "install": {
+    "packages": [
+      "p5.brush@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/p5.brush/dist/p5.brush.js": "p5.brush.js",
+      "node_modules/p5.brush/LICENSE.md": "p5.brush-LICENSE.md"
+    }
+  },
+  "read_before_use": [
+    "https://github.com/acamposuribe/p5.brush#readme"
+  ],
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {p5.brush.js} {scratch}/p5.brush.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/p5.brush.js",
+        "min_bytes": 50000,
+        "contains": "fillBleed"
+      }
+    ]
+  },
+  "recipe": "recipes/generative.md",
+  "fallback": "SVG patterns animated with GSAP"
+}

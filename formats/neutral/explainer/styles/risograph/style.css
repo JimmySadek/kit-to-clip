@@ -1,0 +1,4 @@
+/* Risograph: two inks (the accent and the text colour), halftone dots, a little misregistration, grain. */
+.bg .grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .22; mix-blend-mode: multiply; }
+.scene-headline { text-shadow: calc(var(--u) * .45) calc(var(--u) * .3) 0 var(--reel-accent); }
+.scene-art .tone { mix-blend-mode: multiply; }

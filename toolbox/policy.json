@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "about": "Licence policy for every power Kit to Clip offers and every package the engine installs. Kit to Clip is free and for any use, including commercial work, so a licence that limits commercial use, forces our code open (AGPL) or needs a payment is blocked. Unknown or custom terms are reviewed by a person and the decision is recorded on the card. A block can never be overridden.",
+  "usages": {
+    "library": "loaded or imported by Kit to Clip or the video page",
+    "file-in-project": "an unmodified file copied into one video project, credited in CREDITS.md",
+    "separate-program": "a program Kit to Clip only runs from the command line; nothing of it is copied into our code",
+    "model-weights": "trained weights a tool downloads and runs"
+  },
+  "allow": [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSD-3-Clause-Clear",
+    "ISC",
+    "0BSD",
+    "Zlib",
+    "Unlicense",
+    "CC0-1.0",
+    "BlueOak-1.0.0",
+    "Python-2.0",
+    "PSF-2.0",
+    "BSL-1.0",
+    "OFL-1.1",
+    "CC-BY-4.0",
+    "CC-BY-3.0",
+    "WTFPL",
+    "X11",
+    "Libpng",
+    "libpng-2.0",
+    "HPND",
+    "curl",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "CC-BY-SA-4.0",
+    "MIT-CMU",
+    "NCSA",
+    "ImageMagick",
+    "FTL",
+    "OpenSSL",
+    "Apache-1.1",
+    "CNRI-Python"
+  ],
+  "allow_as": {
+    "MPL-2.0": [
+      "library",
+      "file-in-project",
+      "separate-program"
+    ],
+    "LGPL-2.1-only": [
+      "library",
+      "file-in-project",
+      "separate-program"
+    ],
+    "LGPL-2.1-or-later": [
+      "library",
+      "file-in-project",
+      "separate-program"
+    ],
+    "LGPL-3.0-only": [
+      "library",
+      "file-in-project",
+      "separate-program"
+    ],
+    "LGPL-3.0-or-later": [
+      "library",
+      "file-in-project",
+      "separate-program"
+    ],
+    "GPL-2.0-only": [
+      "separate-program"
+    ],
+    "GPL-2.0-or-later": [
+      "separate-program"
+    ],
+    "GPL-3.0-only": [
+      "separate-program"
+    ],
+    "GPL-3.0-or-later": [
+      "separate-program"
+    ],
+    "EPL-2.0": [
+      "library",
+      "separate-program"
+    ]
+  },
+  "aliases": {
+    "MIT License": "MIT",
+    "The MIT License": "MIT",
+    "Apache 2.0": "Apache-2.0",
+    "Apache License 2.0": "Apache-2.0",
+    "Apache Software License": "Apache-2.0",
+    "Apache License, Version 2.0": "Apache-2.0",
+    "Apache-2": "Apache-2.0",
+    "apache-2.0": "Apache-2.0",
+    "mit": "MIT",
+    "BSD": "BSD-3-Clause",
+    "BSD License": "BSD-3-Clause",
+    "BSD-3": "BSD-3-Clause",
+    "3-Clause BSD License": "BSD-3-Clause",
+    "bsd-3-clause": "BSD-3-Clause",
+    "ISC License": "ISC",
+    "Python Software Foundation License": "PSF-2.0",
+    "Zlib License": "Zlib",
+    "GPL-2.0": "GPL-2.0-only",
+    "GPL-3.0": "GPL-3.0-only",
+    "GPLv2": "GPL-2.0-only",
+    "GPLv3": "GPL-3.0-only",
+    "GPL-2.0+": "GPL-2.0-or-later",
+    "GPL-3.0+": "GPL-3.0-or-later",
+    "LGPL-2.1": "LGPL-2.1-only",
+    "LGPL-3.0": "LGPL-3.0-only",
+    "LGPL-2.1+": "LGPL-2.1-or-later",
+    "MPL 2.0": "MPL-2.0",
+    "Mozilla Public License 2.0 (MPL 2.0)": "MPL-2.0",
+    "cc0-1.0": "CC0-1.0",
+    "cc-by-4.0": "CC-BY-4.0",
+    "openrail": "OpenRAIL",
+    "creativeml-openrail-m": "OpenRAIL-M",
+    "BlueOak-1.0": "BlueOak-1.0.0"
+  },
+  "block": [
+    {
+      "match": "(^|[^a-z])nc([^a-z]|$)|non-?commercial|noncommercial",
+      "why": "limits commercial use"
+    },
+    {
+      "match": "agpl|affero",
+      "why": "would force our code open when used over a network"
+    },
+    {
+      "match": "sspl|server side public",
+      "why": "service-use copyleft"
+    },
+    {
+      "match": "busl|business source",
+      "why": "commercial use needs a paid licence until a later date"
+    },
+    {
+      "match": "prosperity",
+      "why": "commercial use limited to a trial period"
+    },
+    {
+      "match": "commons.?clause",
+      "why": "forbids selling services built on it"
+    },
+    {
+      "match": "elastic-2|elastic license",
+      "why": "limits offering it as a service"
+    },
+    {
+      "match": "polyform-(noncommercial|strict|small-business|perimeter|shield)",
+      "why": "limits commercial use"
+    },
+    {
+      "match": "research only|research-only|for research purposes",
+      "why": "research use only"
+    },
+    {
+      "match": "community licen[cs]e|revenue",
+      "why": "commercial use capped by revenue or size"
+    },
+    {
+      "match": "remotion licen[cs]e",
+      "why": "companies above 3 people need a paid licence"
+    }
+  ],
+  "review": [
+    {
+      "match": "openrail|rail-m|bigscience",
+      "why": "use-based restrictions on the model"
+    },
+    {
+      "match": "llama|gemma|qwen licen",
+      "why": "custom model licence"
+    },
+    {
+      "match": "sam licen",
+      "why": "custom model licence"
+    },
+    {
+      "match": "webflow|gsap|standard.{0,4}no.charge",
+      "why": "custom no-charge licence, not open source"
+    },
+    {
+      "match": "cc-by-nd|no.?deriv",
+      "why": "no changes allowed"
+    },
+    {
+      "match": "proprietary|see licen[cs]e|custom|other|noassertion|unknown|unlicensed",
+      "why": "terms need a person to read them"
+    }
+  ],
+  "decisions": {
+    "libtess": {
+      "verdict": "allow",
+      "note": "SGI Free Software License B 2.0, which since 2008 is the X11 (MIT-style) licence; bundled inside p5.min.js, and the p5 card ships its licence file",
+      "by": "Claude (read the licence)",
+      "date": "2026-10-08"
+    },
+    "pytorch-wavelets": {
+      "verdict": "allow",
+      "note": "MIT for its DWT code, which is all ACE-Step uses (DWT1DForward/DWT1DInverse, haar, for its default 'DCW' on Turbo). Its DTCWT code is research-only (Kingsbury) and is never imported by Kit to Clip. Turn DCW off in ace_music.py to avoid the package entirely",
+      "by": "Claude (read the licence at its source)",
+      "date": "2026-10-08"
+    },
+    "torchao": {
+      "verdict": "allow",
+      "note": "BSD-3-Clause style (github.com/pytorch/ao LICENSE); PyPI has no licence field",
+      "by": "Claude (read the licence at its source)",
+      "date": "2026-10-08"
+    },
+    "torchcodec": {
+      "verdict": "allow",
+      "note": "BSD-3-Clause (github.com/pytorch/torchcodec); PyPI has no licence field",
+      "by": "Claude (read the licence at its source)",
+      "date": "2026-10-08"
+    },
+    "kokoro-onnx": {
+      "verdict": "allow",
+      "note": "MIT (github.com/thewh1teagle/kokoro-onnx); PyPI has no licence field",
+      "by": "Claude (read the licence at its source)",
+      "date": "2026-10-08"
+    },
+    "espeakng-loader": {
+      "verdict": "allow",
+      "note": "MIT (github.com/thewh1teagle/espeakng-loader); it bundles the espeak-ng library (GPL-3.0), which runs only inside the voice tool, a separate program Kit to Clip calls",
+      "by": "Claude (read the licence at its source)",
+      "date": "2026-10-08"
+    },
+    "gsap": {
+      "verdict": "allow",
+      "note": "Webflow's Standard 'no charge' licence (gsap.com/standard-license): free for commercial use; its limit is building a no-code animation tool that competes with Webflow, which Kit to Clip is not",
+      "by": "the maintainer",
+      "date": "2026-10-08"
+    }
+  },
+  "patterns": [
+    {
+      "match": "lesser general public licen[cs]e,? v?(ersion )?3|lgplv3",
+      "spdx": "LGPL-3.0-only"
+    },
+    {
+      "match": "lesser general public licen[cs]e,? v?(ersion )?2|lgplv2",
+      "spdx": "LGPL-2.1-only"
+    },
+    {
+      "match": "general public licen[cs]e,? v?(ersion )?3,? or later|gplv3\\+",
+      "spdx": "GPL-3.0-or-later"
+    },
+    {
+      "match": "general public licen[cs]e,? v?(ersion )?3|gplv3",
+      "spdx": "GPL-3.0-only"
+    },
+    {
+      "match": "general public licen[cs]e,? v?(ersion )?2,? or later|gplv2\\+",
+      "spdx": "GPL-2.0-or-later"
+    },
+    {
+      "match": "general public licen[cs]e,? v?(ersion )?2|gplv2",
+      "spdx": "GPL-2.0-only"
+    },
+    {
+      "match": "mozilla public licen[cs]e,? v?(ersion )?2",
+      "spdx": "MPL-2.0"
+    },
+    {
+      "match": "^isc\\b|\\bisc licen[cs]e",
+      "spdx": "ISC"
+    },
+    {
+      "match": "^mit\\b|\\bmit licen[cs]e|\\bmit licensed",
+      "spdx": "MIT"
+    },
+    {
+      "match": "apache( software)? licen[cs]e,? v?(ersion )?2",
+      "spdx": "Apache-2.0"
+    },
+    {
+      "match": "\\bbsd\\b.*3|3.clause bsd|new bsd|modified bsd",
+      "spdx": "BSD-3-Clause"
+    },
+    {
+      "match": "\\bbsd\\b.*2|2.clause bsd|simplified bsd",
+      "spdx": "BSD-2-Clause"
+    },
+    {
+      "match": "python software foundation",
+      "spdx": "PSF-2.0"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "id": "dotlottie",
+  "name": "dotLottie web player",
+  "about": "plays a Lottie or .lottie on a canvas and recolours or re-texts it to the brand with themes and slots",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 8,
+  "homepage": "https://github.com/LottieFiles/dotlottie-web",
+  "capabilities": [
+    "lottie-theme"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "@lottiefiles/dotlottie-web",
+    "github": "LottieFiles/dotlottie-web"
+  },
+  "pinned": "0.81.0",
+  "install": {
+    "packages": [
+      "@lottiefiles/dotlottie-web@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/@lottiefiles/dotlottie-web/dist/index.js": "dotlottie.mjs",
+      "node_modules/@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm": "dotlottie-player.wasm"
+    }
+  },
+  "read_before_use": [
+    "https://dotlottie.io/spec/2.0/#themes",
+    "https://github.com/LottieFiles/dotlottie-web/tree/main/packages/web"
+  ],
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {index.js} {scratch}/dotlottie.mjs && cp {dotlottie-player.wasm} {scratch}/dotlottie-player.wasm"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/dotlottie.mjs",
+        "min_bytes": 100000,
+        "contains": "setThemeData"
+      },
+      {
+        "file": "{scratch}/dotlottie-player.wasm",
+        "min_bytes": 500000
+      }
+    ]
+  },
+  "recipe": "recipes/dotlottie.md",
+  "fallback": "edit colours in the Lottie JSON by hand"
+}

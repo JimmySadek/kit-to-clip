@@ -109,6 +109,12 @@ nothing; pass `--allow-flat-open` only when that is intended, such as a fade fro
 at most twice the usual change between neighbouring frames, or the loop visibly jumps. Long black holds and
 freezes of 2.5 s or more mid-video are listed as warnings: holds are often intended, so decide and say why.
 
+**Flash guard (WCAG 2.3.1).** Every `finish` and `loop` run also fails when any part of the picture about a quarter of
+the central field of view flashes more than 3 times in one second (general or saturated-red flashes): fast full-frame
+cuts between dark and bright, strobing hits. `finish.py flash <render>` runs it alone. Fix it by slowing the cuts,
+softening the brightness change or shrinking the flashing area. It's a screening aid: paid UK or EU broadcast still
+needs a certified test (Harding). Calibrated 2026-10-08 on real beat-cut sports highlights: they peaked at 1 to 2 flashes a second.
+
 A render **with sound** is refused unless the sound was checked against the picture (section 3a), or you say why it
 was not: `--no-sync "footage's own sound"` for a clip that keeps its original audio. The reason is printed and recorded
 in the report.

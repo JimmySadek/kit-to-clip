@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "id": "pixi",
+  "name": "PixiJS",
+  "about": "thousands of particles, confetti, sparks and GPU filters drawn on a canvas (WebGL)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 90,
+  "homepage": "https://pixijs.com",
+  "capabilities": [
+    "particles"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "pixi.js",
+    "github": "pixijs/pixijs"
+  },
+  "pinned": "8.22.0",
+  "install": {
+    "packages": [
+      "pixi.js@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/pixi.js/dist/pixi.min.js": "pixi.min.js"
+    }
+  },
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {pixi.min.js} {scratch}/pixi.min.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/pixi.min.js",
+        "min_bytes": 300000,
+        "contains": "ParticleContainer"
+      }
+    ]
+  },
+  "recipe": "recipes/pixi.md",
+  "fallback": "a few dozen DOM or canvas particles with GSAP"
+}

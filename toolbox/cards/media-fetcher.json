@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "media-fetcher",
+  "name": "Video reader (media fetcher skill)",
+  "about": "reads a video link from YouTube, Instagram, TikTok, X and more: transcript, frames and the file",
+  "kind": "skill",
+  "maturity": "stable",
+  "rank": 1,
+  "capabilities": [
+    "video-link-read"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "separate-program",
+    "url": "https://github.com/JimmySadek/video-fetcher-to-markdown"
+  },
+  "upstream": {
+    "github": "JimmySadek/video-fetcher-to-markdown"
+  },
+  "detect": {
+    "skill": "youtube-fetcher",
+    "requires": [
+      "scripts/fetch_media.py"
+    ]
+  },
+  "install": {
+    "command": "npx -y skills add JimmySadek/video-fetcher-to-markdown --skill youtube-fetcher -g -a claude-code -y"
+  },
+  "guide": "references/reference-video.md",
+  "fallback": "ask for the file"
+}

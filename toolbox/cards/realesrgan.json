@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "id": "realesrgan",
+  "name": "Upscaler (Real-ESRGAN)",
+  "about": "makes a small or soft photo or frame 2-4x bigger and sharper, on this computer's GPU",
+  "kind": "release",
+  "maturity": "stable",
+  "rank": 1,
+  "size_mb": 60,
+  "homepage": "https://github.com/xinntao/Real-ESRGAN",
+  "capabilities": [
+    "upscale"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "separate-program",
+    "model_spdx": "BSD-3-Clause",
+    "model": "realesrgan-x4plus (Xintao Wang)",
+    "url": "https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan/blob/master/LICENSE",
+    "decision": {
+      "verdict": "allow",
+      "note": "GitHub reports NOASSERTION; the LICENSE file in the release and the repo is the plain MIT text",
+      "by": "Claude (read the file)",
+      "date": "2026-10-08"
+    }
+  },
+  "upstream": {
+    "github": "xinntao/Real-ESRGAN"
+  },
+  "pinned": "0.2.5.0",
+  "install": {
+    "repo": "xinntao/Real-ESRGAN",
+    "tag": "v{version}",
+    "asset": "realesrgan-ncnn-vulkan-20220424-macos.zip",
+    "sha256": {
+      "0.2.5.0": "e0ad05580abfeb25f8d8fb55aaf7bedf552c375b5b4d9bd3c8d59764d2cc333a"
+    },
+    "extract": "zip",
+    "entries": {
+      "cli": "realesrgan-ncnn-vulkan",
+      "models": "models"
+    },
+    "main": "cli"
+  },
+  "smoke": {
+    "timeout": 300,
+    "steps": [
+      {
+        "sh": "ffmpeg -v error -y -f lavfi -i testsrc2=s=160x90 -frames:v 1 {scratch}/small.png"
+      },
+      {
+        "sh": "{cli} -i {scratch}/small.png -o {scratch}/big.png -n realesrgan-x4plus -s 4 -m {models}"
+      },
+      {
+        "sh": "test \"$(ffprobe -v error -show_entries stream=width -of csv=p=0 {scratch}/big.png)\" = 640"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/big.png",
+        "min_bytes": 20000
+      }
+    ]
+  },
+  "recipe": "recipes/footage.md",
+  "fallback": "use it at its own size"
+}

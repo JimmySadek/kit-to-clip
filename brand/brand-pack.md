@@ -49,6 +49,19 @@ required variable on `:root` in its `brand.css`; the bridge stops (exit 2) if on
 Optional: `--reel-bg-image` (a gradient over `--reel-bg`), `--reel-display-case` (`uppercase` or `none`),
 `--reel-display-leading` (line height for the display face).
 
+Optional motion (from how strong brands document motion: a few curves and durations, two registers, a fixed sting):
+
+| Variable or field | Meaning | If missing |
+|---|---|---|
+| `--reel-ease-expressive`, `--reel-dur-expressive` | The signature register: stings, title cards, the climax. Enter/exit/move are the everyday register | the enter curve (or `expo.out`), 1.4x the enter duration |
+| `--reel-stagger` | Seconds between items in a list | by energy: calm 0.08, steady 0.05, punchy 0.03 |
+| `REEL_BRAND.sting` | `{ "seconds": 3, "silentTail": 1.0, "rules": ["never over footage", "no text on the sting"] }`: the logo sting's fixed length, its silent tail and its rules | no sting rules: the end card follows the format |
+| `REEL_BRAND.motionRules` | The written rules (the ones in `guide.md`) as a list, so formats can print and check them | `[]` |
+
+Choreography that holds for every brand: exits are faster than entrances, there is one focal point at a time, stable
+elements come first and the message last, and no full-frame flashing (`finish.py flash`, WCAG 2.3.1).
+`REEL.stagger()`, `REEL.ease("expressive")`, `REEL.sting` and `REEL.rules` read these in a composition.
+
 The pack's `brand-snippets.js` must also set `window.REEL_BRAND`:
 
 ```js
@@ -61,7 +74,8 @@ window.REEL_BRAND = {
 ```
 
 The bridge also writes `reel-tokens.js` into the project: `REEL.ease("enter")` turns the pack's curve into a GSAP
-ease (with CustomEase when loaded), `REEL.dur("move")` gives seconds, `REEL.energy` the energy word.
+ease (with CustomEase when loaded), `REEL.dur("move")` gives seconds, `REEL.energy` the energy word, `REEL.stagger()`
+the list delay, `REEL.sting` and `REEL.rules` the optional sting and written rules.
 
 ## 4. Making a pack
 

@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "id": "lottie-web",
+  "name": "lottie-web player",
+  "about": "plays Lottie JSON in a video page (and checks an exported Lottie really plays)",
+  "kind": "npm",
+  "maturity": "stable",
+  "rank": 2,
+  "size_mb": 5,
+  "homepage": "https://github.com/airbnb/lottie-web",
+  "capabilities": [
+    "lottie-play"
+  ],
+  "licence": {
+    "spdx": "MIT",
+    "usage": "file-in-project"
+  },
+  "upstream": {
+    "npm": "lottie-web",
+    "github": "airbnb/lottie-web"
+  },
+  "pinned": "5.13.0",
+  "install": {
+    "packages": [
+      "lottie-web@{version}"
+    ]
+  },
+  "vendor": {
+    "files": {
+      "node_modules/lottie-web/build/player/lottie.min.js": "lottie.min.js"
+    }
+  },
+  "smoke": {
+    "steps": [
+      {
+        "sh": "cp {lottie.min.js} {scratch}/lottie.min.js"
+      }
+    ],
+    "expect": [
+      {
+        "file": "{scratch}/lottie.min.js",
+        "min_bytes": 100000,
+        "contains": "loadAnimation"
+      }
+    ]
+  },
+  "recipe": "recipes/lottie.md",
+  "fallback": "the engine's Lottie adapter with a player file the person supplies"
+}

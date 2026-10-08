@@ -20,9 +20,16 @@ goal.
 | Chat, docs, email | any | GIF, profile `gif` | about 8 MB |
 | Website or app hero | the slot's size | MP4 + WebM in a `<video autoplay muted loop playsinline>`, or the live snippet | keep it light; `embed_html` in the report |
 | Loader or overlay on any background | small, transparent | WebM (alpha), APNG, animated WebP, MOV (ProRes 4444) | render with `--format mov` so the alpha survives |
+| Website or app, as a vector file ("Lottie", "dotLottie", "tiny animated logo") | the slot's size | Lottie JSON (`lottie-export` power) plus a still and a WebM fallback | vector only: shapes, strokes, trims, transforms |
 
-Lottie is not supported: HyperFrames draws with HTML and GSAP, and nothing converts that to Lottie reliably. Say so
-and offer WebM, APNG or the snippet.
+Lottie: the HTML engine cannot export Lottie, but the `lottie-export` power can (`toolbox.py which lottie-export`; ✋
+before adding it). Build the motion as vector layers from the brand's SVG, export, then **play it back** in a one-scene
+render and compare stills before handing it over (`toolbox/recipes/lottie.md`). Without the power, offer WebM, APNG or
+the snippet.
+
+Every web loop also ships a still for people who turn motion off: `finish.py loop` writes `<name>-still.png` (the last
+frame, or `--rest-at <s>` for the moment that reads best at rest, such as a finished logo) and puts it in `embed_html`
+behind `prefers-reduced-motion`. Loops over 5 s get a pause button (WCAG 2.2.2).
 
 ## 1b. The brief, then three motion ideas (✋ each)
 
