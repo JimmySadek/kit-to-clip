@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Kit to Clip finish: plan a HyperFrames cut for a destination, then finish and verify the rendered file.
 
-  finish.py plan   --profile tiktok[,instagram-feed] --project <dir>
-      writes <project>/platform.json and platform.css (canvas + safe-area CSS variables) for the build.
+  finish.py plan   --profile tiktok[,instagram-feed] [--project <dir>]
+      prints the canvas and the safe box in pixels; with --project also writes platform.json and platform.css (canvas + safe-area CSS variables) for the build.
 
   finish.py finish <render.mp4> --profile tiktok[,...] --out <dir> [--name my-video] [--cover-at 12.5]
                    [--cues cue-sheet.json | --no-sync "reason"]
@@ -114,8 +114,7 @@ def get_profiles(arg):
 # ---------------------------------------------------------------- plan
 def cmd_plan(a):
     profs = get_profiles(a.profile)
-    proj = Path(a.project)
-    proj.mkdir(parents=True, exist_ok=True)
+    proj = Path(a.project) if a.project else None
     out = {"profiles": {}, "note": PROFILES["_about"]}
     css = ["/* Kit to Clip finish: canvas + safe areas (heuristic, verify in the upload preview) */"]
     for n, p in profs:
@@ -125,8 +124,10 @@ def cmd_plan(a):
             s = p["safe"]
             css.append(f".cut-{n} {{ --canvas-w: {W}px; --canvas-h: {H}px; --safe-top: {round(H*s['top'])}px; --safe-bottom: {round(H*s['bottom'])}px; "
                        f"--safe-left: {round(W*s['left'])}px; --safe-right: {round(W*s['right'])}px; }}")
-    (proj / "platform.json").write_text(json.dumps(out, indent=1))
-    (proj / "platform.css").write_text("\n".join(css) + "\n")
+    if proj:
+        proj.mkdir(parents=True, exist_ok=True)
+        (proj / "platform.json").write_text(json.dumps(out, indent=1))
+        (proj / "platform.css").write_text("\n".join(css) + "\n")
     for n, p in profs:
         c = p["canvas"]
         print(f"{n}: canvas {c[0]}x{c[1] if c else ''}" if c else f"{n}: canvas free", "| safe", p["safe"], "|", p["safe_source"])
@@ -140,7 +141,8 @@ def cmd_plan(a):
             print(f"  sound: {snd.get('music', '')} ({snd.get('note', '')})")
         if p.get("audio") != "none":
             print("  a video with sound must pass the sync check before it is finished (finish.py sync, see the sound module)")
-    print(f"wrote {proj/'platform.json'} and platform.css")
+    if proj:
+        print(f"wrote {proj/'platform.json'} and platform.css")
 
 
 # ---------------------------------------------------------------- finish
@@ -728,8 +730,24 @@ def cmd_snippet(a):
 SAFE_BOXES = {"tiktok": "120,252,840,1280", "instagram": "65,269,1015,1248", "instagram-reels": "65,269,1015,1248"}
 
 
+def safe_box_for(name):
+    """The safe box 'x0,y0,x1,y1' for a platform: a tuned box above, else any finish profile with a canvas (its safe
+    margins in pixels), else the text itself when it is already four numbers. None when nothing matches."""
+    if name in SAFE_BOXES:
+        return SAFE_BOXES[name]
+    p = PROFILES["profiles"].get(name)
+    if isinstance(p, dict) and p.get("canvas"):
+        (W, H), sf = p["canvas"], p["safe"]
+        return f"{round(W * sf['left'])},{round(H * sf['top'])},{W - round(W * sf['right'])},{H - round(H * sf['bottom'])}"
+    return name if re.fullmatch(r"\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*", name) else None
+
+
 def cmd_safe(a):
-    box = SAFE_BOXES.get(a.platform, a.platform)
+    box = safe_box_for(a.platform)
+    if box is None:
+        names = sorted(set(SAFE_BOXES) | {n for n, p in PROFILES["profiles"].items() if isinstance(p, dict) and p.get("canvas")})
+        print(f"finish safe: unknown platform {a.platform!r}. Use a profile ({', '.join(names)}) or x0,y0,x1,y1", file=sys.stderr)
+        sys.exit(2)
     r = subprocess.run(["node", str(HERE / "safecheck.mjs"), str(Path(a.project).resolve()), box, str(a.step)], env=dict(os.environ))
     sys.exit(r.returncode)
 
@@ -1091,7 +1109,7 @@ def cmd_check(a):
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p1 = sub.add_parser("plan"); p1.add_argument("--profile", required=True); p1.add_argument("--project", required=True)
+    p1 = sub.add_parser("plan"); p1.add_argument("--profile", required=True); p1.add_argument("--project", help="also write platform.json and platform.css into this project")
     p2 = sub.add_parser("finish"); p2.add_argument("render"); p2.add_argument("--profile", required=True); p2.add_argument("--out", required=True)
     p2.add_argument("--name"); p2.add_argument("--cover-at", type=float)
     p2.add_argument("--allow-flat-open", action="store_true", help="the video opens on one flat colour on purpose (e.g. a fade from black)")
@@ -1099,7 +1117,7 @@ def main():
     p2.add_argument("--no-sync", metavar="REASON", help="finish a video with sound without a sync check and say why (e.g. \"footage's own sound\"); the reason is printed and recorded")
     p3 = sub.add_parser("check"); p3.add_argument("--project", required=True)
     p4 = sub.add_parser("safe"); p4.add_argument("--project", required=True)
-    p4.add_argument("--platform", required=True, help="tiktok | instagram | x0,y0,x1,y1"); p4.add_argument("--step", type=float, default=0.2)
+    p4.add_argument("--platform", required=True, help="a finish profile (youtube, instagram-reels, tiktok, ...) or x0,y0,x1,y1"); p4.add_argument("--step", type=float, default=0.2)
     p6 = sub.add_parser("loop"); p6.add_argument("render"); p6.add_argument("--out", required=True); p6.add_argument("--name")
     p6.add_argument("--export", default="mp4,webm,gif", help=f"comma list of {', '.join(LOOP_EXPORTS)}")
     p6.add_argument("--gif-profile", default="gif", help="profile whose gif settings (fps, width, size and frame caps) apply, e.g. linkedin-gif")

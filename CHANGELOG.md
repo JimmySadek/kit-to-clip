@@ -1,5 +1,45 @@
 # Changelog
 
+## v1.1.0 (2026-10-09)
+
+**Kit to Clip now plans like a motion director, and sounds like it means it.** This release comes from a long test day:
+the same film was made five ways and judged by eye and ear, and Kit to Clip now works the way that won.
+
+**Better planning, so videos look designed, not like slides.**
+- Before building, Kit to Clip now uses two design skills: one shapes the look (type, colour, layout, a bold idea), the
+  other critiques the plan and the stills before you see them.
+- For a known kind of video (a social short, a product ad, a launch film, an app demo, an explainer, a highlight edit,
+  kinetic type, a data story...) it can also read a specialist's notes for that kind of video, when they fit.
+- Its extra powers (living backgrounds, particles, 3D logos, cutouts, hand-drawn looks...) are now part of the plan
+  from the start, not an afterthought.
+- When you want something new, it can sketch five or six quite different directions quickly, so you pick with your eyes.
+- Every scene gets a real layout with readable sizes, so nothing shrinks into an empty corner.
+
+**Music and sound effects that feel real.**
+- **Original music by default** from the free music generator on your computer (a one-time download of about 9.4 GB,
+  with your yes). Kit to Clip makes a few takes, lines each one up with the beat, fixes endings that fade away, and
+  keeps the best one. You can still listen to every take.
+- **Recorded sound effects by default:** real impacts, clicks and digital sweeps from free sound packs (no account,
+  free for commercial use), added with your yes. The built-in synthesised sounds stay as a backup.
+- Every sound comes from something you can see moving, and the big moves land on the beat.
+
+**How it works with you.**
+- The agent you talk to plans, builds and checks your video itself. When your setup allows it, it can hand quick,
+  simple jobs (like sketching many directions) to faster helpers, but it always stays in charge.
+- After delivery, it no longer polishes on its own: if it sees something worth fixing, it tells you what and how long,
+  and you decide.
+
+**Also:** your stills stay on your computer (from v1.0.1), a check for safe zones by any platform name, and a new README
+with a short film Kit to Clip made about itself.
+
+## v1.0.1 (2026-10-09)
+
+**A privacy fix: your frames now always stay on your computer.** If your computer had a Google Gemini key (or an
+OpenRouter or Vertex key) set up for something else, the video engine sent your stills to that online service to
+describe them, without asking. The same could happen when reading a brand's website. Kit to Clip now switches those
+keys off for every video command and always asks the engine to stay local. Nothing else changes, and you don't need to do
+anything.
+
 ## v1.0.0 (2026-10-08)
 
 The first numbered release. Kit to Clip can now find, set up and use extra powers when a video needs them, and it

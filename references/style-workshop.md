@@ -49,6 +49,10 @@ should change.
 
 ## 2. Three concepts, then the recipe
 
+Plan the look with `frontend-design` and critique the concepts with `impeccable` (`references/director-and-builder.md`,
+section 2). In Quick mode, sketch 5-6 directions with builder helpers first and offer the best three as the concepts
+(section 3 of that guide).
+
 Propose **three concepts** as one question with previews. Each has a name, one line on the feeling, the
 **signature moment** (the one thing people will remember, e.g. "the ball leaves a red fold trail") and a
 tiny beat sheet:
@@ -84,7 +88,7 @@ Show a short summary (the beat sheet and the slots) and ask ✋ **Approve the re
 2. Make the project in `videos/<slug>-draft/`: follow the `hyperframes` workflow, run the brand bridge for
    the canvas, and `finish.py plan` for the platform's safe areas. Keep all timing data-driven from the slots so
    the template can be refilled later.
-3. Run the checks (lint, check, finish `check` and `safe`), then `npx hyperframes snapshot` at 4-6 key
+3. Run the checks (lint, check, finish `check` and `safe`), then `npx hyperframes snapshot --describe false` at 4-6 key
    moments. Look at them yourself first; fix anything broken before showing.
 4. Show the stills and ask ✋ **Looks right** / **Change something** (they say what). After three rounds of
    changes, suggest either saving what works or trying a different concept, so it doesn't loop forever.

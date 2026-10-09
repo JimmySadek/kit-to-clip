@@ -208,7 +208,7 @@ def cmd_compose(a):
                                                        "platform": a.platform, "duration": duration, "spec": spec}, indent=1))
     print(f"cards: built {out} ({W}x{H}, {duration} s, {len(placed)} cards: " + ", ".join(f"{c['card']}@{at:g}s" for c, at, _ in placed) + ")")
     print("  next: npx hyperframes lint, finish.py check, finish.py hook, finish.py safe" + (f" --platform {a.platform}" if a.platform else "")
-          + (", finish.py anchors" if any(c.get("anchor") for c in spec["cards"]) else "") + ", then look at snapshots")
+          + (", finish.py anchors" if any(c.get("anchor") for c in spec["cards"]) else "") + ", then look at stills (npx hyperframes snapshot --describe false)")
 
 
 def main():

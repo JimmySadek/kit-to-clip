@@ -45,9 +45,9 @@ someone else's mark.
 
 ## 4. Prove it renders the same
 
-Snapshot three moments (start, middle, end) with `npx hyperframes snapshot`, then snapshot the same three again. The
-pairs must match. If they differ, something still reads a clock, an unseeded random or the previous frame: fix that
-before showing anything. Then the usual checks (lint, check, finish `check`, `safe`, `hook`), and ✋ stills.
+Take stills of three moments (start, middle, end) with `npx hyperframes snapshot --describe false`, then the same three
+again. The pairs must match. If they differ, something still reads a clock, an unseeded random or the previous frame:
+fix that before showing anything. Then the usual checks (lint, check, finish `check`, `safe`, `hook`), and ✋ stills.
 
 Heavy effects slow the render. If one still takes more than a few seconds, lower the particle count or the canvas
 resolution before the full render, and say how long the render will take.

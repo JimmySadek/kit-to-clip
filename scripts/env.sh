@@ -8,6 +8,9 @@
 # REEL_WORKSPACE: that repo's reels/ folder for clips, work, videos and deliveries.
 # Otherwise reuse a locally cached headless Chrome when one exists (avoids a Chrome download on first render).
 export DO_NOT_TRACK=1 HYPERFRAMES_NO_TELEMETRY=1 DISABLE_TELEMETRY=1 HYPERFRAMES_SKIP_SKILLS=1
+# Kit to Clip is local and free: with any of these keys set, `hyperframes snapshot` and `capture` send frames to an
+# online vision service by default (Gemini, OpenRouter or Vertex). Remove them for every engine command.
+unset GEMINI_API_KEY GOOGLE_API_KEY OPENROUTER_API_KEY HYPERFRAMES_VERTEX_PROJECT_ID HYPERFRAMES_VERTEX_SERVICE_ACCOUNT
 _reel_dir="$PWD"
 while [ "$_reel_dir" != "/" ] && [ ! -d "$_reel_dir/.reel-kit" ]; do _reel_dir=$(dirname "$_reel_dir"); done
 if [ ! -d "$_reel_dir/.reel-kit" ]; then
@@ -22,6 +25,8 @@ if [ ! -d "$_reel_dir/.reel-kit" ]; then
 fi
 if [ -d "$_reel_dir/.reel-kit" ]; then
   export REEL_STUDIO="$_reel_dir"
+  # The impeccable design skill keeps its engine binary here (one engine folder), not in ~/.impeccable.
+  export IMPECCABLE_HOME="$_reel_dir/tools/impeccable"
   if [ -x "$_reel_dir/.reel-kit/env/bin/node" ]; then
     case ":$PATH:" in *":$_reel_dir/.reel-kit/env/bin:"*) ;; *) export PATH="$_reel_dir/.reel-kit/env/bin:$PATH" ;; esac
   fi

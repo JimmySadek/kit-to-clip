@@ -71,7 +71,7 @@ All must pass before stills. The first scene's art is on screen from frame 0, an
 so the video never opens on empty background.
 
 ## 6. Stills, listening, render, deliver
-- **Stills:** `npx hyperframes snapshot --at <each scene's start + 1 s>`. Look at every one, then show them (✋).
+- **Stills:** `npx hyperframes snapshot --describe false --at <each scene's start + 1 s>`. Look at every one, then show them (✋).
 - **Listening ✋:** the voice and any music are unheard by the agent until the person listens.
 - **Render, then finish and deliver** (`formats/README.md`, "Deliver"). The voice is made for the picture, so
   pass `--no-sync "narration, scenes anchored to words (finish.py anchors)"`, or a cue sheet when there are effects.

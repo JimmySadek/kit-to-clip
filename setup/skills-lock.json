@@ -1,11 +1,41 @@
 {
   "version": 1,
   "skills": {
+    "brand-launch-film-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/brand-launch-film-production/SKILL.md",
+      "computedHash": "21ed9f86991ec8c59339a996defd8f2ab5d2bf455dea5e24278db68d6897297a"
+    },
+    "cinematic-trailer-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/cinematic-trailer-production/SKILL.md",
+      "computedHash": "15fcf6d3c28cd9a06f401d20f4e5bf27acd2c16d0fecf7b9c0972fea82a1a1d9"
+    },
+    "d3-animated-data-visualization": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/runtime-assembly/d3-animated-data-visualization/SKILL.md",
+      "computedHash": "15aea71f184d299af71c71fea5870428227f61e6cc14abdad3e1a8ee767427b9"
+    },
+    "editing-montage": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/post-production/editing-montage/SKILL.md",
+      "computedHash": "26b1f59d113b73595c4266ce16987a634ad851964d9ce3ce8b2fedc62fec32c9"
+    },
     "embedded-captions": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
       "skillPath": "skills/embedded-captions/SKILL.md",
       "computedHash": "51a841e11fd489f9ddcae6e64dd408ffb9d428fd541c17d7ad2da0516e8d01b0"
+    },
+    "explainer-video-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/explainer-video-production/SKILL.md",
+      "computedHash": "79cc4a6139d8db6a9e021bbba3b06f89668623c48a9a3aa26eb1a25c23aa0ad7"
     },
     "faceless-explainer": {
       "source": "heygen-com/hyperframes",
@@ -18,6 +48,12 @@
       "sourceType": "github",
       "skillPath": "skills/figma/SKILL.md",
       "computedHash": "036ab209910487e3bfeba7423318d1c7576f3179fe4d69551621ac95c72216d3"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     },
     "general-video": {
       "source": "heygen-com/hyperframes",
@@ -127,6 +163,12 @@
       "skillPath": "skills/hyperframes-studio/SKILL.md",
       "computedHash": "c5465f4276cc293d893334e664802bdbdc20cc57c801e1efab07c223e37d8dba"
     },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "de7de6829490819b3c18cfdad2c93d002bd428c4b738d29b971ef3dc8f911d08"
+    },
     "media-use": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
@@ -139,17 +181,41 @@
       "skillPath": "skills/motion-graphics/SKILL.md",
       "computedHash": "bf8eb40fc99170c514824f0e37c3dcdaee051ed3a536a4c1fcf32a8a39fed5ba"
     },
+    "motion-graphics-direction": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/post-production/motion-graphics-direction/SKILL.md",
+      "computedHash": "bc3452d21526be6c3fd8ba5ef2815e0623a77a5c18550b292005c6c20749c410"
+    },
+    "music-supervision-scoring": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/audio-craft/music-supervision-scoring/SKILL.md",
+      "computedHash": "8e984349f31f06dc962bc1221dfaeabff7141653909174b0488ce1437f68397f"
+    },
     "music-to-video": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
       "skillPath": "skills/music-to-video/SKILL.md",
       "computedHash": "056d0cfffaff61259a9d88aef7899def30d2fc46d0a1722765eac6eda578313e"
     },
+    "music-video-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/music-video-production/SKILL.md",
+      "computedHash": "784c32f8a2a118bed14229e4ccacf8a8ea7e85cddf03aad30a97795ce0d035ec"
+    },
     "pr-to-video": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
       "skillPath": "skills/pr-to-video/SKILL.md",
       "computedHash": "94e441389f24745ee5b4f9bffed68ba44e0558ae0dec8f8509556dda14f595c3"
+    },
+    "product-ad-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/product-ad-production/SKILL.md",
+      "computedHash": "88985b0165216c26c43b49a39e7d9579698a00d03dcb3a0970dbdc0f6b7c8697"
     },
     "product-launch-video": {
       "source": "heygen-com/hyperframes",
@@ -163,17 +229,47 @@
       "skillPath": "skills/remotion-to-hyperframes/SKILL.md",
       "computedHash": "fdbbc368202c4dbbdabdcdce7f6f835dd69ac420e34a5366e10c1f22dcb3dc7d"
     },
+    "saas-product-demo-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/saas-product-demo-production/SKILL.md",
+      "computedHash": "849e2686e72be75089eabdbbfd2b4a34fc1060a683c2466b82a34e52e9f46269"
+    },
     "slideshow": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
       "skillPath": "skills/slideshow/SKILL.md",
       "computedHash": "bab25cc3cef349c46767828a85df800922c6188052299aedeba7f0cfe884bad7"
     },
+    "social-short-production": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/content-formats/social-short-production/SKILL.md",
+      "computedHash": "073dd5c01eebe03747f7704cd41c658b89a81424f25d3ada1e1b7faa859be3ea"
+    },
+    "sound-design-foley": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/audio-craft/sound-design-foley/SKILL.md",
+      "computedHash": "d8df73a2f8226502bb472e3d3ac59cc47a916d828a65b6ed95997223a6cbd441"
+    },
+    "storyboard-previsualization": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/creative-direction/storyboard-previsualization/SKILL.md",
+      "computedHash": "ec29387bc31a600878d43f2a5e62ff37edbdd3435554ed7917074b64e16d1410"
+    },
     "talking-head-recut": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
       "skillPath": "skills/talking-head-recut/SKILL.md",
       "computedHash": "3fc6674c1779256fe073454b2e3c47a0928d7e7c3aed5256aba4c63c2ba90430"
+    },
+    "title-kinetic-typography": {
+      "source": "calesthio/generative-media-skills",
+      "sourceType": "github",
+      "skillPath": "skills/production/post-production/title-kinetic-typography/SKILL.md",
+      "computedHash": "062ecc6cb4df6a8d3352cf49524e27c4f912a921d47f988f41d9809c5d80c8da"
     }
   }
 }

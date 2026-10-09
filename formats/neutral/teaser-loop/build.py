@@ -190,7 +190,7 @@ def main():
     (out / ".reel-format.json").write_text(json.dumps(record, indent=1))
     print(f"teaser-loop: built {out} ({W}x{H}, {v['duration']} s loop, brand {a.brand}"
           + (f", {len(sources)} brand picture(s)" if sources else ", generated field") + ")")
-    print("  next: npx hyperframes lint, finish.py check, finish.py hook, snapshots side by side with the reference, "
+    print("  next: npx hyperframes lint, finish.py check, finish.py hook, stills (npx hyperframes snapshot --describe false) side by side with the reference, "
           "then render and finish.py loop --gif-profile <profile>")
 
 

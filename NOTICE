@@ -10,3 +10,21 @@ repository; the engine setup (setup/install.sh) downloads them on the user's mac
 - GSAP (GreenSock), GSAP Standard License: https://gsap.com/standard-license
 - Node.js, ffmpeg (GPL build, for libx264), Python, NumPy, SciPy, OpenCV and fontTools, from conda-forge
 - A headless Chrome build, downloaded by HyperFrames
+
+Agent skills pinned in setup/skills-lock.json and installed by setup (each keeps its own licence; the record is in
+setup/skills-licences.json):
+
+- HyperFrames skills (HeyGen), Apache License 2.0: https://github.com/heygen-com/hyperframes
+- GSAP skills (GreenSock), MIT: https://github.com/greensock/gsap-skills
+- frontend-design (Anthropic), Apache License 2.0: https://github.com/anthropics/skills
+- impeccable (Paul Bakaus), Apache License 2.0: https://github.com/pbakaus/impeccable
+- 14 production skills from generative-media-skills (calesthio), MIT: https://github.com/calesthio/generative-media-skills
+
+Optional powers, each installed only after the person says yes (their cards in toolbox/cards record the licence and
+the pinned version or checksum), among them:
+
+- ACE-Step 1.5 (ACE Studio, StepFun), MIT, music generation: https://github.com/ace-step/ACE-Step-1.5
+- Kenney Impact Sounds, Interface Sounds and Digital Audio, CC0: https://kenney.nl (thank you, Kenney)
+
+assets/showcase.gif is a Reel made with Kit to Clip itself (its type: League Gothic, Archivo Black and IBM Plex Mono,
+SIL Open Font License 1.1; no font file is included here).

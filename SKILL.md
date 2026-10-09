@@ -19,6 +19,7 @@ when the step you are on needs it.
 | Loops | `loops/README.md` | seamless loops and loaders: method, loop formats, exports (GIF, WebM, APNG, WebP, snippet) |
 | Sound | `sound/README.md` | videos with music and sound effects: sound first, effects from the motion, sync check, listening checkpoint |
 | Guides | `references/brand-onboarding.md`, `references/style-workshop.md`, `references/reference-video.md`, `references/open-source-effects.md` | a new brand's first setup; designing a new style; learning from a video they like; borrowing an effect from a public project |
+| Director | `references/director-and-builder.md` | who makes the video: **Full** (you alone) or **Quick** (you direct, builder helpers on a faster model build), the design skills in planning, quick sketches, the plan, the builder rules, the gates, your polish |
 | Toolbox | `toolbox/README.md` | the extra powers a job can call on (voice, cutouts, Lottie, particles, slow motion…): which are ready, how to add one with a ✋ yes, the fallback when not, the licence and update watches |
 
 Brands are not in here. Each brand kit is its own skill (e.g. `acme-brand`) and connects through its video pack, a
@@ -86,10 +87,17 @@ We make art for brands people care about. Resourceful and creative beats quick a
 
 - Source `<kit-to-clip>/scripts/env.sh` before any script or video engine command. It finds the engine by itself,
   puts its Node, ffmpeg, Python and Chrome on the PATH, sets `REEL_STUDIO` to it and, inside a workspace,
-  `REEL_WORKSPACE`. It also turns telemetry off and stops `hyperframes init` from installing skills globally.
+  `REEL_WORKSPACE`. It also turns telemetry off, stops `hyperframes init` from installing skills globally, and removes
+  the online vision keys (Gemini, OpenRouter, Vertex) so no frame leaves the machine.
+- Take stills with `npx hyperframes snapshot --describe false` and capture websites with `--skip-vision`, always:
+  both stay local that way, even in a shell that skipped env.sh.
 - Load `hyperframes` (router) and the workflow it picks before building. If it is not available as a skill, read
   `$REEL_STUDIO/.claude/skills/hyperframes/SKILL.md` after env.sh, and the workflow skill it names from there.
-- Skills and tools arrive only through Kit to Clip: the engine's HyperFrames and GSAP skills are pinned in
+- **Design skills:** load `frontend-design` before you plan a video's look and `impeccable` to critique plans and
+  stills, plus at most two **specialists for the video type** (a social short, an explainer, a launch film, kinetic
+  type...). All are pinned and installed with the engine. Which specialist for which job, and what of their advice to
+  ignore: `references/director-and-builder.md`, section 2.
+- Skills and tools arrive only through Kit to Clip: the engine's HyperFrames, GSAP and design skills are pinned in
   `setup/skills-lock.json` and installed by setup; every other power goes through the toolbox (Step 4). So never run
   `npx hyperframes skills update` or `npx skills add -g` from a workflow, even when a HyperFrames workflow says to.
   Instead: the skill is present → skip that step; it is missing → `python3 <kit-to-clip>/scripts/toolbox.py check
@@ -171,7 +179,7 @@ Ask ✋ **What are we making?** with one option per approved format that fits (a
 |---|---|
 | A format from the list | its `journey` file (the path `formats.py` prints): read it and follow it step by step |
 | A loop, a loader, an animated GIF or a moving version of a still (e.g. a LinkedIn teaser) | `loops/README.md` |
-| A video with sound: music, sound effects, a soundtrack, effects on the moves | `sound/README.md`: sound first, with a hard gate. Steps 0 to 2 (setup, workspace, brand) run as usual; then the music source is the first creative question, before any picture, and the tempo is chosen so the length is whole bars, put the picture on the beats, make the effects from the motion, check the sync on the file, and stop for a ✋ listening checkpoint before polish. Never build the picture first. Music comes from the built-in music maker (four styles), a track they supply, or a free power from the toolbox (`music-generate`); Kit to Clip uses no accounts or paid libraries |
+| A video with sound: music, sound effects, a soundtrack, effects on the moves | `sound/README.md`: sound first, with a hard gate. Steps 0 to 2 (setup, workspace, brand) run as usual; then the music source is the first creative question, before any picture, and the tempo is chosen so the length is whole bars, put the picture on the beats, make the effects from the motion, check the sync on the file, and stop for a ✋ listening checkpoint before polish. Never build the picture first. Music comes from the music generator by default (`music-generate`, ACE-Step: several takes, aligned to the beat grid, the best kept), a track they supply, or the built-in music maker as the fallback; effects are recorded CC0 sounds by default (`recorded-effects`), with the built-in synthesised effects for what they lack. Kit to Clip uses no accounts or paid libraries |
 | An announcement, promo, event or launch post from words and numbers | cards: `formats/README.md`, "Cards" (a sequence of headline, stat, list, quote, lower-third, lockup) |
 | A video in a saved style | "Using a saved style" below |
 | ✨ A new style of video | the style workshop: `references/style-workshop.md` |
@@ -187,10 +195,21 @@ unless they ask for them by name. If a clip was mentioned, check it is in `clips
 **Direct requests** skip the front door's questions but not its rules: "make it ready for Instagram" goes straight
 to the finish module; "put our brand on this project" to the brand module; env.sh and the brand check still apply.
 
+## Step 3b: who makes it (once per job)
+
+Read `references/director-and-builder.md`. **Full** (you do everything) is the default: in a test it was faster and
+better than a team. For a simple, mechanical job (a re-cut, a card from a saved style, batch variants) offer ✋
+**Quick** (builder helpers on a faster model build, you direct and check) / **Full**. **A builder never works
+alone**: you plan and you check every gate during the build. After delivery, polish only when the person says yes to
+fixes you offer. A host without helpers runs Full. For a new look, start with quick
+sketches of 5-6 directions (section 3 of that guide) before the plan.
+
 ## Step 4: powers for this job
 
-Before building, list what the job needs beyond the built-in engine (a voice, a cutout, a Lottie file, particles,
-smooth slow motion…) and follow `toolbox/README.md`: `python3 <kit-to-clip>/scripts/toolbox.py which <capability>`
+The powers are part of the plan, not an afterthought: while planning, look at the power palette
+(`references/director-and-builder.md`, section 2) for what could make the idea stronger (a shader background,
+particles, a 3D logo, a hand-drawn line, a cutout...). Then, before building, list what the job needs beyond the
+built-in engine (a voice, a cutout, a Lottie file, particles, smooth slow motion…) and follow `toolbox/README.md`: `python3 <kit-to-clip>/scripts/toolbox.py which <capability>`
 for each, ✋ before adding anything, the fallback when they say no. Read a power's recipe before using it. Skip this
 step when the job needs only what is built in.
 
@@ -225,6 +244,10 @@ The memory lives on this computer only (`<engine>/memory`), never in a repo and 
 - Checks before any render offer: `npx hyperframes lint`, `npx hyperframes check`, and finish `check`, `safe` and
   `hook` (the first three seconds).
 - Look at the stills and the finished contact sheet yourself before showing them.
+- Every sound follows a real move you can see, and big moves come to rest on their beat. Never add an element only to
+  carry a sound.
+- In Quick mode you plan and check every gate: a builder never decides, talks to the person or delivers alone.
+  Polish after delivery is offered, never automatic.
 - A video with sound is unheard by you: say "unheard by the agent" in every handoff until the person has listened, and
   never call its sound verified on the strength of the sync numbers. `finish` refuses a render with sound that has no
   passing sync check (or a `--no-sync` reason).

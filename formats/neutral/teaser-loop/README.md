@@ -21,8 +21,8 @@ First made for a brand's LinkedIn ad teaser (28 Sep 2026): a still with a headli
    `logo_box`, `headline_box`, `headline_size`, `headline_leading`; `background_motion` (`wave` for GIFs, `breathe`
    for video); `duration` (6 to 12 s).
 4. **Build:** `python3 build.py --brand <id> --slots slots.json --out <videos>/<job> --canvas 1080x1080`.
-5. **Checks:** `npx hyperframes lint`, `finish.py check`, `finish.py hook`. Snapshot the loop at 0, 1, 2, 3, 5 and
-   the last frame, and **measure the first frame against the reference** (positions within a few pixels, the
+5. **Checks:** `npx hyperframes lint`, `finish.py check`, `finish.py hook`. Take stills of the loop at 0, 1, 2, 3, 5 and
+   the last frame (`npx hyperframes snapshot --describe false --at <s>`), and **measure the first frame against the reference** (positions within a few pixels, the
    background colour, the density of the art). Look for seams, darkened areas and clipped lines yourself.
 6. **✋ Stills**, then render: `npx hyperframes render -o renders/<job>.mp4 --quality delivery`.
 7. **Deliver:** `finish.py loop <render> --out <deliveries>/<job>/<platform> --export gif,mp4,webm --gif-profile linkedin-gif`

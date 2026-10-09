@@ -434,6 +434,11 @@ def make_toolbox(base):
     return tb
 
 
+# sha256 of sfx.wav for one plain note hit with the room off, made by the engine before the room existed (kept so the
+# room-off layer is checked to stay bit-identical to the old dry layer)
+DRY_SHA256 = "43a8f26ac205ba4fc1d4c51a170025d951df293ef586abe4a0badacfffb8e36b"
+
+
 def cases(base, gsap):
     comp = lambda n: str(make_composition(base, n, gsap))
     vid = lambda n: str(make_video(base, n))
@@ -494,6 +499,48 @@ print(f"box comes to rest within one frame of its end: {'yes' if abs(still - b) 
                                  "hits": [{"id": "box", "at": 2.0, "kind": "note", "note": 69, "cue": "box lands"}], **over}))
         return str(f)
     fx = lambda name, plan_file: [py, str(EFFECTS), str(base / "motion-read.json"), plan_file, "--out", str(base / f"fx-{name}")]
+    # a 4 s trace written by hand (no node): "box" moves from 0.5 s to 1.6 s and rests; "still" never moves
+    frames = []
+    for k in range(120):
+        u = min(1.0, max(0.0, (k / 30 - 0.5) / 1.1))
+        frames.append({"t": round(k / 30, 4),
+                       "box": {"x": 100 + 700 * (3 * u * u - 2 * u ** 3), "y": 300.0, "w": 200.0, "h": 200.0, "vis": 1.0},
+                       "still": {"x": 500.0, "y": 600.0, "w": 100.0, "h": 100.0, "vis": 1.0}})
+    (base / "synth-motion.json").write_text(json.dumps({"fps": 30, "duration": 4.0, "width": 1080, "ids": ["box", "still"], "frames": frames}))
+    synth = str(base / "synth-motion.json")
+    def fxplan(name, hits, **over):
+        f = base / f"plan-{name}.json"
+        f.write_text(json.dumps({"key": "A minor", "hits": hits, **over}))
+        return str(f)
+    fxs = lambda name, plan_file: [py, str(EFFECTS), synth, plan_file, "--out", str(base / f"fx-{name}")]
+    (base / "sha.py").write_text("import hashlib, sys\nprint('dry layer sha256', hashlib.sha256(open(sys.argv[1], 'rb').read()).hexdigest())\n")
+    (base / "peak.py").write_text('''import sys, wave
+import numpy as np
+w = wave.open(sys.argv[1]); x = np.abs(np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(float) / 32767)
+ok = 0.1 < x.max() <= 0.951
+print("never clips" if ok else f"CLIPS or silent: peak {x.max():.3f}")
+sys.exit(0 if ok else 1)
+''')
+    (base / "riser_check.py").write_text('''import json, sys, wave
+import numpy as np
+d = sys.argv[1]
+cue = json.load(open(d + "/cue-sheet.json"))[0]
+w = wave.open(d + "/sfx.wav"); sr = w.getframerate()
+x = np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(float).reshape(-1, 2) / 32767
+end, land = cue["sound_t"], cue["picture_t"]
+def rms(a, b):
+    s = x[int(a * sr):int(b * sr)]
+    return float(np.sqrt((s ** 2).mean())) if len(s) else 0.0
+before, after = rms(end - 0.5, end - 0.05), rms(end + 0.1, end + 0.5)
+ok = before > 0.01 and after < 1e-5 and abs(land - end - 0.01) < 0.001
+print(f"riser: loud before its end {before:.3f}, silent after {after:.6f}, lands {land} s, ends {end} s: "
+      + ("ends on the landing" if ok else "does NOT end on the landing"))
+sys.exit(0 if ok else 1)
+''')
+    riser_end = lambda kind: ["bash", "-c", f'"{py}" "{EFFECTS}" "{synth}" "{fxplan("end-" + kind, [{"id": "box", "at": 1.6, "kind": kind, "length": 1.0, "cue": "box lands"}], room=False)}" '
+                                            f'--out "{base}/fx-end-{kind}" >/dev/null && "{py}" "{base}/riser_check.py" "{base}/fx-end-{kind}"']
+    sha_of = lambda name: ["bash", "-c", f'"{py}" "{EFFECTS}" "{synth}" "{fxplan(name, [{"id": "box", "at": 1.6, "kind": "note", "note": 69, "gain": 0.55, "cue": "box lands"}], **({"room": False} if name == "room-off" else {}))}" '
+                                          f'--out "{base}/fx-{name}" >/dev/null && "{py}" "{base}/sha.py" "{base}/fx-{name}/sfx.wav"']
     # trace -> effects -> put the sound on a dummy picture -> sync, all on the box that moves from 1 s to 2 s
     fx_sync = lambda delay_ms: ["bash", "-c", f'node "{TRACE}" "{comp("trace")}" --out "{base}/motion-read.json" >/dev/null && '
                                 f'"{py}" "{EFFECTS}" "{base}/motion-read.json" "{plan("ok")}" --out "{base}/fx-sync{delay_ms}" >/dev/null && '
@@ -592,6 +639,43 @@ else:
     leak_mem = base / "leak-mem"
     (leak_mem / "memory").mkdir(parents=True)
     (leak_mem / "memory" / "profile.json").write_text("{}")
+    # offline: env.sh removes every key that makes the video engine send frames to an online vision service, and every
+    # stills or capture command in the skill carries its local-only flag
+    (base / "offline_check.py").write_text('''import os, re, subprocess, sys
+from pathlib import Path
+KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENROUTER_API_KEY", "HYPERFRAMES_VERTEX_PROJECT_ID", "HYPERFRAMES_VERTEX_SERVICE_ACCOUNT"]
+if sys.argv[1] == "env":
+    env = {**os.environ, **{k: "fake-key" for k in KEYS}}
+    shown = subprocess.run(["bash", "-c", 'source "$1" >/dev/null 2>&1; env', "_", sys.argv[2]], env=env,
+                           capture_output=True, text=True).stdout
+    left = [k for k in KEYS if re.search(rf"^{k}=", shown, re.M)]
+    print("still set after env.sh: " + ", ".join(left) if left else "no online vision key left after env.sh")
+    sys.exit(1 if left else 0)
+RULES = [(r"npx\\s+hyperframes\\s+snapshot\\b", "--describe false"), (r"npx\\s+hyperframes\\s+capture\\b", "--skip-vision")]
+bad = []
+for f in sorted(Path(sys.argv[2]).rglob("*")):
+    if not f.is_file() or f.suffix not in {".md", ".py", ".sh", ".mjs", ".js", ".json", ".html"} or "node_modules" in f.parts:
+        continue
+    for n, line in enumerate(f.read_text(errors="ignore").splitlines(), 1):
+        for cmd, flag in RULES:
+            for m in re.finditer(cmd, line):
+                if flag not in line[m.end():]:
+                    bad.append(f"{f.name}:{n} lacks {flag}")
+print("\\n".join(bad) if bad else "every stills and capture command stays local")
+sys.exit(1 if bad else 0)
+''')
+    offline = lambda *a: [py, str(base / "offline_check.py"), *a]
+    leaky_env = base / "env-keeps-keys.sh"
+    leaky_env.write_text("".join(l for l in (SKILL / "scripts" / "env.sh").read_text().splitlines(True) if not l.startswith("unset GEMINI")))
+    skillck = SKILL / "setup" / "check_skill_licences.py"
+    unlisted = base / "licences-unlisted.json"                      # a pinned skill with no licence record
+    unlisted.write_text(json.dumps({"sources": {}, "skills": {}}))
+    noncomm = base / "licences-noncommercial.json"                  # every source recorded, one with a non-commercial licence
+    rec = json.loads((SKILL / "setup" / "skills-licences.json").read_text())
+    rec["sources"]["pbakaus/impeccable"] = {"licence": "CC-BY-NC-4.0", "evidence": "fixture"}
+    noncomm.write_text(json.dumps(rec))
+    (base / "online-guide").mkdir()
+    (base / "online-guide" / "README.md").write_text("Stills: `npx hyperframes " + "snapshot --at 2`.\n")   # split: the skill is scanned too
     exd = base / "explainer-in"
     exd.mkdir()
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=220:duration=4", str(exd / "voice.wav")], check=True)
@@ -671,6 +755,22 @@ else:
         ("effects: a note outside the key is refused", lambda: fx("a", plan("bad-note", hits=[{"id": "box", "at": 2.0, "kind": "note", "note": 70}])), 2, "outside A minor"),
         ("effects: an element that is not in the trace is refused", lambda: fx("b", plan("no-el", hits=[{"id": "nope", "at": 2.0, "kind": "thump"}])), 2, "no element named 'nope'"),
         ("effects: a hit while the element is still moving warns", lambda: fx("c", plan("moving", hits=[{"id": "box", "at": 1.5, "kind": "tick"}])), 0, "is not at rest"),
+        ("effects: a riser ends on the frame its element lands", lambda: riser_end("riser"), 0, "ends on the landing"),
+        ("effects: a tick is not a riser and fails the riser end check", lambda: riser_end("tick"), 1, "does NOT end on the landing"),
+        ("effects: a riser on an element that never moves is reported", lambda: fxs("riser-still", fxplan("riser-still", [{"id": "still", "at": 1.6, "kind": "riser"}])), 0, "never moved"),
+        ("music: ace_takes recovers beat offsets, ranks takes, keeps endings and refuses mismatched takes (self-test)", lambda: [py, str(SKILL / "sound" / "scripts" / "ace_takes.py"), "--self-test"], 0, "self-test: 13/13 passed"),
+        ("effects: a library sound from a power that is not installed is refused", lambda: fxs("lib-missing", fxplan("lib-missing", [{"id": "box", "at": 1.6, "kind": "file", "file": "kenney-nope:click_001.ogg"}], key=None)), 2, "the power 'kenney-nope' is not installed"),
+        ("effects: a plain file path is used as it is (control)", lambda: fxs("lib-path", fxplan("lib-path", [{"id": "box", "at": 1.6, "kind": "file", "file": str(base / "no-such.wav")}], key=None)), 2, "no-such.wav' not found"),
+        ("effects: a riser note outside the key is refused", lambda: fxs("riser-out", fxplan("riser-out", [{"id": "box", "at": 1.6, "kind": "riser", "note": 70}])), 2, "riser note A#4 is outside A minor"),
+        ("effects: a chime in key passes", lambda: fxs("chime-ok", fxplan("chime-ok", [{"id": "box", "at": 1.6, "kind": "chime", "note": 69}])), 0, "1 hit(s)"),
+        ("effects: a chime whose note is outside the key is refused", lambda: fxs("chime-out", fxplan("chime-out", [{"id": "box", "at": 1.6, "kind": "chime", "note": 70}])), 2, "outside A minor"),
+        ("effects: a chime whose fifth is outside the key is refused", lambda: fxs("chime-fifth", fxplan("chime-fifth", [{"id": "box", "at": 1.6, "kind": "chime", "note": 71}])), 2, "the fifth above, F#5, is outside A minor"),
+        ("effects: a slam in key passes", lambda: fxs("slam-ok", fxplan("slam-ok", [{"id": "box", "at": 1.6, "kind": "slam", "note": 57, "gain": 0.6}])), 0, "1 hit(s)"),
+        ("effects: a slam outside the key is refused", lambda: fxs("slam-out", fxplan("slam-out", [{"id": "box", "at": 1.6, "kind": "slam", "note": 58}])), 2, "outside A minor"),
+        ("effects: a room wet share above 1 is refused", lambda: fxs("room-bad", fxplan("room-bad", [{"id": "box", "at": 1.6, "kind": "note", "note": 69}], room={"wet": 2})), 2, "share of reverb, from 0 to 1"),
+        ("room: a plain note with the room off is bit-identical to the old dry layer", lambda: sha_of("room-off"), 0, "dry layer sha256 " + DRY_SHA256),
+        ("room: the default room changes the dry layer", lambda: sha_of("room-default"), 0, "!dry layer sha256 " + DRY_SHA256),
+        ("room: a loud layer with the default room never clips", lambda: ["bash", "-c", f'"{py}" "{EFFECTS}" "{synth}" "{fxplan("room-loud", [{"id": "box", "at": 1.6, "kind": "slam", "note": 57, "gain": 3.0}, {"id": "box", "at": 1.6, "kind": "chime", "note": 69, "gain": 3.0}])}" --out "{base}/fx-room-loud" >/dev/null && "{py}" "{base}/peak.py" "{base}/fx-room-loud/sfx.wav"'], 0, "never clips"),
         ("pitch: a note in key passes the key check", lambda: tone("a440", 440), 0, "in A minor"),
         ("pitch: a note outside the key fails the key check", lambda: tone("as466", 466.16), 1, "A# (466"),
         ("pitch: noise is untuned and fits any key", lambda: noise, 0, "untuned, fits A minor"),
@@ -823,6 +923,15 @@ else:
         ("memory: the newest word on the same thing wins", lambda: ["bash", "-c", f'{memsh("flip")} prefer --dislike "hard cuts" >/dev/null && {memsh("flip")} prefer --like "hard cuts" --reason "changed my mind" >/dev/null && {memsh("flip")} show'], 0, "!avoids (general): hard cuts"),
         ("memory: forgetting a brand removes its jobs and preferences", lambda: ["bash", "-c", " ".join(f'"{x}"' for x in two_sessions()) + f' >/dev/null && {memsh("two")} forget --brand acme >/dev/null && {memsh("two")} recall'], 0, "!acme"),
         ("memory: it lives in the engine folder by default, never in the repo", lambda: ["env", "-u", "KIT_TO_CLIP_MEMORY", f"REEL_STUDIO={base / 'eng'}", py, "-c", f"import sys; sys.path.insert(0, {str(MEMORY_PY.parent)!r}); import memory; print(memory.memory_dir())"], 0, str(base / "eng" / "memory")),
+        ("offline: env.sh removes the online vision keys", lambda: offline("env", str(SKILL / "scripts" / "env.sh")), 0, "no online vision key left"),
+        ("offline: an env.sh that keeps the keys is caught", lambda: offline("env", str(leaky_env)), 1, "still set after env.sh: GEMINI_API_KEY"),
+        ("offline: every stills and capture command in the skill stays local", lambda: offline("docs", str(SKILL)), 0, "stays local"),
+        ("offline: a stills command without --describe false is caught", lambda: offline("docs", str(base / "online-guide")), 1, "README.md:1 lacks --describe false"),
+        ("skills: every pinned skill has an allowed licence", lambda: [py, str(skillck)], 0, "pinned skills have an allowed licence"),
+        ("skills: a pinned skill with no licence record is caught", lambda: [py, str(skillck), "--licences", str(unlisted)], 1, "no licence recorded"),
+        ("skills: a non-commercial skill licence is caught", lambda: [py, str(skillck), "--licences", str(noncomm)], 1, "CC-BY-NC-4.0 is not allowed"),
+        ("finish: plan prints the safe box without a project", lambda: fin("plan", "--profile", "youtube"), 0, "x 96-1824, y 54-972"),
+        ("finish: safe refuses an unknown platform and lists the profiles", lambda: fin("safe", "--project", str(ex_out), "--platform", "nope"), 2, "unknown platform 'nope'"),
         ("guide: the brand-pack guide's example pack bridges", lambda: [py, str(BRIDGE), "--brand", "acme", "--brand-skill", str(guide_kit), "--project", str(base / "guide-project")], 0, "token contract: v1"),
     ] + ([
         ("leakscan: a person's memory in an export is caught", lambda: [py, str(LEAKSCAN), str(leak_mem)], 1, "local memory or toolbox state"),

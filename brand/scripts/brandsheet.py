@@ -63,7 +63,7 @@ def main():
     need = ["tokens.json", "design-styles.json"]
     missing = [n for n in need if not (ex / n).is_file()]
     if missing:
-        fail(f"{cap} is not a complete capture (missing extracted/{', extracted/'.join(missing)}); run hyperframes capture first")
+        fail(f"{cap} is not a complete capture (missing extracted/{', extracted/'.join(missing)}); run npx hyperframes capture <url> --skip-vision -o <capture-dir> first")
     tok = json.loads((ex / "tokens.json").read_text())
     ds = json.loads((ex / "design-styles.json").read_text())
     fm = json.loads((ex / "fonts-manifest.json").read_text()) if (ex / "fonts-manifest.json").is_file() else {"files": []}

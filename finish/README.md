@@ -13,7 +13,7 @@ If the user hasn't named the destination, ask. One video can have several destin
 are different cuts, not one render stretched or auto-cropped.
 
 ```bash
-python3 <kit-to-clip>/finish/scripts/finish.py plan --profile tiktok,instagram-feed --project <project-dir>
+python3 <kit-to-clip>/finish/scripts/finish.py plan --profile tiktok,instagram-feed --project <project-dir>   # without --project it only prints the safe boxes
 ```
 
 This writes `platform.json` and `platform.css` (canvas size and safe-area CSS variables per destination). Keep
@@ -39,7 +39,7 @@ requests and hidden seek errors, which `hyperframes check` passes.
 Then check the safe area for each destination:
 
 ```bash
-python3 <kit-to-clip>/finish/scripts/finish.py safe --project <project-dir> --platform tiktok   # or instagram, or x0,y0,x1,y1
+python3 <kit-to-clip>/finish/scripts/finish.py safe --project <project-dir> --platform tiktok   # any finish profile (youtube, instagram-reels, ...) or x0,y0,x1,y1
 ```
 
 It steps through the whole timeline and fails when visible text or a logo leaves the destination's safe box. Mark an

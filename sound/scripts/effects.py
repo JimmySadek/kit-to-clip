@@ -10,26 +10,38 @@ placed). Every sound has a visible cause:
           see), pan follows its x position, and the sound leads the picture by 15 ms.
   hits    a sound on the frame the element comes to rest near a scored beat (its speed falls under 3% of the move's
           peak), 10 ms early. Kinds: note (a plucked note with a bell an octave up; must be in key), boom (a low tuned
-          drop; in key), thump (an untuned low hit), tick (an untuned short click), file (a library effect; its notes
-          are checked against the key).
+          drop; in key), slam (a big landing: a boom with a thump under it and a soft click; in key), chime (a note and a
+          quieter note a perfect fifth above; both in key), thump (an untuned low hit), tick (an untuned short click),
+          file (a library effect; its notes are checked against the key).
+  risers  a swell (filtered noise and a rising tone) that ENDS on the frame the element comes to rest, so it builds up to
+          the landing. "length" is its length in seconds (0.25 to 4.0, default 1.0); "note" (optional, in key) is the
+          tone's target. Its cue is its end, the landing.
+  room    a short, dark room reverb on the whole layer, so the sounds sit in a space instead of sounding dry.
+
+Never add an element only to carry a sound: every hit and riser follows a real move you can see.
 
 plan.json:
   { "key": "A minor",                                   optional; tuned sounds are refused when a note is outside it
     "duration": 15,                                     optional; default the trace's duration
+    "room": { "wet": 0.22, "decay": 1.1 },              optional; default as shown; "room": false turns the room off
     "whoosh": [ { "ids": ["c0", "c1"], "gain": 0.2, "vref": 2500, "lo": 350, "hi": 4200 } ],
-    "hits":   [ { "id": "c0", "at": 4.6875, "kind": "note", "note": 69, "gain": 0.55, "cue": "chip 1 locks" } ] }
+    "hits":   [ { "id": "c0", "at": 4.6875, "kind": "note", "note": 69, "gain": 0.55, "cue": "chip 1 locks" },
+                { "id": "c1", "at": 9.0, "kind": "riser", "length": 1.5, "note": 76, "cue": "chip 2 locks" } ] }
   vref  the speed (px/s) that counts as full loudness; default the element's own fastest move.
   note  MIDI number (69 = A4). at = the scored time of the picture moment (a beat), in seconds.
   pan   optional per hit, -1 left to 1 right; default from the element's x at the landing.
+  room  wet is the share of reverb (0 to 1); decay is the seconds for the tail to fall 60 dB (0.2 to 4).
 
 cue-sheet.json: one entry per hit, {cue, picture_t (the frame the element comes to rest: what a viewer sees), sound_t
-(when the sound starts), scored_t (the beat the plan asked for)}. `finish.py anchors` checks the picture against the beats;
-`finish.py sync <render> --cues cue-sheet.json` checks the sound against the picture on the finished file.
+(when the sound starts; for a riser, when it ends), scored_t (the beat the plan asked for)}. `finish.py anchors` checks the
+picture against the beats; `finish.py sync <render> --cues cue-sheet.json` checks the sound against the picture on the
+finished file.
 
 Needs numpy and scipy (the video engine's Python has both: source <kit-to-clip>/scripts/env.sh first).
 """
 import argparse
 import json
+import subprocess
 import sys
 import wave
 from pathlib import Path
@@ -44,6 +56,8 @@ SR = 48000
 LEAD_WHOOSH = 0.015        # seconds the whoosh leads the picture
 LEAD_HIT = 0.010           # seconds a hit leads the frame the element comes to rest
 REST = 0.03                # "at rest" = speed under this share of the move's peak
+RISER_MIN, RISER_MAX = 0.25, 4.0   # seconds
+ROOM_WET, ROOM_DECAY = 0.22, 1.1   # the default room: wet share, and seconds for the tail to fall 60 dB
 
 
 class PlanError(Exception):
@@ -132,6 +146,67 @@ def tick(rng, length=0.06):
     return x * np.exp(-t / 0.008) * np.minimum(1, t / 0.0008)
 
 
+def slam(m, rng, length=0.9):
+    """A big landing: a low tuned drop (as boom) with a thump under it and a soft 3.5 ms click on the front. The low end
+    leads: the thump is half as loud as the drop."""
+    n = int(length * SR)
+    t = np.arange(n) / SR
+    f = hz(m) * (1 + 0.6 * np.exp(-t / 0.05))
+    drop = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.45)
+    low = np.sin(2 * np.pi * np.cumsum(45 + 110 * np.exp(-t / 0.035)) / SR) * np.exp(-t / 0.16)
+    return drop + 0.5 * low + attack_click(rng, n, ms=3.5) * 0.5
+
+
+def riser(rng, length, top):
+    """A swell that ends on its landing: filtered noise that sweeps up, and a tone that rises two octaves to `top` (Hz).
+    It grows as it goes (u squared, u = the share of the riser done) and fades out over its last 8 ms, so it stops
+    on the landing without a click."""
+    n = int(length * SR)
+    t = np.arange(n) / SR
+    u = t / length
+    tone = np.sin(2 * np.pi * np.cumsum((top / 4) * 4 ** u) / SR) * 0.35
+    air = filt_sweep(rng.standard_normal(n), 300 + 3500 * u, "bandpass", q_bw=1.6) * 0.6
+    end = np.minimum(1, (length - t) / 0.008)
+    return (tone + air) * u ** 2 * end
+
+
+# ---------------------------------------------------------------- the room
+def room_ir(seed, decay):
+    """A short, dark room: seeded decorrelated stereo noise that falls 60 dB in `decay` seconds, after a 12 ms
+    pre-delay, low-passed at about 5.2 kHz (no fizz) and high-passed at about 180 Hz (no mud). Unit energy per side."""
+    rng = np.random.default_rng([seed, 7])
+    L = int(SR * decay)
+    t = np.arange(L) / SR
+    env = 10 ** (-3 * t / decay)
+    pre = int(0.012 * SR)
+    ir = np.zeros((L + pre, 2))
+    for c in range(2):
+        ir[pre:, c] = rng.standard_normal(L) * env
+    b, a = signal.butter(2, 5200 / (SR / 2), "low")
+    ir = signal.lfilter(b, a, ir, axis=0)
+    b, a = signal.butter(1, 180 / (SR / 2), "high")
+    ir = signal.lfilter(b, a, ir, axis=0)
+    return ir / np.sqrt((ir ** 2).sum(axis=0, keepdims=True))
+
+
+def room(sfx, wet, decay, seed):
+    """The dry layer with its room: dry * (1 - wet / 2) + wet * room. The never-clip scaling runs after this."""
+    ir = room_ir(seed, decay)
+    N = len(sfx)
+    tail = np.stack([signal.fftconvolve(sfx[:, c], ir[:, c])[:N] for c in range(2)], axis=1)
+    return sfx * (1 - wet / 2) + tail * wet
+
+
+def room_plan(plan):
+    """None when the room is off, else (wet, decay). An absent "room" is the default room."""
+    r = plan.get("room", {})
+    if r is False:
+        return None
+    if r is True:
+        r = {}
+    return float(r.get("wet", ROOM_WET)), float(r.get("decay", ROOM_DECAY))
+
+
 # ---------------------------------------------------------------- the trace
 def visible_speed(M, name):
     """Speed of an element in px/s (position and size), counting only what a viewer can see: a frame's motion is
@@ -157,7 +232,23 @@ def arrival(v, fps, at, window=0.2):
 
 
 # ---------------------------------------------------------------- the plan
+def resolve_file(name):
+    """A library effect by power and file name, "kenney-impact:impactPunch_heavy_000.ogg", becomes its path in the
+    installed power (toolbox.py path <power> audio). A plain path is returned as it is."""
+    if not isinstance(name, str) or ":" not in name or "/" in name.split(":", 1)[0]:
+        return name
+    power, rel = name.split(":", 1)
+    toolbox = Path(__file__).resolve().parents[2] / "scripts" / "toolbox.py"
+    r = subprocess.run([sys.executable, str(toolbox), "path", power, "audio"], capture_output=True, text=True)
+    if r.returncode != 0 or not r.stdout.strip():
+        raise PlanError(f"the power {power!r} is not installed (toolbox.py which recorded-effects), so {name!r} has no file")
+    return str(Path(r.stdout.strip()) / rel)
+
+
 def load_plan(M, plan):
+    for h in plan.get("hits", []):
+        if h.get("kind") == "file":
+            h["file"] = resolve_file(h.get("file", ""))
     known = set(M["ids"])
     key = None
     if plan.get("key"):
@@ -175,14 +266,25 @@ def load_plan(M, plan):
         if not isinstance(h.get("at"), (int, float)):
             problems.append(f"{where}: needs \"at\", the scored time in seconds")
         kind = h.get("kind", "note")
-        if kind not in ("note", "boom", "thump", "tick", "file"):
-            problems.append(f"{where}: kind {kind!r} is not note, boom, thump, tick or file")
-        if kind in ("note", "boom"):
+        if kind not in ("note", "boom", "slam", "chime", "riser", "thump", "tick", "file"):
+            problems.append(f"{where}: kind {kind!r} is not note, boom, slam, chime, riser, thump, tick or file")
+        if kind in ("note", "boom", "slam", "chime"):
             if not isinstance(h.get("note"), int):
                 problems.append(f"{where}: a {kind} needs \"note\", a MIDI number (69 = A4)")
             elif key and h["note"] % 12 not in key[1]:
                 problems.append(f"{where}: note {pitch.midi_name(h['note'])} is outside {key[0]}. Use a note in key, "
                                 f"such as {', '.join(pitch.midi_name(m) for m in range(60, 72) if m % 12 in key[1])}")
+            elif key and kind == "chime" and (h["note"] + 7) % 12 not in key[1]:
+                problems.append(f"{where}: the fifth above, {pitch.midi_name(h['note'] + 7)}, is outside {key[0]}. "
+                                "Use a note whose fifth is in key, such as the root of the key")
+        if kind == "riser":
+            if h.get("note") is not None:
+                if not isinstance(h["note"], int):
+                    problems.append(f"{where}: a riser's \"note\" is a MIDI number (69 = A4), or left out")
+                elif key and h["note"] % 12 not in key[1]:
+                    problems.append(f"{where}: riser note {pitch.midi_name(h['note'])} is outside {key[0]}. Use a note in key")
+            if not isinstance(h.get("length", 1.0), (int, float)):
+                problems.append(f"{where}: a riser's \"length\" is a number of seconds (0.25 to 4.0)")
         if kind == "file" and not Path(h.get("file", "")).is_file():
             problems.append(f"{where}: file {h.get('file')!r} not found")
         elif kind == "file" and key:
@@ -190,6 +292,15 @@ def load_plan(M, plan):
             if r["tuned"] and not all(pitch.NOTE_NAMES.index(n) in key[1] for n in r["notes"]):
                 problems.append(f"{where}: {Path(h['file']).name} sounds {'+'.join(r['notes'])}, outside {key[0]}. "
                                 "Pick another effect, or use kind \"note\" with a note in key. Do not pitch-shift a library effect.")
+    r = plan.get("room", {})
+    if r is not False and r is not True and not isinstance(r, dict):
+        problems.append("room: use false (no room), or an object like {\"wet\": 0.22, \"decay\": 1.1}")
+    elif isinstance(r, dict):
+        wet, decay = r.get("wet", ROOM_WET), r.get("decay", ROOM_DECAY)
+        if not isinstance(wet, (int, float)) or not 0 <= wet <= 1:
+            problems.append("room: \"wet\" is the share of reverb, from 0 to 1")
+        if not isinstance(decay, (int, float)) or not 0.2 <= decay <= 4:
+            problems.append("room: \"decay\" is the seconds for the tail to fall 60 dB, from 0.2 to 4")
     if problems:
         raise PlanError("\n  ".join(["the plan cannot be built:"] + problems))
     return key
@@ -256,11 +367,21 @@ def build(M, plan, seed=1):
         t_hit = land - LEAD_HIT
         pan = h.get("pan", float(np.clip(xs[min(len(xs) - 1, int(round(land * fps)))] / W * 2 - 1, -1, 1)) * 0.5)
         kind, g = h.get("kind", "note"), h.get("gain", 0.5)
-        if kind == "note":
+        if kind in ("note", "chime"):
             add(pluck(h["note"]), t_hit, g, pan)
             add(bell(h["note"] + 12), t_hit, g * 0.22, pan)
+            if kind == "chime":                               # a quieter note a perfect fifth above
+                add(pluck(h["note"] + 7), t_hit, g * 0.5, pan)
+                add(bell(h["note"] + 19), t_hit, g * 0.5 * 0.22, pan)
         elif kind == "boom":
             add(boom(h["note"], rng), t_hit, g, pan)
+        elif kind == "slam":
+            add(slam(h["note"], rng), t_hit, g, pan)
+        elif kind == "riser":                                 # it ends on the landing: its sound_t is the end
+            length = min(RISER_MAX, max(RISER_MIN, float(h.get("length", 1.0))))
+            top = hz(h["note"]) if h.get("note") is not None else hz(81)      # untuned: A5
+            add(riser(rng, length, top), t_hit - length, g, pan)
+            add(tick(rng), t_hit, g * 0.5, pan)                # a soft tick on the landing: the onset `finish sync` listens for
         elif kind == "thump":
             add(thump(rng), t_hit, g, pan)
         elif kind == "tick":
@@ -271,6 +392,11 @@ def build(M, plan, seed=1):
         name = h.get("cue") or f"{h['id']} lands"
         cues.append({"cue": name, "picture_t": round(land, 4), "sound_t": round(t_hit, 4), "scored_t": round(h["at"], 4)})
         placed.append({"kind": kind, "id": h["id"], "cue": name, "sound_t": round(t_hit, 4)})
+        if kind == "riser":
+            placed[-1].update(length=round(length, 3), start=round(t_hit - length, 4))
+    rs = room_plan(plan)
+    if rs is not None:                                        # the room is on the whole layer, before the never-clip scaling
+        sfx = room(sfx, *rs, seed)
     return sfx, cues, placed, warnings
 
 

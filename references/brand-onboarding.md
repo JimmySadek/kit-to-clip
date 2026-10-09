@@ -37,6 +37,9 @@ clearly marked close free substitute (OFL, with its licence file).
 
 ## 3. ✋ Motion directions, then ✋ choose
 
+Shape the directions with `frontend-design` and critique them with `impeccable`; in Quick mode, builder helpers can
+sketch more directions first (`references/director-and-builder.md`, sections 2 and 3). The brand's own rules still win.
+
 Propose 2 or 3 directions, each grounded in the brand's own rules, not in another brand's look. For each: a name,
 one line on the feeling, the signature device (how the motif moves), the transition, the type entrance, the end
 card, the sound mood, the reduced-motion variant and the motion values (`--reel-energy`, easing curves,
@@ -59,7 +62,7 @@ Check it: `python3 <kit-to-clip>/brand/scripts/bridge.py --list --project <repo>
 ## 5. ✋ Sample stills
 
 Build the neutral brand reel (`formats/neutral/brand-reel/`) with placeholder slots (say so), run the checks,
-snapshot 4-6 moments on a dark and a light surface, look at them yourself, then show them. Adjust and repeat, at
+take stills of 4-6 moments on a dark and a light surface (`npx hyperframes snapshot --describe false`), look at them yourself, then show them. Adjust and repeat, at
 most three rounds. Nothing is rendered in this step.
 
 ## 6. Save

@@ -176,7 +176,7 @@ def main():
     if repeats:
         print("  ⚠ same devices as a recent brand reel for this brand; pass another --variant unless the repeat is a deliberate motif")
     print("  next: npx hyperframes lint, finish.py check, finish.py safe"
-          + (f" --platform {a.platform}" if a.platform else "") + ", then look at snapshots before rendering")
+          + (f" --platform {a.platform}" if a.platform else "") + ", then look at stills (npx hyperframes snapshot --describe false) before rendering")
 
 
 if __name__ == "__main__":

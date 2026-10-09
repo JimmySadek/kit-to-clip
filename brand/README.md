@@ -63,7 +63,7 @@ people need consent before anything is posted; say so in the handoff. The pack's
 ## 6. Verify before you call it on-brand
 
 1. `npx hyperframes lint`: zero `font_family_without_font_face` findings.
-2. `npx hyperframes snapshot --at <a title moment>` and look at it: the brand's display font must be visible (the
+2. `npx hyperframes snapshot --describe false --at <a title moment>` and look at it: the brand's display font must be visible (the
    guide says what to look for). A plain sans-serif means a font failed to load.
 3. Run HyperFrames' design-adherence check against `frame.md` (colours, fonts, corners, Don'ts).
 4. Report what was copied (the script prints it), which pack and version was used, and anything done by hand.
@@ -103,5 +103,6 @@ brand owner confirms it; web font files are not a licence.
 - Don't name a script variable `top`, `name`, `status` or other `window` globals at top level: the whole script dies and lint does not notice.
 - A timed wrapper around `<video data-start>` gives wrong frames; only time one of them.
 - Full-screen overlays (tints, flashes) must start at `opacity: 0` in CSS or they cover earlier frames.
-- `npx hyperframes snapshot` sends frames to Gemini when `GEMINI_API_KEY` is set. Pass `--describe false` for
-  unreleased brand work.
+- With a Gemini, OpenRouter or Vertex key in the shell, the video engine's stills and website capture send frames to
+  that service by default (and download a Google package first). env.sh removes those keys; also pass
+  `--describe false` to `snapshot` and `--skip-vision` to `capture`, every time.

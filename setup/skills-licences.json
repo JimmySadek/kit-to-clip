@@ -1,0 +1,27 @@
+{
+  "about": "The licence of every agent skill pinned in skills-lock.json, checked against toolbox/policy.json ('allow'). A source repo can mix licences (anthropics/skills does: each skill carries its own LICENSE.txt), so the record is per skill. tests/run.py fails when a pinned skill has no entry here or its licence is not allowed.",
+  "sources": {
+    "heygen-com/hyperframes": {
+      "licence": "Apache-2.0",
+      "evidence": "repo licence (GitHub API), checked 2026-10-09"
+    },
+    "greensock/gsap-skills": {
+      "licence": "MIT",
+      "evidence": "repo licence (GitHub API), checked 2026-10-09"
+    },
+    "pbakaus/impeccable": {
+      "licence": "Apache-2.0",
+      "evidence": "repo licence (GitHub API), checked 2026-10-09"
+    },
+    "calesthio/generative-media-skills": {
+      "licence": "MIT",
+      "evidence": "repo licence (GitHub API), checked 2026-10-09; the 14 pinned production skills read for downloads, keys and agent-directed text before pinning"
+    }
+  },
+  "skills": {
+    "frontend-design": {
+      "licence": "Apache-2.0",
+      "evidence": "skills/frontend-design/LICENSE.txt in anthropics/skills (the repo has no single licence), checked 2026-10-09"
+    }
+  }
+}

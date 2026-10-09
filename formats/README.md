@@ -42,7 +42,8 @@ tokens: nothing is built or rendered that the user did not choose. Use AskUserQu
 **Checks** on every project, all must pass before offering a render: `npx hyperframes lint`,
 `npx hyperframes check`, `python3 <kit-to-clip>/finish/scripts/finish.py check --project <dir>` (script errors, missing
 files) and `python3 <kit-to-clip>/finish/scripts/finish.py safe --project <dir> --platform <p>` (every text and logo stays
-inside the platform's safe box for the whole video). Snapshot the key moments and look.
+inside the platform's safe box for the whole video). Take stills of the key moments
+(`npx hyperframes snapshot --describe false --at <s>`) and look.
 
 **Deliver** only the confirmed renders, one per platform layout:
 

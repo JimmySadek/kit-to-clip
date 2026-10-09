@@ -1,0 +1,49 @@
+{
+ "schema": 1,
+ "id": "kenney-interface",
+ "name": "Recorded interface sounds (Kenney Interface Sounds)",
+ "about": "100 recorded clicks, ticks, switches, toggles, glass and glitch sounds (CC0)",
+ "kind": "release",
+ "maturity": "stable",
+ "rank": 1,
+ "size_mb": 1,
+ "homepage": "https://kenney.nl/assets/interface-sounds",
+ "capabilities": [
+  "recorded-effects"
+ ],
+ "licence": {
+  "spdx": "CC0-1.0",
+  "usage": "file-in-project",
+  "url": "https://kenney.nl/assets/interface-sounds",
+  "note": "License.txt in the zip: Creative Commons Zero; free in personal, educational and commercial projects; credit not mandatory. Checked 2026-10-09."
+ },
+ "upstream": {
+  "web": "https://kenney.nl/assets/interface-sounds"
+ },
+ "pinned": "2023-02",
+ "install": {
+  "url": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+  "asset": "kenney_interface-sounds.zip",
+  "sha256": {
+   "2023-02": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232"
+  },
+  "extract": "zip",
+  "entries": {
+   "audio": "Audio"
+  },
+  "main": "audio"
+ },
+ "smoke": {
+  "timeout": 60,
+  "steps": [
+   {
+    "sh": "test -s {audio}/click_002.ogg"
+   },
+   {
+    "sh": "d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 {audio}/click_002.ogg); awk -v d=$d 'BEGIN{exit !(d>0.005)}'"
+   }
+  ]
+ },
+ "recipe": "recipes/recorded-effects.md",
+ "fallback": "the built-in synthesised effects (sound-effects)"
+}

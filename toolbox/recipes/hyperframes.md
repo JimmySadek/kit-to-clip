@@ -13,7 +13,7 @@ env.sh) at use time; it is the source of truth for how, and this page only says 
 | `3d` | Three.js through `adapters/three.md` (seek with the engine's clock) | `hyperframes-animation/adapters/three.md` |
 | `footage-edit` | cut, trim, splice: `general-video`; zoom and Ken Burns: `hyperframes-keyframes`; constant speed: `data-playback-rate` (0.1 to 10); speed ramps: a `rate` lane in `data-automation` | `hyperframes-core/references/creator-editing-recipes.md` (freeze/hold and speed sections) |
 | `beat-sync` | `npx hyperframes beats <project>` writes `beats/<audio>.json` | `sound/README.md` (our sound-first rule) |
-| `brand-from-website` | `npx hyperframes capture <url>` then our brand sheet | `brand/README.md`, "Brand sheet from a website" |
+| `brand-from-website` | `npx hyperframes capture <url> --skip-vision` then our brand sheet | `brand/README.md`, "Brand sheet from a website" |
 
 Also useful, no card needed:
 - `npx hyperframes media-treatment --capabilities`: deterministic colour grading of one `<img>` or `<video>`. Use `--analyze` for a suggested correction.

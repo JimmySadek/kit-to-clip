@@ -1,51 +1,403 @@
 {
-  "schema": 1,
-  "about": "The jobs Kit to Clip can recognise. A card (toolbox/cards/<id>.json) names the capabilities it provides. Every capability has a fallback that works with nothing extra installed. Words are what a person might say; the router matches meaning, not exact words.",
-  "families": {
-    "motion": "how things move on screen",
-    "vector": "logos, shapes and brand files",
-    "footage": "work on real video and photos",
-    "sound": "music, effects, voice and words",
-    "output": "files we hand over",
-    "quality": "checks that protect the viewer and the brand"
+ "schema": 1,
+ "about": "The jobs Kit to Clip can recognise. A card (toolbox/cards/<id>.json) names the capabilities it provides. Every capability has a fallback that works with nothing extra installed. Words are what a person might say; the router matches meaning, not exact words.",
+ "families": {
+  "motion": "how things move on screen",
+  "vector": "logos, shapes and brand files",
+  "footage": "work on real video and photos",
+  "sound": "music, effects, voice and words",
+  "output": "files we hand over",
+  "quality": "checks that protect the viewer and the brand"
+ },
+ "capabilities": {
+  "video-render": {
+   "family": "motion",
+   "about": "draw a video from HTML and code, frame by frame",
+   "words": [
+    "make a video",
+    "render"
+   ],
+   "fallback": "none: this is the engine itself (setup)"
   },
-  "capabilities": {
-    "video-render": {"family": "motion", "about": "draw a video from HTML and code, frame by frame", "words": ["make a video", "render"], "fallback": "none: this is the engine itself (setup)"},
-    "timeline-motion": {"family": "motion", "about": "choreographed motion: reveals, staggers, transitions, kinetic type", "words": ["animate", "title sequence", "transition"], "fallback": "none needed: built into the engine"},
-    "text-effects": {"family": "motion", "about": "named text animations: typewriter, scramble, split reveals, per-letter effects", "words": ["text effect", "typewriter", "scramble", "letters fly in"], "fallback": "GSAP SplitText recipes in the engine"},
-    "spring-motion": {"family": "motion", "about": "physical, springy UI-style motion", "words": ["springy", "bouncy UI", "app-like motion", "framer motion"], "fallback": "GSAP elastic and back eases"},
-    "shader-background": {"family": "motion", "about": "living gradients, grain, liquid and noise backgrounds in brand colours", "words": ["gradient background", "mesh gradient", "grain", "liquid", "aurora"], "fallback": "CSS gradients animated with GSAP"},
-    "particles": {"family": "motion", "about": "thousands of particles, confetti, sparks, dust, GPU filters", "words": ["confetti", "particles", "sparks", "dust", "explosion"], "fallback": "a few dozen DOM or canvas particles with GSAP"},
-    "generative-art": {"family": "motion", "about": "generative patterns and painted, brush or pencil looks", "words": ["generative", "watercolour", "painted", "brush strokes", "pencil"], "fallback": "SVG patterns animated with GSAP"},
-    "hand-drawn": {"family": "motion", "about": "sketchy, whiteboard, hand-drawn shapes and lines", "words": ["hand-drawn", "sketch", "whiteboard", "doodle"], "fallback": "SVG strokes drawn on with GSAP"},
-    "physics": {"family": "motion", "about": "objects that fall, bounce, pile up or collide believably (simulated once, then baked)", "words": ["fall and pile up", "bounce off", "gravity", "physics"], "fallback": "hand-keyed bounces with GSAP eases"},
-    "lottie-play": {"family": "motion", "about": "play a Lottie or dotLottie animation inside a video", "words": ["lottie file", ".lottie", "after effects json"], "fallback": "none needed: built into the engine"},
-    "lottie-theme": {"family": "motion", "about": "recolour or re-text a stock Lottie to the brand", "words": ["make this lottie on-brand", "recolour the lottie"], "fallback": "edit colours in the Lottie JSON by hand"},
-    "3d": {"family": "motion", "about": "3D scenes in the browser (logos, products, cameras)", "words": ["3D", "spinning logo", "camera move"], "fallback": "none needed: built into the engine (Three.js)"},
-    "3d-render": {"family": "motion", "about": "heavy 3D: modelling, physics, cinematic lighting, rendered offline", "words": ["photoreal 3D", "blender", "product render"], "fallback": "browser 3D with Three.js"},
-    "logo-convert": {"family": "vector", "about": "turn .ai, .eps or .pdf logos into clean SVG we can animate", "words": [".ai logo", ".eps", "logo only as pdf"], "fallback": "ask the brand for an SVG or a large PNG"},
-    "path-simplify": {"family": "vector", "about": "reduce jagged or heavy vector paths to smooth curves", "words": ["smoother lines", "too many points", "clean the vector"], "fallback": "use the paths as they are"},
-    "image-trace": {"family": "vector", "about": "trace a PNG or JPG logo into vector shapes", "words": ["logo is only a png", "trace this"], "fallback": "use the image as it is (no draw-on effects)"},
-    "svg-to-layers": {"family": "vector", "about": "turn an SVG into animatable layers in a layered motion project", "words": ["editable layers", "after effects style project"], "fallback": "animate the SVG in the browser"},
-    "brand-from-website": {"family": "vector", "about": "read colours, fonts and logos from a live website", "words": ["use our website", "brand from site"], "fallback": "ask for the brand files"},
-    "footage-edit": {"family": "footage", "about": "cut, trim, reorder, zoom, constant speed and speed ramps on real clips", "words": ["cut", "trim", "speed up", "slow down", "ramp"], "fallback": "none needed: built into the engine"},
-    "frame-exact-edit": {"family": "footage", "about": "frame holds anywhere, exact retimes and edits a video editor would make", "words": ["freeze here", "hold this frame", "exact retime"], "fallback": "still frames extracted with ffmpeg and placed in the video"},
-    "timeline-export": {"family": "output", "about": "hand an editor a timeline file (FCPXML, EDL, OTIO) to re-cut by hand", "words": ["premiere project", "final cut", "editable timeline"], "fallback": "the finished video plus a list of cut times"},
-    "cutout": {"family": "footage", "about": "remove the background from a photo or frame (people, products, logos)", "words": ["cut out", "remove background", "transparent player"], "fallback": "use the image with its background, or a soft mask"},
-    "video-mask": {"family": "footage", "about": "follow a person or object through a clip with a mask (text behind the player, spotlight)", "words": ["text behind", "spotlight the player", "mask the player"], "fallback": "text in front, or a cutout on a frozen frame"},
-    "slow-motion": {"family": "footage", "about": "smooth slow motion by inventing frames between frames", "words": ["smooth slow-mo", "slow motion"], "fallback": "plain slow speed (frames repeat)"},
-    "upscale": {"family": "footage", "about": "make a small or soft image or clip sharper and bigger", "words": ["upscale", "low resolution", "make it sharper"], "fallback": "use it at its own size"},
-    "video-link-read": {"family": "footage", "about": "read a video link: transcript, frames and the file", "words": ["this reel", "this youtube link", "make it like this video"], "fallback": "ask for the file"},
-    "music": {"family": "sound", "about": "background music made on the computer in a few styles", "words": ["music", "soundtrack", "beat"], "fallback": "none needed: built in (music maker)"},
-    "music-generate": {"family": "sound", "about": "an original song-like track from a description (genre, mood, tempo)", "words": ["original track", "song", "upbeat 30 s track", "lofi"], "fallback": "the built-in music maker"},
-    "sound-effects": {"family": "sound", "about": "whooshes, hits and risers placed on the motion, in key", "words": ["sound effects", "whoosh", "hits"], "fallback": "none needed: built in"},
-    "voice-over": {"family": "sound", "about": "a spoken voice reading a script", "words": ["voice-over", "narration", "someone saying", "explainer voice"], "fallback": "on-screen text instead of a voice"},
-    "transcribe": {"family": "sound", "about": "speech to text with timings: captions, transcript cuts", "words": ["captions", "subtitles", "what does he say"], "fallback": "type the words in by hand"},
-    "beat-sync": {"family": "sound", "about": "find the beats and put cuts and motion on them", "words": ["on the beat", "sync to music"], "fallback": "none needed: built in"},
-    "lottie-export": {"family": "output", "about": "deliver an animation as a Lottie or dotLottie file for websites and apps", "words": ["lottie", "for our app", "dotlottie", "tiny animated logo"], "fallback": "WebM with transparency, APNG or the live snippet"},
-    "editable-project": {"family": "output", "about": "a layered project a designer can open and adjust by hand", "words": ["editable", "source file", "layers for our designer"], "fallback": "the HTML project itself, with notes"},
-    "platform-finish": {"family": "output", "about": "safe areas, loudness, share copies and covers per platform", "words": ["ready for instagram", "tiktok", "deliver"], "fallback": "none needed: built in"},
-    "flash-guard": {"family": "quality", "about": "catch flashing that can harm viewers (WCAG: at most 3 flashes a second)", "words": ["flash", "strobe", "epilepsy"], "fallback": "none needed: built in"},
-    "reduced-motion": {"family": "quality", "about": "a calm still or fade version of web loops for people who turn motion off", "words": ["accessible loop", "reduced motion"], "fallback": "none needed: built in"}
+  "timeline-motion": {
+   "family": "motion",
+   "about": "choreographed motion: reveals, staggers, transitions, kinetic type",
+   "words": [
+    "animate",
+    "title sequence",
+    "transition"
+   ],
+   "fallback": "none needed: built into the engine"
+  },
+  "text-effects": {
+   "family": "motion",
+   "about": "named text animations: typewriter, scramble, split reveals, per-letter effects",
+   "words": [
+    "text effect",
+    "typewriter",
+    "scramble",
+    "letters fly in"
+   ],
+   "fallback": "GSAP SplitText recipes in the engine"
+  },
+  "spring-motion": {
+   "family": "motion",
+   "about": "physical, springy UI-style motion",
+   "words": [
+    "springy",
+    "bouncy UI",
+    "app-like motion",
+    "framer motion"
+   ],
+   "fallback": "GSAP elastic and back eases"
+  },
+  "shader-background": {
+   "family": "motion",
+   "about": "living gradients, grain, liquid and noise backgrounds in brand colours",
+   "words": [
+    "gradient background",
+    "mesh gradient",
+    "grain",
+    "liquid",
+    "aurora"
+   ],
+   "fallback": "CSS gradients animated with GSAP"
+  },
+  "particles": {
+   "family": "motion",
+   "about": "thousands of particles, confetti, sparks, dust, GPU filters",
+   "words": [
+    "confetti",
+    "particles",
+    "sparks",
+    "dust",
+    "explosion"
+   ],
+   "fallback": "a few dozen DOM or canvas particles with GSAP"
+  },
+  "generative-art": {
+   "family": "motion",
+   "about": "generative patterns and painted, brush or pencil looks",
+   "words": [
+    "generative",
+    "watercolour",
+    "painted",
+    "brush strokes",
+    "pencil"
+   ],
+   "fallback": "SVG patterns animated with GSAP"
+  },
+  "hand-drawn": {
+   "family": "motion",
+   "about": "sketchy, whiteboard, hand-drawn shapes and lines",
+   "words": [
+    "hand-drawn",
+    "sketch",
+    "whiteboard",
+    "doodle"
+   ],
+   "fallback": "SVG strokes drawn on with GSAP"
+  },
+  "physics": {
+   "family": "motion",
+   "about": "objects that fall, bounce, pile up or collide believably (simulated once, then baked)",
+   "words": [
+    "fall and pile up",
+    "bounce off",
+    "gravity",
+    "physics"
+   ],
+   "fallback": "hand-keyed bounces with GSAP eases"
+  },
+  "lottie-play": {
+   "family": "motion",
+   "about": "play a Lottie or dotLottie animation inside a video",
+   "words": [
+    "lottie file",
+    ".lottie",
+    "after effects json"
+   ],
+   "fallback": "none needed: built into the engine"
+  },
+  "lottie-theme": {
+   "family": "motion",
+   "about": "recolour or re-text a stock Lottie to the brand",
+   "words": [
+    "make this lottie on-brand",
+    "recolour the lottie"
+   ],
+   "fallback": "edit colours in the Lottie JSON by hand"
+  },
+  "3d": {
+   "family": "motion",
+   "about": "3D scenes in the browser (logos, products, cameras)",
+   "words": [
+    "3D",
+    "spinning logo",
+    "camera move"
+   ],
+   "fallback": "none needed: built into the engine (Three.js)"
+  },
+  "3d-render": {
+   "family": "motion",
+   "about": "heavy 3D: modelling, physics, cinematic lighting, rendered offline",
+   "words": [
+    "photoreal 3D",
+    "blender",
+    "product render"
+   ],
+   "fallback": "browser 3D with Three.js"
+  },
+  "logo-convert": {
+   "family": "vector",
+   "about": "turn .ai, .eps or .pdf logos into clean SVG we can animate",
+   "words": [
+    ".ai logo",
+    ".eps",
+    "logo only as pdf"
+   ],
+   "fallback": "ask the brand for an SVG or a large PNG"
+  },
+  "path-simplify": {
+   "family": "vector",
+   "about": "reduce jagged or heavy vector paths to smooth curves",
+   "words": [
+    "smoother lines",
+    "too many points",
+    "clean the vector"
+   ],
+   "fallback": "use the paths as they are"
+  },
+  "image-trace": {
+   "family": "vector",
+   "about": "trace a PNG or JPG logo into vector shapes",
+   "words": [
+    "logo is only a png",
+    "trace this"
+   ],
+   "fallback": "use the image as it is (no draw-on effects)"
+  },
+  "svg-to-layers": {
+   "family": "vector",
+   "about": "turn an SVG into animatable layers in a layered motion project",
+   "words": [
+    "editable layers",
+    "after effects style project"
+   ],
+   "fallback": "animate the SVG in the browser"
+  },
+  "brand-from-website": {
+   "family": "vector",
+   "about": "read colours, fonts and logos from a live website",
+   "words": [
+    "use our website",
+    "brand from site"
+   ],
+   "fallback": "ask for the brand files"
+  },
+  "footage-edit": {
+   "family": "footage",
+   "about": "cut, trim, reorder, zoom, constant speed and speed ramps on real clips",
+   "words": [
+    "cut",
+    "trim",
+    "speed up",
+    "slow down",
+    "ramp"
+   ],
+   "fallback": "none needed: built into the engine"
+  },
+  "frame-exact-edit": {
+   "family": "footage",
+   "about": "frame holds anywhere, exact retimes and edits a video editor would make",
+   "words": [
+    "freeze here",
+    "hold this frame",
+    "exact retime"
+   ],
+   "fallback": "still frames extracted with ffmpeg and placed in the video"
+  },
+  "timeline-export": {
+   "family": "output",
+   "about": "hand an editor a timeline file (FCPXML, EDL, OTIO) to re-cut by hand",
+   "words": [
+    "premiere project",
+    "final cut",
+    "editable timeline"
+   ],
+   "fallback": "the finished video plus a list of cut times"
+  },
+  "cutout": {
+   "family": "footage",
+   "about": "remove the background from a photo or frame (people, products, logos)",
+   "words": [
+    "cut out",
+    "remove background",
+    "transparent player"
+   ],
+   "fallback": "use the image with its background, or a soft mask"
+  },
+  "video-mask": {
+   "family": "footage",
+   "about": "follow a person or object through a clip with a mask (text behind the player, spotlight)",
+   "words": [
+    "text behind",
+    "spotlight the player",
+    "mask the player"
+   ],
+   "fallback": "text in front, or a cutout on a frozen frame"
+  },
+  "slow-motion": {
+   "family": "footage",
+   "about": "smooth slow motion by inventing frames between frames",
+   "words": [
+    "smooth slow-mo",
+    "slow motion"
+   ],
+   "fallback": "plain slow speed (frames repeat)"
+  },
+  "upscale": {
+   "family": "footage",
+   "about": "make a small or soft image or clip sharper and bigger",
+   "words": [
+    "upscale",
+    "low resolution",
+    "make it sharper"
+   ],
+   "fallback": "use it at its own size"
+  },
+  "video-link-read": {
+   "family": "footage",
+   "about": "read a video link: transcript, frames and the file",
+   "words": [
+    "this reel",
+    "this youtube link",
+    "make it like this video"
+   ],
+   "fallback": "ask for the file"
+  },
+  "music": {
+   "family": "sound",
+   "about": "background music made on the computer in a few styles",
+   "words": [
+    "music",
+    "soundtrack",
+    "beat"
+   ],
+   "fallback": "none needed: built in (music maker)"
+  },
+  "music-generate": {
+   "family": "sound",
+   "about": "an original song-like track from a description (genre, mood, tempo)",
+   "words": [
+    "original track",
+    "song",
+    "upbeat 30 s track",
+    "lofi"
+   ],
+   "fallback": "the built-in music maker"
+  },
+  "sound-effects": {
+   "family": "sound",
+   "about": "whooshes, hits and risers placed on the motion, in key",
+   "words": [
+    "sound effects",
+    "whoosh",
+    "hits"
+   ],
+   "fallback": "none needed: built in"
+  },
+  "voice-over": {
+   "family": "sound",
+   "about": "a spoken voice reading a script",
+   "words": [
+    "voice-over",
+    "narration",
+    "someone saying",
+    "explainer voice"
+   ],
+   "fallback": "on-screen text instead of a voice"
+  },
+  "transcribe": {
+   "family": "sound",
+   "about": "speech to text with timings: captions, transcript cuts",
+   "words": [
+    "captions",
+    "subtitles",
+    "what does he say"
+   ],
+   "fallback": "type the words in by hand"
+  },
+  "beat-sync": {
+   "family": "sound",
+   "about": "find the beats and put cuts and motion on them",
+   "words": [
+    "on the beat",
+    "sync to music"
+   ],
+   "fallback": "none needed: built in"
+  },
+  "lottie-export": {
+   "family": "output",
+   "about": "deliver an animation as a Lottie or dotLottie file for websites and apps",
+   "words": [
+    "lottie",
+    "for our app",
+    "dotlottie",
+    "tiny animated logo"
+   ],
+   "fallback": "WebM with transparency, APNG or the live snippet"
+  },
+  "editable-project": {
+   "family": "output",
+   "about": "a layered project a designer can open and adjust by hand",
+   "words": [
+    "editable",
+    "source file",
+    "layers for our designer"
+   ],
+   "fallback": "the HTML project itself, with notes"
+  },
+  "platform-finish": {
+   "family": "output",
+   "about": "safe areas, loudness, share copies and covers per platform",
+   "words": [
+    "ready for instagram",
+    "tiktok",
+    "deliver"
+   ],
+   "fallback": "none needed: built in"
+  },
+  "flash-guard": {
+   "family": "quality",
+   "about": "catch flashing that can harm viewers (WCAG: at most 3 flashes a second)",
+   "words": [
+    "flash",
+    "strobe",
+    "epilepsy"
+   ],
+   "fallback": "none needed: built in"
+  },
+  "reduced-motion": {
+   "family": "quality",
+   "about": "a calm still or fade version of web loops for people who turn motion off",
+   "words": [
+    "accessible loop",
+    "reduced motion"
+   ],
+   "fallback": "none needed: built in"
+  },
+  "recorded-effects": {
+   "family": "sound",
+   "about": "recorded hits, clicks, impacts and sweeps (CC0) placed on the motion: the default effects",
+   "words": [
+    "recorded sound effects",
+    "real sounds",
+    "impact",
+    "click",
+    "not synthetic"
+   ],
+   "fallback": "the built-in synthesised effects (sound-effects)"
   }
+ }
 }

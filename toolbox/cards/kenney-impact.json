@@ -1,0 +1,49 @@
+{
+ "schema": 1,
+ "id": "kenney-impact",
+ "name": "Recorded impacts (Kenney Impact Sounds)",
+ "about": "about 105 recorded impacts: punch, plate, metal, glass, wood, soft (CC0)",
+ "kind": "release",
+ "maturity": "stable",
+ "rank": 1,
+ "size_mb": 1,
+ "homepage": "https://kenney.nl/assets/impact-sounds",
+ "capabilities": [
+  "recorded-effects"
+ ],
+ "licence": {
+  "spdx": "CC0-1.0",
+  "usage": "file-in-project",
+  "url": "https://kenney.nl/assets/impact-sounds",
+  "note": "License.txt in the zip: Creative Commons Zero; free in personal, educational and commercial projects; credit not mandatory. Checked 2026-10-09."
+ },
+ "upstream": {
+  "web": "https://kenney.nl/assets/impact-sounds"
+ },
+ "pinned": "2023-02",
+ "install": {
+  "url": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+  "asset": "kenney_impact-sounds.zip",
+  "sha256": {
+   "2023-02": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8"
+  },
+  "extract": "zip",
+  "entries": {
+   "audio": "Audio"
+  },
+  "main": "audio"
+ },
+ "smoke": {
+  "timeout": 60,
+  "steps": [
+   {
+    "sh": "test -s {audio}/impactPunch_heavy_000.ogg"
+   },
+   {
+    "sh": "d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 {audio}/impactPunch_heavy_000.ogg); awk -v d=$d 'BEGIN{exit !(d>0.005)}'"
+   }
+  ]
+ },
+ "recipe": "recipes/recorded-effects.md",
+ "fallback": "the built-in synthesised effects (sound-effects)"
+}

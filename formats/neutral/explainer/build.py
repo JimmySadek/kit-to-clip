@@ -234,7 +234,7 @@ def main():
     print(f"explainer: built {out} ({W}x{H}, {duration} s, {len(scenes)} scenes on their words, style {a.style}"
           + (", captions" if lines else "") + (", music bed" if a.music else "") + ")")
     print("  next: npx hyperframes lint, finish.py check, finish.py safe" + (f" --platform {a.platform}" if a.platform else "")
-          + ", finish.py anchors --project <dir> (words from transcript.json), then look at the stills before rendering")
+          + ", finish.py anchors --project <dir> (words from transcript.json), then look at the stills (npx hyperframes snapshot --describe false) before rendering")
 
 
 if __name__ == "__main__":

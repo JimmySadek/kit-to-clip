@@ -18,14 +18,20 @@ steps 1 to 3 are done.
 
 ## 1. The music source (✋, first question)
 
-Ask before anything else, with options named for this video (offer every row that can work; the music maker needs nothing installed beyond the engine). Kit to Clip is free and local: never offer a source that needs an account, a key or a payment (the HyperFrames `media-use` library needs a HeyGen login, so it is not used):
+Ask before anything else, with options named for this video. **Offer the music generator first: it is the default.**
+Offer every row that can work. Kit to Clip is free and local: never offer a source that needs an account, a key or a
+payment (the HyperFrames `media-use` library needs a HeyGen login, so it is not used):
 
 | Option | What it needs |
 |---|---|
+| **An original track from a description (the default, offer it first)** | the `music-generate` power, ACE-Step (`toolbox.py which music-generate`): free, runs on this computer, ✋ before adding it. The first run downloads about 9.4 GB, and each take takes minutes. `ace_takes.py` makes a few takes and readies the best one (step 2) |
+| Music made offline (the fallback) | the built-in music maker, `score.py`: no model, ready in seconds, every cue exact to the sample. Four styles, any key, no licence (section "Music made offline"). Use it when the generator is not installed, the person does not want the download or the wait, or no take works |
 | They supply a track | the file. Get its beats: add it to the project as the root `<audio>`, then `npx hyperframes beats <project>` writes `beats/<audio>.json` (the HyperFrames `music-to-video` workflow builds on it). For a track outside a project, `python3 <kit-to-clip>/scripts/reference.py beats <file>` reports its tempo and strongest hits (it uses a throwaway project and saves nothing) |
-| An original track from a description | the `music-generate` power (`toolbox.py which music-generate`): free, runs on this computer, ✋ before adding it. Offer it when the brief asks for a song-like track the four built-in styles cannot give |
 | No music, effects only | the effects still need a tempo to sit on: pick one in step 2 and say the video has no music |
-| Music made offline | the built-in music maker: four styles, any key, no login and no licence (section "Music made offline"). An option, never a requirement |
+
+Say two things before the person picks the generator. **Generated music can sound like an existing song by accident**,
+so the description names the genre, mood, instruments and tempo, never an artist or a song. And **you cannot hear the
+takes**: the person listens to them before any picture is built.
 
 Some destinations limit music. `finish.py plan --profile <p>` prints the destination's sound facts: for Instagram, its
 licensed music is for personal, non-commercial use and some business accounts cannot use it, so a brand Reel uses its
@@ -38,7 +44,43 @@ Choose the tempo so the video is **whole bars**: length = bars x 4 x 60 / bpm. 1
 moment), the lift, the end. Ask ✋ to confirm the music and the sections (one line each), then keep them: they are the
 score the picture is timed to.
 
-## Music made offline (optional)
+**With the music generator (the default)**, make the takes once the tempo and sections are confirmed:
+
+```bash
+python3 <kit-to-clip>/sound/scripts/ace_takes.py "energetic electronic, punchy drums, synth bass, bright stabs" \
+    --bpm 128 --key "A minor" --bars 8 --sections hook:2,build:2,drop:3,end:1 --takes 3 --seed 11 --out sound/
+```
+
+A raw take does not keep our timing. Measured on 9 Oct 2026: the beats sat 45 to 160 ms after the grid, the drop
+landed where the model chose, endings faded to near silence, the mixes were 80 to 94% bass, and the peaks were hot.
+`ace_takes.py` fixes what it can and chooses among the takes for the rest:
+
+- **On the grid:** it finds where each take's beats really are, shifts the take so beat 0 is at 0.000 s, and makes it
+  exactly `bars x 4 x 60 / bpm` long.
+- **Extra bars, then a cut:** ACE-Step fades out over its last bars, so each take is made `--extra-bars` longer
+  (default: 4, or half the bars when that is more) and cut after the target bars. The model's fade falls after the cut,
+  and the last half beat fades out so the cut does not click. `--extra-bars 0` keeps the model's own ending.
+- **Scored against the sections:** it measures the loudness of every bar. The build should rise, the drop should be
+  clearly above the build, the end should not be silent. Tight beats, a hit on the end cue, less bass and peaks that
+  need little limiting add points. No hit in the music on the end cue is a note, not a failure: land a recorded hit
+  there in the effects plan (step 4). It cannot move the model's drop: it picks the take that follows the plan.
+- **The music's own drop:** it also measures where each take really drops (its biggest lift from one bar to the
+  next) and writes it to `score.json` (`source.measured_drop_beat`). When a take drops on another beat, `takes.json`
+  says so: put the picture's big move where the music drops, not where the plan guessed. A flat build is only a note
+  when the drop lands on the planned beat.
+- **Ready for the pipeline:** the best take is levelled like `score.py` (-18 LUFS, true peak under -3 dBTP) and
+  written as `music.wav` and `score.json` in the same format. Steps 3 to 6 work unchanged.
+
+Every take stays in `sound/takes/`: `take-s<seed>-x<extra>.wav` is the raw take, `take-s<seed>-x<extra>-ready.wav`
+is cut, on the grid and levelled. A take is reused only when it was made with the same settings, extra bars included. `sound/takes.json` holds every number and why the winner won. A `warning` there means every take missed a
+check: say so, and offer more takes (`--takes 5`), other seeds (`--seed 40`) or `score.py`. ✋ Play the takes to the
+person before building the picture. If they prefer another one, the same command with `--pick <seed>` makes it the
+music in seconds (the takes are reused). No ACE-Step installed stops with exit 3 and the `score.py` command to use.
+
+Trust `score.json` for the beats. `npx hyperframes beats` reads ACE-Step's beats about 25 ms later than `ace_takes.py`
+and `finish.py sync` do: it lands on the low body of the kick, not its attack.
+
+## Music made offline (the fallback)
 
 The kit can make original music itself: no track to find, no login, no licence, and the music is timed to whole bars
 and beats before any picture exists. It is synthesised, so think of it as a good bed, not a produced record, and
@@ -111,21 +153,39 @@ text mask jumps between two hidden positions, which would read as thousands of p
 
 ```json
 { "key": "A minor",
+  "room": { "wet": 0.22, "decay": 1.1 },
   "whoosh": [ { "ids": ["chip1", "chip2"], "gain": 0.2, "vref": 2500 } ],
-  "hits":   [ { "id": "chip1", "at": 4.6875, "kind": "note", "note": 69, "gain": 0.55, "cue": "chip 1 locks" } ] }
+  "hits":   [ { "id": "chip1", "at": 4.6875, "kind": "note", "note": 69, "gain": 0.55, "cue": "chip 1 locks" },
+              { "id": "chip2", "at": 9.0, "kind": "riser", "length": 1.5, "note": 76, "cue": "chip 2 locks" } ] }
 ```
 
 - **whoosh:** loudness and brightness follow the element's visible speed (moving and resizing), pan follows where it
   is, and it leads the picture by 15 ms. `vref` is the speed that counts as full loudness (default: its own fastest move).
-- **hits:** a sound on the frame the element comes to rest near the scored beat `at`, 10 ms early. `kind`: `note` (a
-  plucked note with a bell an octave up), `boom` (a low tuned drop), `thump` and `tick` (untuned), `file` (a library
-  effect). A hit that lands when the element is still moving is reported: fix the picture and trace again.
-- **One key.** With `"key"` set, a `note` or `boom` outside it is refused and a library effect is checked. Never
+- **hits:** a sound on the frame the element comes to rest near the scored beat `at`, 10 ms early. `kind`:
+  - `note`: a plucked note with a bell an octave up (in key).
+  - `boom`: a low tuned drop (in key).
+  - `slam`: a big landing. A boom, a thump under it and a soft click on the front. The low end leads (in key).
+  - `chime`: a note and a quieter note a perfect fifth above it. Both must be in key.
+  - `thump` and `tick`: untuned hits.
+  - `file`: a library effect.
+
+  A hit that lands when the element is still moving is reported: fix the picture and trace again.
+- **risers:** a swell that builds up to the landing. It is filtered noise and a tone that rises two octaves, and it
+  **ends on the frame the element comes to rest**. `length` is in seconds (0.25 to 4.0, default 1.0). `note` is an
+  optional target for the tone (in key). Its cue is its end, the landing. A soft tick sits on the landing, so
+  `finish sync` can hear where the riser ends.
+- **room:** a short, dark room reverb (the sound of a small room) on the whole layer, so the sounds sit in a space
+  instead of sounding dry. **On by default**: `wet` 0.22 (the share of reverb, 0 to 1) and `decay` 1.1 s (the tail
+  falls by 60 dB in 1.1 s, 0.2 to 4 s). Set `"room": false` to turn it off.
+- **One key.** With `"key"` set, a `note`, `boom`, `slam` or `chime` outside it is refused, and so is a chime whose
+  fifth is outside it. A riser's `note` must be in key too. A library effect is checked. Never
   pitch-shift a library effect to make it fit: make a `note` in key. To see which notes the library effects hold:
   `python3 <kit-to-clip>/sound/scripts/pitch.py check --key "A minor" <effects>`; `sound/sfx-pitch.json` lists the
   measured note of each media-use effect (most are noise-like and fit any key; sparkle holds G, chime A, ping D).
 - Fewer, meaningful sounds beat many: a scored hit for each picture moment plus the whooshes. 36 effects in 15 s felt
   busy and cheap.
+
+Never add an element only to carry a sound: every hit and riser follows a real move you can see.
 
 `effects.py` writes `sfx.wav`, a cue sheet, and warnings. Mix `sfx.wav` with the music into one `mix.wav` (`score.py mix` does it and limits the peaks).
 
@@ -157,9 +217,10 @@ python3 <kit-to-clip>/finish/scripts/finish.py finish renders/<job>.mp4 --profil
 | Tool | What it does |
 |---|---|
 | `finish/scripts/trace.mjs` | how each marked element moves and how much of it is visible, every frame (`motion.json`) |
-| `sound/scripts/effects.py` | whooshes and hits from `motion.json` and a plan; writes `sfx.wav` and a cue sheet |
+| `sound/scripts/effects.py` | whooshes, hits (note, boom, slam, chime, thump, tick, file), risers and the room, from `motion.json` and a plan; writes `sfx.wav` and a cue sheet |
 | `sound/scripts/pitch.py` | the note of an effect (`measure`, `index`, `check --key`) |
-| `sound/scripts/score.py` | music made offline in four styles: `styles`, `preview`, `make` (music and `score.json`), `mix`, `analyze` |
+| `sound/scripts/ace_takes.py` | the default music: ACE-Step takes from a description, put on the tempo grid and scored against the sections; writes the best as `music.wav` and `score.json` (`score.py`'s format), keeps every take, `--pick <seed>` after listening, `--self-test` |
+| `sound/scripts/score.py` | the fallback music, made offline in four styles: `styles`, `preview`, `make` (music and `score.json`), `mix`, `analyze` |
 | `finish/scripts/finish.py anchors` | picture lands on its beat, read from the running timeline |
 | `finish/scripts/finish.py audio` | what the render will do to the mix's level |
 | `finish/scripts/finish.py sync` | each cue's sound lands within a frame of its picture, on the encoded file |
