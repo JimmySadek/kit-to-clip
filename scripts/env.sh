@@ -30,6 +30,12 @@ if [ -d "$_reel_dir/.reel-kit" ]; then
   if [ -x "$_reel_dir/.reel-kit/env/bin/node" ]; then
     case ":$PATH:" in *":$_reel_dir/.reel-kit/env/bin:"*) ;; *) export PATH="$_reel_dir/.reel-kit/env/bin:$PATH" ;; esac
   fi
+  # The studio's `hyperframes` CLI, appended (never shadows other tools): HyperFrames skill scripts ask
+  # `hyperframes browser path` for their Chrome and, finding no CLI, fall back to the installed Google Chrome app,
+  # whose killed runs leave ~1.4 GB code-sign clones on macOS.
+  if [ -x "$_reel_dir/node_modules/.bin/hyperframes" ]; then
+    case ":$PATH:" in *":$_reel_dir/node_modules/.bin:"*) ;; *) export PATH="$PATH:$_reel_dir/node_modules/.bin" ;; esac
+  fi
   if [ -z "${HYPERFRAMES_BROWSER_PATH:-}" ] && [ -f "$_reel_dir/.reel-kit/browser-path" ]; then
     _reel_chrome=$(head -1 "$_reel_dir/.reel-kit/browser-path")
     if [ -n "$_reel_chrome" ] && [ -x "$_reel_chrome" ]; then export HYPERFRAMES_BROWSER_PATH="$_reel_chrome"; fi
@@ -43,4 +49,7 @@ if [ -z "${HYPERFRAMES_BROWSER_PATH:-}" ]; then
     -name chrome-headless-shell -path "*chromium_headless_shell-*" 2>/dev/null | sort | tail -1)
   if [ -n "$_reel_chrome" ] && [ -x "$_reel_chrome" ]; then export HYPERFRAMES_BROWSER_PATH="$_reel_chrome"; fi
 fi
+# HyperFrames' map baker (motion-graphics bake-basemap.mjs) reads CHROME and ignores HYPERFRAMES_BROWSER_PATH, then
+# falls back to the installed Google Chrome app. Hand it the same headless Chrome.
+if [ -z "${CHROME:-}" ] && [ -n "${HYPERFRAMES_BROWSER_PATH:-}" ]; then export CHROME="$HYPERFRAMES_BROWSER_PATH"; fi
 unset _reel_dir _reel_chrome _reel_self _reel_own

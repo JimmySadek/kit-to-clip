@@ -26,6 +26,6 @@ scale) and the flurry (invert, recolor; calm brands get a soft accent wash). `--
 set that shares at most one device with each of the last three brand reels for the same brand in the same folder,
 and `.reel-format.json` records it. Energy from the pack (`calm`, `steady`, `punchy`) scales every duration.
 
-**Checks** before offering a render: `npx hyperframes lint`, `finish.py check`, `finish.py safe --platform <p>`, then
+**Checks** before rendering: `npx hyperframes lint`, `finish.py check`, `finish.py safe --platform <p>`, then
 look at stills. Status is trial (offered as "new"; the maintainer decides when it is approved): tried on a dark, punchy brand with a shape motif and a light test brand (calm, line
 motif) on 28 Sep 2026; it is not offered in the front door until approved.

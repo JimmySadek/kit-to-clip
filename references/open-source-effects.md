@@ -1,5 +1,11 @@
 # Open-source effects: borrowing a look from a public project
 
+For a supplied prompt/code reference, first follow `video-journey.md`. Keep the original rebuilding prompt and
+reference code with their provenance. Specific documented permission for this project's use can establish that
+scope; it does not automatically permit redistribution inside the public skill. Do not demand brand onboarding
+for an unbranded/reference-palette job. The open-source dependency rules below still apply when borrowing a public
+effect as a reusable dependency, and technical seeking/resource/credits checks apply to both routes.
+
 A video here is code, so it can borrow a visual effect someone else published: watercolour brush strokes (for example
 `p5.brush`), particle orbs, a shader, a generative pattern. The person gives a project link ("use the brush from this
 repo"), or you suggest one when a style calls for a texture the brand's own files do not have. Done well it gives a
@@ -36,18 +42,20 @@ last, or twice. Most sketches assume a live screen instead. Change three things:
   `randomSeed(n)` and `noiseSeed(n)` before each redraw). The seed goes into the recipe so the next video can repeat it.
 - **Nothing loads at render time.** Copy the library file and any textures into the project; no CDN links, no fetches.
 
-## 3. Brand colours
+## 3. Approved colour roles
 
-Feed the effect the brand's role colours from the bridged tokens (`--reel-bg`, `--reel-accent`, ... read with
-`getComputedStyle`), never the hex values from the project's demo. One accent rule still holds: a colourful effect
-is the scene's accent, so the rest of the scene stays quiet. A motif-like shape from the effect must not look like
-someone else's mark.
+For a chosen full identity, use the brand's approved role colours from its pack/bridged tokens (`--reel-bg`,
+`--reel-accent`, ...). For original/unbranded work, retain the approved reference palette. For a supplied emphasis
+palette, map only the approved roles and preserve the medium's transparency, shading, contrast and semantic
+colours. A colourful medium can need several colours; do not flatten it into one accent if that destroys the chosen
+style. A motif-like shape must not masquerade as someone else's mark.
 
 ## 4. Prove it renders the same
 
 Take stills of three moments (start, middle, end) with `npx hyperframes snapshot --describe false`, then the same three
 again. The pairs must match. If they differ, something still reads a clock, an unseeded random or the previous frame:
-fix that before showing anything. Then the usual checks (lint, check, finish `check`, `safe`, `hook`), and ✋ stills.
+fix that before showing anything. Then the usual checks (lint, check, finish `check`, `safe`, `hook`). Stills are your checks; the person judges the
+film at the ✋ final film.
 
 Heavy effects slow the render. If one still takes more than a few seconds, lower the particle count or the canvas
 resolution before the full render, and say how long the render will take.

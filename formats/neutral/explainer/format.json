@@ -4,10 +4,10 @@
  "name": "Explainer",
  "version": "1",
  "status": "trial",
- "about": "A narrated explainer: the voice comes first, every scene lands on its spoken word, captions are burned in, in one of five illustration styles (clean, cut paper, risograph, sketchbook, isometric). Works with any brand whose video pack has token contract v1.",
+ "about": "A narrated explainer: the voice comes first, every scene lands on its spoken word, captions are burned in, in one of nine illustration styles. Works with any brand whose video pack has token contract v1.",
  "made_for": "brief",
  "canvases": ["1080x1920", "1080x1350", "1080x1080", "1920x1080"],
- "styles": ["clean", "cut-paper", "risograph", "sketchbook", "isometric"],
+ "styles": ["clean", "cut-paper", "risograph", "sketchbook", "isometric", "glass", "pixel", "chalkboard", "flat-vector"],
  "needs": ["voice-over or a recorded voice", "transcribe"],
  "slots": [
   {"name": "scenes", "type": "list", "min": 2, "max": 8, "required": true,

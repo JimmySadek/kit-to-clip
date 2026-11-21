@@ -19,6 +19,44 @@ style any brand: `brand-pack.md` in this folder.
 The bridge copies files and tokens; judgment (tone, composition, intensity) comes from the brand kit (e.g.
 `acme-brand`) and the pack's `guide.md`, which names what to read.
 
+### Required brand directive before layout
+
+For a named-brand job, locate the owning repository or supplied comprehensive guide. Read its actual `SKILL.md`,
+required entry guide and the references it routes to for this video's context. A discovered installation or
+cached palette is not evidence that those instructions were read. Use the kit's source hierarchy; record the
+repository revision and the actual source files. Ordinary work can use the kit's verified snapshot when its
+rules allow that. Refresh live sources only when needed by those rules or a material conflict.
+
+Write a private `brand-directive.md` in the video's work folder. It is a job-specific application of the source,
+not a replacement brand guide. Complete these fields before proposing branded layout:
+
+| Required field | What to record |
+|---|---|
+| Authority | Actual skill/guide path, repository revision or document version, references read, source hierarchy, conflicts/resolutions and any provisional pack status |
+| Context | Applicable marketing, product or other register; distinguish identity rules from an old campaign or motion sample |
+| Colour roles | Background, foreground, focal emphasis and supporting/semantic colours, with source references |
+| Typography | Display/body/label roles, permitted weights, tracking and the actual licensed font files |
+| Logo | Exact appropriate export, source/hash, clear space, minimum size and permitted placement/effects |
+| Imagery, icons and copy | Relevant required/forbidden treatments and factual or tone constraints; mark unused categories as unused |
+| Motion and material | Applicable brand motion rules, reference medium/texture to preserve, and any compatibility conflict or unresolved choice |
+
+In `film.json`, set `brand` (its name and brand skill) and list the completed directive and the actual governing
+guide files individually in `inputs`. Include the actual used fonts/logo separately.
+Their changes must reach the current brief and reopen the affected storyboard frames. A kit directory pointer alone does not do this.
+The fresh builder receives the directive **and** the governing skill/guide material needed to follow it.
+
+If the comprehensive source is missing, inaccessible or contradictory in a way its source hierarchy does not resolve, report that gap and stop the branded
+layout/build while other independent work continues. Do not infer an identity from a logo, guessed hexes,
+an old brief, a website screenshot or a provisional video pack. Source inspection is normal preparation, not
+an extra user approval gate. Do not reinstall, update or edit the brand repository as part of reading it.
+A missing kit/pack or an incomplete website-derived guide uses `../references/brand-onboarding.md`; resolve
+the missing directive fields there before treating that input as a comprehensive brand guide.
+
+For an explicitly requested unbranded palette experiment, keep `brand` null in `film.json` and note the
+palette-only scope and the limited colour roles. Label its comparison as palette-only. It neither requires full identity onboarding nor proves branding.
+When testing named-brand integration, use the required directive and show a meaningful matched comparison;
+judge both recognisable identity and preserved reference material. A tiny accent swap is not a substitute.
+
 ## 2. Keep the environment safe
 
 Source `<kit-to-clip>/scripts/env.sh` in every shell before a HyperFrames command. Without it, `hyperframes init` installs
@@ -46,7 +84,7 @@ If the bridge says the brand is **provisional**, say "provisional brand" in the 
 
 ## 4. Build with the brand files
 
-Read the pack's `guide.md` next (the bridge prints its path as `read next:`). It says which brand references to
+Keep the required directive from section 1 current. Read the pack's `guide.md` next (the bridge prints its path as `read next:`). It says which brand references to
 read, how to use `brand.css` and the helpers, and what the brand never allows. General rules for every brand:
 
 - Logos come from the copied logo files only; never type, redraw, crop, skew or recolour a logo.

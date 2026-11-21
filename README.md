@@ -4,10 +4,10 @@
   <img src="assets/banner.png" alt="Kit to Clip: a brand kit turned into finished 9:16, 1:1 and 16:9 videos" width="100%">
 </p>
 
-**Brand kit in, finished clip out.** Kit to Clip is an agent skill for Claude Code (and other agents that read Agent
-Skills) that turns your brand kit into finished, on-brand videos with [HyperFrames](https://github.com/heygen-com/hyperframes).
-It plans like a motion director, builds every frame in code, scores it with music and effects that land on the beat,
-checks it the way a picky editor would, and finishes each cut for where it will be posted.
+**From an idea or existing footage to a reviewed video.** Kit to Clip is an agent skill for Claude Code (and other
+agents that read Agent Skills), using [HyperFrames](https://github.com/heygen-com/hyperframes). It helps develop the
+story, choose a reference, prepare voice/music/effects, build the video and finish it for its destination. Keep the
+reference's original look, adapt a palette or use a full brand identity. Branding is optional.
 
 <table>
   <tr>
@@ -32,8 +32,10 @@ npx skills add JimmySadek/kit-to-clip
 ```
 
 Then open any repo in Claude Code and say **"make a video"**. The first time, it sets up the video engine (about 1.6 GB,
-5 to 10 minutes) in one hidden folder, `~/.kit-to-clip`. **Free and local:** no API keys, no accounts, telemetry off,
-and no frame ever leaves your computer.
+5 to 10 minutes) in one hidden folder, `~/.kit-to-clip`. **The required rendering tools are free and local:** no
+provider account or API key is required by the engine, and telemetry/online frame descriptions are off. Your host
+agent has its own access requirements. Optional external voice or image generation is your choice; the skill
+explains outgoing prompts/assets and any account or credit requirement before using that route.
 
 ## What you can make
 
@@ -44,27 +46,39 @@ and no frame ever leaves your computer.
 | "Announce our launch" | Cards (headline, stat, list, quote, lower third, logo) timed to the music |
 | "Make our logo loop" / "an animated GIF for LinkedIn" | A seamless loop or loader: GIF, transparent WebM or MOV, APNG, WebP, an HTML snippet, or Lottie for vector work |
 | "A narrated explainer" | A voice-over, word-timed captions and scenes that start on their words |
-| "Add music and sound effects" | Sound first: the picture lands on the beats, effects follow the motion, and the sync is checked on the file |
+| "Add music and sound effects" | Music-led edits follow approved musical cues; narrated edits follow the voice. Effects follow visual events, and the final mix needs listening |
 | "Make it like this video" + a link | The reference read (speech, frames, cuts, beats), then a style of your own built on its principles |
-| "I want a new style" | Quick sketches of several directions, then a saved style your team can reuse in minutes |
+| "Help me choose a style" | A shortlist drawn from 86 tagged Atlas references and your personal references, with reasons and original-preview links |
+| "I want a new style" | Develop a new direction, with an optional reusable reference after the video is approved |
 
 ## How it works
 
 ```
 "make a video"
-  ├─ setup     the engine, once (~/.kit-to-clip)
-  ├─ brand     your brand's video pack (fonts, logos, colours), or a neutral look
-  ├─ what      a format, a saved style, a loop, cards, "like this video", or a new style
-  ├─ plan      design skills + a specialist for the video type + the power palette
-  │            quick sketches of 5-6 directions ─▶ ✋ you pick ─▶ a layout for every scene
-  ├─ sound     music first (generated, aligned to the beat grid), then effects from the motion
-  ├─ build     HyperFrames + GSAP, every move seekable, every hit on its beat
+  ├─ brief     goal, audience, destination, duration and supplied inputs
+  ├─ route     a new story, an edit of existing footage, or both
+  ├─ style     recommendations, My Styles, browse more, or create a new direction
+  ├─ brand     keep the look, adapt palette/logo, or use a full identity
+  ├─ story     exact words, sequence, imagery only where needed; ✋ script when Kit to Clip wrote it
+  ├─ sound     choose the voice; choose what governs timing
+  ├─ build     ✋ storyboard first, then a fresh builder + current brief; ✋ music pick on the built picture
   ├─ check     lint · runtime · safe zones · first 3 seconds · beats · sync · flash guard
-  └─ deliver   per platform: master, share copy, cover, contact sheet  ─▶ ✋ you listen and approve
+  └─ deliver   ✋ final film (watched and heard), then per-platform files; optionally save the treatment
 ```
 
-Nothing renders without a yes: plans and stills come first, because renders take minutes. Videos go into a `reels/`
-folder in the repo you are working in (`clips/`, `videos/`, `deliveries/`), kept out of git.
+Four stops need your yes: the script (when Kit to Clip wrote it), the storyboard before building, the music pick
+on the built picture, and the final film with its sound. Videos go into a `reels/` folder in the repo you are working
+in (`clips/`, `videos/`, `deliveries/`), kept out of git.
+
+The local gallery has **Styles**, **My Styles** and retained **Legacy recipes**. It starts with 15 cards and lets
+you search, browse families or show more. Publisher previews open only on request. The bundled catalogue contains
+metadata and links, **not Atlas prompts, drawing code or media**. Rebuilding a chosen reference requires your own
+private source package, checked by identity and hash. Private use does not grant redistribution rights. All 86
+are catalogued; that does not mean all 86 have been rendered or approved inside Kit to Clip.
+
+One `film.json` in the video folder keeps the story, selected reference, brand choice, assets, sound versions, open
+decisions and approvals. A new session can resume from it. Changed inputs reopen affected approvals rather than silently using
+an old build. A short style/brand comparison has its own approvals and never approves the full film.
 
 ## Taste built in
 
@@ -78,9 +92,10 @@ Kit to Clip plans each video with design skills, so it designs instead of fillin
   SaaS demos, explainers, highlight and hype edits, beat-synced edits, kinetic type, data stories, sound design
   (from [calesthio/generative-media-skills](https://github.com/calesthio/generative-media-skills)).
 
-The agent you talk to is the **director**: it plans, builds and checks. On hosts that can start helpers on a smaller,
-faster model, it hands them the cheap, parallel work (sketching many directions, mechanical re-cuts) and stays in
-charge of every creative call. A helper never works alone.
+The agent you talk to is the **director**: it gathers decisions, maintains the brief and checks the builder's work.
+The recommended fresh builder is Claude Opus 5.5 at high effort when available. An unavailable model or session
+launch is disclosed, with a complete handoff when needed. Independent preparation can run in parallel on capable
+hosts; one coordinator owns shared decisions, and creative approvals still belong to you.
 
 ## Powers
 
@@ -100,8 +115,10 @@ with a fallback when you say no.
 
 ## Sound that lands
 
-- **Music first.** By default the music generator writes an original instrumental from a description, makes several
-  takes, aligns each to the beat grid and keeps the strongest. A built-in music maker is the fallback.
+- **Choose the timing driver.** Narration-led edits follow the approved recording and word timings. Music-led
+  edits follow the approved track. Silent explainers follow readability; footage edits follow the material.
+  Music can come from the reference's sound direction, generated auditions, a supplied track, a simple bed or none.
+  Existing generation/beat tools remain available, but speech is never forced into whole musical bars.
 - **Effects from the motion.** Whooshes follow what moves; hits sit on the frame something comes to rest, in the
   music's key. Recorded CC0 impacts, clicks and sweeps are the default; synthesised ones fill the gaps.
 - **Checked on the file.** `finish.py sync` measures every hit against its picture moment on the rendered video, and
@@ -111,12 +128,15 @@ with a fallback when you say no.
 
 Kit to Clip holds no brand. Each brand keeps a **video pack**, a `kit-to-clip/` folder inside its brand kit skill, in
 the brand's own repository, so improving the engine never touches a brand and adding a brand never touches the engine.
-The front door looks for a brand in this order:
+After choosing whether/how to brand the video, the skill can locate a kit in this order:
 
 1. a video pack in the repo (`.agents/skills/*/kit-to-clip/` or `.claude/skills/*/kit-to-clip/`),
 2. a pointer, `reels/brand.json`, naming a brand kit installed elsewhere,
 3. a brand kit without a pack: **brand onboarding** reads it, proposes motion directions, shows stills and saves a pack,
-4. installed brands, brand work with no chosen identity, or no brand at all: it asks, or offers a neutral look.
+4. installed brands when the chosen identity is elsewhere. No identity is invented for an unbranded video.
+
+Palette adaptation assigns colour roles while preserving the style's textures, medium and meaningful colours.
+A previous personal style's brand is context, not an automatic choice for the next video.
 
 What a brand must provide, the token contract that lets neutral formats style any brand, and a complete example pack:
 [`brand/brand-pack.md`](brand/brand-pack.md).
@@ -127,13 +147,15 @@ One skill, `kit-to-clip`, with modules it reads only when a step needs them:
 
 | Part | What it does |
 |---|---|
-| `SKILL.md` (front door) | Sets up the engine, finds the repo's brand, asks what you are making, routes to a module |
+| `SKILL.md` (front door) | Understands the request, routes idea/footage work and loads only the guides needed now |
+| `catalogue/`, `scripts/catalogue.py`, gallery | Metadata discovery, transparent keyword shortlists, original previews and selected-only private source loading |
+| `studio/`, `film.json` | The Studio page and the film's brief: current decisions, inputs, the brand, and each stop's yes (`scripts/brief.py` stays for older briefs) |
 | `references/director-and-builder.md` | How a video gets made: the plan, design skills, specialists, the power palette, sketches, helpers, checks |
 | `brand/` | Puts a brand's video pack on a project (fonts with licences, logos, tokens); finds the brand's own pictures; turns a website into a brand sheet |
 | `formats/` | The formats library: neutral formats for any brand (brand reel, explainer, teaser loop), a brand's own formats, and cards placed on beats or words |
 | `finish/` | Platform profiles and checks: safe zones, script errors lint misses, the first three seconds, beats, sync, a flash guard, -14 LUFS mastering, delivery |
 | `loops/` | Seamless loops and loaders and their exports |
-| `sound/` | Music and effects, sound first: tempo and bars, picture on the beats, effects from the motion, the sync check, the listening checkpoint |
+| `sound/` | Voice/music choices, timing priority, generation, effects, mixing, sync checks and listening |
 | `toolbox/` | The powers: what each does, how it installs (pinned, checksummed), its licence, its fallback, and the licence and update watches |
 | `references/` | Brand onboarding, the style workshop, learning from a video you like, borrowing an effect from an open-source project |
 
@@ -141,7 +163,7 @@ One skill, `kit-to-clip`, with modules it reads only when a step needs them:
 
 Say **"make it like this video"** with a link (Instagram, TikTok, YouTube, X and more). Kit to Clip reads it, measures
 its cuts and whether they land on the music, and turns the borrowed principles (never the footage, music or words)
-into the starting point of a style in your brand.
+into a starting point for the requested video, with optional branding.
 
 Reading links uses a companion skill, [Video Fetcher to Markdown](https://github.com/JimmySadek/video-fetcher-to-markdown):
 transcript with local Whisper, a contact sheet of frames, and the file. Kit to Clip checks for it and asks before

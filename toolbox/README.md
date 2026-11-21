@@ -19,7 +19,7 @@ the job ─▶ which capabilities? ─▶ toolbox.py which <capability>
 | `policy.json` | The licence rules: what is allowed, what a person must read first, what is blocked forever |
 | `scripts/toolbox.py` | `doctor`, `which`, `check`, `install`, `smoke`, `path`, `vendor`, `licence`, `updates`, `pin`, `lint` |
 
-## 1. Plan the powers (every job, after Step 3 in `SKILL.md`)
+## 1. Plan the powers (before production)
 
 Read the brief and list the capabilities it needs (`capabilities.json`; match the meaning, not the words). Most jobs
 need only what is built in. Then, for each extra capability:
@@ -64,7 +64,7 @@ lessons instead (`memory.py lesson`). Shared recipes change through a Kit to Cli
 
 ## 4. Stay current and clean
 
-- **Weekly at most, in Step 0:** `toolbox.py updates --if-due`. It checks new versions, plus new or changed agent docs,
+- **Weekly at most, before a new job:** `toolbox.py updates --if-due`. It checks new versions, plus new or changed agent docs,
   skills, `llms.txt`, MCP servers and CLI commands in each tool's repo, and the licence of the new version.
 - **On "check for updates":** `toolbox.py updates`, then `toolbox.py updates --try <id>`. The second one installs
   the newer version in a scratch folder and runs its smoke test. Show the person what is new; with their yes, run

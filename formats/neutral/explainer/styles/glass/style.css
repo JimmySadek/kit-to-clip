@@ -1,0 +1,6 @@
+.scene-art .art { width: 100% !important; height: 100% !important; }
+.scene-art .glass-pane { fill: color-mix(in srgb, var(--reel-fg) 9%, transparent); stroke: color-mix(in srgb, var(--reel-fg) 55%, transparent); stroke-width: 1.5; }
+.scene-art .glass-node { fill: var(--reel-accent); }
+.scene-art .glass-halo { fill: var(--reel-accent); opacity: .16; }
+.scene-art .glass-link { fill: none; stroke: var(--reel-accent); stroke-width: 3; stroke-linecap: round; }
+.scene-art .glass-edge { fill: none; stroke: var(--reel-fg); stroke-width: 1; opacity: .4; }

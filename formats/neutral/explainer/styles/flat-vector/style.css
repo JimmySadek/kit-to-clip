@@ -1,0 +1,6 @@
+.scene-art .art { width: 100% !important; height: 100% !important; }
+.scene-art .vector-input { fill: var(--reel-fg); }
+.scene-art .vector-process { fill: var(--reel-accent); }
+.scene-art .vector-output { fill: color-mix(in srgb, var(--reel-accent) 50%, var(--reel-fg)); }
+.scene-art .vector-detail { fill: var(--reel-bg); }
+.scene-art .vector-link { stroke: var(--reel-fg); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }

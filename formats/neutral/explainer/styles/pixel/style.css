@@ -1,0 +1,6 @@
+.scene-art .art { width: 100% !important; height: 100% !important; shape-rendering: crispEdges; }
+.scene-art .pixel-grid { stroke: color-mix(in srgb, var(--reel-fg) 8%, transparent); stroke-width: 1; fill: none; }
+.scene-art .pixel-link { stroke: var(--reel-accent); stroke-width: 8; fill: none; }
+.scene-art .pixel-block { fill: var(--reel-accent); }
+.scene-art .pixel-inset { fill: var(--reel-bg); }
+.scene-art .pixel-light { fill: var(--reel-fg); }

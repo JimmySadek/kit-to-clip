@@ -1,5 +1,46 @@
 # Changelog
 
+## v1.2.0 (2026-11-21)
+
+**Kit to Clip now has a Studio: one local page where you make a film step by step, from the first idea to the
+finished video.** You click and choose on the page; Claude does the work in chat. The page lives on your own
+computer and refreshes by itself when Claude changes something.
+
+**Seven rooms, one film.**
+- **Start:** paste a link or some text, drop your files and pick the brand (or none).
+- **Story:** pick one of two or three ideas, then edit the beats, the script for the voice and the story parts.
+- **Styles:** browse the 86 catalogue styles, paint which style each part uses and how parts join. If you keep your
+  own style collection on your computer, each card plays a live preview.
+- **Voice:** bring a voice take from the tool you choose (your own recording, a free voice on your computer, or an
+  online voice tool, which means your script text goes to that service). Each take is timed word by word on your
+  computer, and words that need a look are flagged.
+- **Storyboard:** one rough panel per part and per join, drawn in the film's real styles. Comment on any panel and
+  only that panel is drawn again.
+- **Music:** three music takes per moment, played on the picture so you choose by ear. Your picks are joined into
+  one track for the whole film.
+- **Finish:** voice, sound effects, music and captions are mixed into the final film, levelled for web playback,
+  then exported per platform.
+
+**You stay in charge.**
+- The four ✋ stops (script, storyboard, music, final film) are now buttons on the page too. A click counts only
+  for the version you saw. If anything it covered changes later, the stop opens again and Claude asks again.
+- The final film is not built until your ✋ Music yes is recorded.
+- Music never switches to a backup sound without telling you. A temporary practice track is only made when you ask
+  for one, and it is clearly marked on screen and in the finished film's notes.
+- Music added by hand from outside the Music room is labelled as outside music.
+- Screens use plain words.
+
+**Also new:**
+- Explainer looks and a style gallery you can browse without setting anything up.
+- A written brief for every video, so a film can be paused and picked up again later.
+- Brand rules are read in full before any layout is made.
+
+**Good to know:**
+- Real music takes need the free music generator on your computer (a one-time download of about 9.4 GB, with your
+  yes). The Music and Finish rooms were tested with test tones only, not yet with real generated music on a real
+  film.
+- Everything still works for free on your own computer. No account or paid service is needed.
+
 ## v1.1.0 (2026-10-09)
 
 **Kit to Clip now plans like a motion director, and sounds like it means it.** This release comes from a long test day:

@@ -5,33 +5,45 @@ made for its picture: a Reel with a score, effects on the moves, a teaser with a
 its own original audio does not need this (finish it with `--no-sync "footage's own sound"`).
 
 ```
-✋ what and where ─▶ ✋ music source ─▶ tempo and bars ─▶ picture on the beats ─▶ motion trace ─▶ effects from motion
-      ─▶ ✋ stills ─▶ render ─▶ audio preflight ─▶ sync check ─▶ ✋ you listen ─▶ polish ─▶ finish ─▶ deliver
+✋ what and where ─▶ timing driver ─▶ ✋ voice choice ─▶ timing plan ─▶ ✋ storyboard ─▶ picture ─▶ ✋ music pick
+      on the picture ─▶ effects from events ─▶ mix + audio preflight ─▶ render ─▶ encoded sync ─▶ ✋ final film ─▶ deliver
 ```
 
-**Never build the picture first and add sound afterwards.** A 15 s Instagram Reel was built that way (29 Sep 2026): it
-passed every check, and the person rejected it, "the audio and the visuals are not flowing together at all". Measured
-on the file, picture changes and sound hits matched at 0.06, which is chance. The same agent had just made an approved
-GIF by following the loops module step by step. Rebuilt sound-first, 13 of 13 picture moments had their sound within a
-frame, and the person said "flows now". The order below is the fix. It is a hard gate: no picture is built before
-steps 1 to 3 are done.
+Plan sound before the detailed picture that depends on it. First select the timing driver in
+`references/video-journey.md`: narration, music, visual reading/events or footage. The music-first beat/bar method
+below is for **music-led** films. It is not a universal requirement. A narrated explainer follows the approved
+recording and actual word timings; background music supports it without moving speech to musical beats or forcing
+the finished duration into whole bars. The storyboard and silent style tests come before final audio. The chosen
+voice is heard and agreed before the full dependent build; the music is picked by ear on the built picture.
 
-## 1. The music source (✋, first question)
+For narration, use supplied audio, installed local voice tooling, or an explicitly chosen guided Google AI Studio
+handoff as described in the journey. Keep script separate from performance instructions. Keep narration, music
+and effects as separate sources until the final mix, reduce music under speech where appropriate and judge the
+combined mix by listening. Replacing a voice take invalidates the storyboard timing, the music pick and the final film yes, not
+automatically the selection of unchanged background music.
 
-Ask before anything else, with options named for this video. **Offer the music generator first: it is the default.**
-Offer every row that can work. Kit to Clip is free and local: never offer a source that needs an account, a key or a
-payment (the HyperFrames `media-use` library needs a HeyGen login, so it is not used):
+## 1. The music source (✋ when music is wanted)
+
+Use the brief's already supplied choices. For a music-led job, choose the source before detailed animation.
+For background music under narration, agree a suitable source or bed after the spoken script/delivery is stable; the ✋ pick comes on the built picture.
+Offer the generator when an original produced track fits, the built-in bed, a supplied track or no music.
+These music powers are free/local and need no new account or key; do not require a paid library. Optional
+user-directed external voice generation is a separate choice, not a mandatory music dependency.
+The selected reference's sound character is the starting point when it fits the story. Keep its meaningful paper,
+brush, typing or game sounds rather than replacing them with generic hits. Atlas narration variants can disable
+their native music/ambience; an independently approved bed needs an explicit, single mix path. Use
+`references/reference-resources.md` for live sound versus baked file custody.
 
 | Option | What it needs |
 |---|---|
-| **An original track from a description (the default, offer it first)** | the `music-generate` power, ACE-Step (`toolbox.py which music-generate`): free, runs on this computer, ✋ before adding it. The first run downloads about 9.4 GB, and each take takes minutes. `ace_takes.py` makes a few takes and readies the best one (step 2) |
+| **An original track from a description** | the `music-generate` power, ACE-Step (`toolbox.py which music-generate`): free, runs on this computer, ✋ before adding it. Check actual installed tools/models first. A missing model's first download is about 9.4 GB. `ace_takes.py` makes several auditions (step 2) |
 | Music made offline (the fallback) | the built-in music maker, `score.py`: no model, ready in seconds, every cue exact to the sample. Four styles, any key, no licence (section "Music made offline"). Use it when the generator is not installed, the person does not want the download or the wait, or no take works |
 | They supply a track | the file. Get its beats: add it to the project as the root `<audio>`, then `npx hyperframes beats <project>` writes `beats/<audio>.json` (the HyperFrames `music-to-video` workflow builds on it). For a track outside a project, `python3 <kit-to-clip>/scripts/reference.py beats <file>` reports its tempo and strongest hits (it uses a throwaway project and saves nothing) |
-| No music, effects only | the effects still need a tempo to sit on: pick one in step 2 and say the video has no music |
+| No music, effects only | place effects from actual visual events. A musical tempo is optional, not a prerequisite |
 
 Say two things before the person picks the generator. **Generated music can sound like an existing song by accident**,
 so the description names the genre, mood, instruments and tempo, never an artist or a song. And **you cannot hear the
-takes**: the person listens to them before any picture is built.
+takes**: the person chooses by listening, on the built picture (✋ music pick, after the picture).
 
 Some destinations limit music. `finish.py plan --profile <p>` prints the destination's sound facts: for Instagram, its
 licensed music is for personal, non-commercial use and some business accounts cannot use it, so a brand Reel uses its
@@ -39,12 +51,13 @@ own music and effects (made or licensed for commercial use, baked into the file)
 
 ## 2. Tempo, bars and sections
 
-Choose the tempo so the video is **whole bars**: length = bars x 4 x 60 / bpm. 15 s is 8 bars at 128 bpm; 12 s is
-6 bars at 120. Write the sections as beat numbers before any picture exists: the hook, the build, the drop (the biggest
-moment), the lift, the end. Ask ✋ to confirm the music and the sections (one line each), then keep them: they are the
-score the picture is timed to.
+For a **music-led** film whose structure follows generated music, whole bars can provide a useful plan:
+length = bars x 4 x 60 / bpm. 15 s is 8 bars at 128 bpm; 12 s is 6 bars at 120. Write the sections as beat numbers before the dependent full picture: the hook, the build, the drop (the biggest
+moment), the lift, the end. Confirm the tempo and the sections with the person (one line each; this is not a ✋ stop), then keep them: they are the
+score the picture is timed to. Under narration, generation may make extra whole bars which are edited to the
+spoken duration. Whole-bar generation is not a requirement to move the speech or change the requested video length.
 
-**With the music generator (the default)**, make the takes once the tempo and sections are confirmed:
+**When the music generator is chosen**, make the takes once the picture is built on the confirmed grid:
 
 ```bash
 python3 <kit-to-clip>/sound/scripts/ace_takes.py "energetic electronic, punchy drums, synth bass, bright stabs" \
@@ -66,24 +79,25 @@ landed where the model chose, endings faded to near silence, the mixes were 80 t
   there in the effects plan (step 4). It cannot move the model's drop: it picks the take that follows the plan.
 - **The music's own drop:** it also measures where each take really drops (its biggest lift from one bar to the
   next) and writes it to `score.json` (`source.measured_drop_beat`). When a take drops on another beat, `takes.json`
-  says so: put the picture's big move where the music drops, not where the plan guessed. A flat build is only a note
+  says so: re-cut that part of the picture so its big move lands where the music drops, not where the plan guessed. A flat build is only a note
   when the drop lands on the planned beat.
 - **Ready for the pipeline:** the best take is levelled like `score.py` (-18 LUFS, true peak under -3 dBTP) and
   written as `music.wav` and `score.json` in the same format. Steps 3 to 6 work unchanged.
 
 Every take stays in `sound/takes/`: `take-s<seed>-x<extra>.wav` is the raw take, `take-s<seed>-x<extra>-ready.wav`
 is cut, on the grid and levelled. A take is reused only when it was made with the same settings, extra bars included. `sound/takes.json` holds every number and why the winner won. A `warning` there means every take missed a
-check: say so, and offer more takes (`--takes 5`), other seeds (`--seed 40`) or `score.py`. ✋ Play the takes to the
-person before building the picture. If they prefer another one, the same command with `--pick <seed>` makes it the
-music in seconds (the takes are reused). No ACE-Step installed stops with exit 3 and the `score.py` command to use.
+check: say so, and offer more takes (`--takes 5`), other seeds (`--seed 40`) or `score.py`. Music comes after the
+picture, also in a music-led film: the picture is cut to the planned grid and the takes are made to the same grid.
+✋ Play the takes on the built picture and let the person pick by ear; the winner in `takes.json` is only a suggestion.
+The same command with `--pick <seed>` makes their pick the music in seconds (the takes are reused). No ACE-Step installed stops with exit 3 and the `score.py` command to use.
 
 Trust `score.json` for the beats. `npx hyperframes beats` reads ACE-Step's beats about 25 ms later than `ace_takes.py`
 and `finish.py sync` do: it lands on the low body of the kick, not its attack.
 
 ## Music made offline (the fallback)
 
-The kit can make original music itself: no track to find, no login, no licence, and the music is timed to whole bars
-and beats before any picture exists. It is synthesised, so think of it as a good bed, not a produced record, and
+The kit can make an original synthetic bed without an account or model. Its generator produces whole bars and
+beats, which can drive a music-led film or be edited under another timing driver. It is synthesised, so think of it as a bed rather than a produced record, and
 **you cannot hear it**: the person's ear decides.
 
 | Style | Tempo, key | What it is |
@@ -99,15 +113,17 @@ python3 <kit-to-clip>/sound/scripts/score.py make --style calm --bpm 100 --key "
 python3 <kit-to-clip>/sound/scripts/score.py mix sound/music.wav sound/sfx.wav --out sound/mix.wav
 ```
 
-Ask ✋ which style, after the person has listened to the previews (send them the files; do not describe them as good).
+Agree the style after the person has listened to the previews (send them the files; do not describe them as good).
+The ✋ music pick still happens on the built picture.
 Any key (`--key "C# minor"`), any tempo from 60 to 200, and the chords (`--progression 1,6,7,3`, scale degrees) can be
 set; `--seed` gives a different take. The structure is always four sections, hook, build, drop and end (the last is one
-bar: a final hit and its tail); `--sections hook:2,build:2,drop:3,end:1` changes their lengths. **Choose the length as
-whole bars:** the video is exactly `bars x 4 beats`.
+bar: a final hit and its tail); `--sections hook:2,build:2,drop:3,end:1` changes their lengths. **Generate music in
+whole bars.** The generated audio spans `bars x 4 beats`; a narrated, visual-led or footage-led video retains its
+approved timing and can trim/crossfade that bed. Do not stretch speech or change the requested runtime to fit it.
 
-`make` writes `music.wav` and **`score.json`**, the one source of timing: tempo, key, chords, the section beats, and the
+`make` writes `music.wav` and **`score.json`**, the source of this music's timing: tempo, key, chords, the section beats, and the
 `cues` (`hook`, `build`, `drop`, `end`) in beats. Beat `n` is at `n x 60 / bpm` seconds. Put the picture's big moments on
-those beats (step 3): the drop is the biggest one. Every tonal note is built from the key's scale and checked; a note
+those beats when music leads (step 3). Narration uses its own word/idea timestamps. Every tonal note is built from the key's scale and checked; a note
 outside the key stops the build. The music is at -18 LUFS with true peak under -3 dBTP, which leaves room for the effects.
 `mix` sums music and effects, sets the level and limits true peak at -3 dBTP, so the render does not turn it down.
 `score.py analyze <file>` reports length, loudness, peak, how busy, how bright and how much bass a file has.
@@ -118,14 +134,19 @@ alone, run `sync` on a copy of the render whose sound is `sfx.wav` only. `calm` 
 clearer. A picture that visibly stops well before its beat (a long ease-out) also shows up here: the effect follows the
 picture, the music follows the beat, and the gap is real. End the move on the beat or shorten the ease.
 
-## 3. Picture on the beats
+## 3. Picture on the chosen timing source
 
-Give each beat a role before timing anything, and say them to the person in plain words: **the reveal** (the
+The beat method below applies when music leads. For narration, use actual word/idea times and pauses; for visual
+explanations use reading time and visual events; for footage preserve editorial intent. Record these times in the
+brief/cue files, rather than inventing musical anchors for every move. Do not shift the voice to a strong beat.
+
+In the music-led method, give the scored beats roles and describe them in plain words: **the reveal** (the
 first strong beat: the hero arrives), **the big move** (the next strong beat or the drop: the scale-up, the slam),
 **small accents** (the beats between: a tick, a pulse, a word), and **the hold** (the end card rests about two beats).
 Big moves only on strong beats; accents never compete with them.
 
-Time every tween to a beat (`beat time = beat x 60 / bpm`) and mark the element that hits with `data-anchor="beat:N"`.
+Time scored transitions/arrivals to their chosen beats (`beat time = beat x 60 / bpm`) and mark those elements with
+`data-anchor="beat:N"`. Continuous/background motion need not move on every beat.
 Then:
 
 ```bash
@@ -137,8 +158,13 @@ beat (window -0.034 to +0.045 s). Fix the timeline, not the attribute.
 
 ## 4. Effects from the motion
 
-Every sound needs a visible cause. Do not place effects by hand against a clock: trace the real motion, then make the
-effects from it.
+Every effect needs an intended visual/story cause. Derive its timing from the real visual event: trace DOM motion
+where applicable, or record the exact Canvas event and inspect its actual frame. Do not invent a musical grid for
+a narration-led or effects-only video.
+
+`trace.mjs` observes DOM elements. A Canvas reference needs explicit timed visual/sound events tied to its drawing
+function and actual frame checks; do not claim Canvas timing is proved by an empty DOM trace. Preserve meaningful
+surface sounds from the chosen reference, and avoid adding a second background track when an approved track exists.
 
 ```bash
 node <kit-to-clip>/finish/scripts/trace.mjs <project-dir> --out motion.json       # elements with data-anchor or data-track
@@ -191,22 +217,25 @@ Never add an element only to carry a sound: every hit and riser follows a real m
 
 ## 5. Stills, render, preflight, sync
 
-1. ✋ Show the stills and the plan (a cue list and the tempo), then ask before rendering, as everywhere in this kit.
+1. The stills and the plan (a cue list and the tempo) belong to the ✋ storyboard. There is no separate yes before
+   rendering: render, check, and bring the result to the ✋ final film.
 2. `python3 <kit-to-clip>/finish/scripts/finish.py audio mix.wav`: HyperFrames turns a mix down when its peaks are hot.
    Limit the mix at -3 dBTP and it arrives at the level you set.
 3. Render, then check the file:
    `python3 <kit-to-clip>/finish/scripts/finish.py sync renders/<job>.mp4 --cues sound/cue-sheet.json`. Every cue must
    pass. It is a measure of timing, not of taste (`finish/README.md`, section 3a, says what it cannot tell you).
 
-## 6. The listening checkpoint (✋)
+## 6. The final film: watch and listen (✋)
 
-You cannot hear. Measurements support the person's ear, they do not replace it. Before any polish:
+You cannot hear. Measurements support the person's ear, they do not replace it. Listening is part of the ✋ final film
+yes: the person watches and hears the finished film once, and nothing is called finished or delivered before it. Say:
 
 > The sound is **unheard by me**. I can measure that each hit lands within a frame of its picture moment, but I cannot
 > hear whether it feels right. Please listen on your phone with the sound on and tell me what feels off.
 
 Every handoff about a video with sound says "unheard by the agent" until the person has listened, and never calls the
-sound "verified" or "checked" on the strength of the sync numbers alone. Then polish, and finish:
+sound "verified" or "checked" on the strength of the sync numbers alone. Fix what they hear, show it again, and make
+the deliveries once they say yes:
 
 ```bash
 python3 <kit-to-clip>/finish/scripts/finish.py finish renders/<job>.mp4 --profile instagram-reels --out <deliveries> --cues sound/cue-sheet.json
@@ -219,7 +248,7 @@ python3 <kit-to-clip>/finish/scripts/finish.py finish renders/<job>.mp4 --profil
 | `finish/scripts/trace.mjs` | how each marked element moves and how much of it is visible, every frame (`motion.json`) |
 | `sound/scripts/effects.py` | whooshes, hits (note, boom, slam, chime, thump, tick, file), risers and the room, from `motion.json` and a plan; writes `sfx.wav` and a cue sheet |
 | `sound/scripts/pitch.py` | the note of an effect (`measure`, `index`, `check --key`) |
-| `sound/scripts/ace_takes.py` | the default music: ACE-Step takes from a description, put on the tempo grid and scored against the sections; writes the best as `music.wav` and `score.json` (`score.py`'s format), keeps every take, `--pick <seed>` after listening, `--self-test` |
+| `sound/scripts/ace_takes.py` | ACE-Step auditions when chosen, put on the tempo grid and scored against sections; writes `music.wav` and `score.json`, keeps every take, `--pick <seed>` after listening, `--self-test` |
 | `sound/scripts/score.py` | the fallback music, made offline in four styles: `styles`, `preview`, `make` (music and `score.json`), `mix`, `analyze` |
 | `finish/scripts/finish.py anchors` | picture lands on its beat, read from the running timeline |
 | `finish/scripts/finish.py audio` | what the render will do to the mix's level |

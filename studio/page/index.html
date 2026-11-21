@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Kit to Clip Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;700&family=Big+Shoulders+Display:wght@600;800&display=swap">
+<link rel="stylesheet" href="/page/studio.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div class="maker"><span class="maker-name">Kit to Clip Studio</span></div>
+    <div class="film-id">
+      <span class="film-title" id="filmTitle"></span>
+      <span class="film-meta" id="filmMeta"></span>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost" data-act="stops" aria-expanded="false" aria-controls="stopsPanel">✋ Approval stops</button>
+    </div>
+  </div>
+  <nav class="rooms" id="rooms" aria-label="Studio rooms"></nav>
+  <div class="ribbon" id="ribbon" aria-label="The whole film at a glance"></div>
+</header>
+
+<section class="stops-panel" id="stopsPanel" hidden></section>
+<div class="reload-bar" id="reloadBar" role="status" hidden></div>
+
+<div class="work">
+  <main class="room" id="room" tabindex="-1"><p class="hint">Opening the film…</p></main>
+  <aside class="rail" id="rail" aria-label="Request for Claude"></aside>
+</div>
+
+<div class="modal" id="modal" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/page/parts.js"></script>
+<script src="/page/script.js"></script>
+<script src="/page/studio.js"></script>
+</body>
+</html>

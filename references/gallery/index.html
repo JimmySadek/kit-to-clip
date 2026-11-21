@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Kit to Clip styles</title>
+  <link rel="stylesheet" href="gallery.css">
+  <script src="data.js" defer></script>
+  <script src="gallery.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Kit to Clip styles</h1>
+    <p id="brand">Branding is optional</p>
+    <nav aria-label="Browse samples" id="categories">
+      <button type="button" data-category="library" aria-pressed="true">Styles</button>
+      <button type="button" data-category="saved" aria-pressed="false">My Styles</button>
+      <button type="button" data-category="legacy" aria-pressed="false">Legacy recipes</button>
+    </nav>
+    <div class="mobile-category">
+      <label for="category">Browse samples</label>
+      <select id="category"><option value="library">Styles</option><option value="saved">My Styles</option><option value="legacy">Legacy recipes</option></select>
+    </div>
+    <p id="collection-note">Browse reference styles. Original publisher previews open only when you choose them.</p>
+    <div class="filters">
+      <label for="search">Find a look or topic<input id="search" type="search" placeholder="For example: paper, diagrams, science"></label>
+      <label for="family">Family<select id="family"><option value="">All families</option></select></label>
+      <button type="button" id="new-direction">Create a new direction</button>
+    </div>
+    <p id="results" role="status" aria-live="polite"></p>
+  </header>
+  <main aria-label="Style samples"><div id="grid"></div></main>
+  <div class="browse-more"><button type="button" id="more">Show more styles</button><button type="button" id="all">Show all matches</button></div>
+  <p id="notice" role="status" aria-live="polite"></p>
+  <section id="copy-fallback" hidden aria-label="Copy your request">
+    <label for="request-text">Select and copy this request, then paste it into your chat.</label>
+    <textarea id="request-text" rows="4" readonly></textarea>
+    <button type="button" id="close-copy">Close</button>
+  </section>
+  <footer>Samples help you choose a look. Your video still follows its layout, stills and render approvals.</footer>
+</body>
+</html>

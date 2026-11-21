@@ -1,0 +1,37 @@
+{
+  "kit_to_clip_joins": 1,
+  "about": "Ways to move from one style to the next at a part boundary. Our own words. The Styles room offers them, compose.py writes them into the build prompt.",
+  "types": {
+    "burn": {
+      "name": "Film burn",
+      "line": "The old film stalls and burns through. The new world shows behind the hole.",
+      "build": "Slow the outgoing picture as if the projector drags, then burn a hole that spreads from one spot (hot white core, orange rim, charred edge). The incoming style is already playing behind the hole."
+    },
+    "rewind": {
+      "name": "Rewind scratch",
+      "line": "The picture rewinds fast, with scratches, back into the old film.",
+      "build": "Run the outgoing picture backwards for a moment with vertical scratches, jitter and a brief speed blur, then settle on the first frame of the incoming style as if the reel found its place."
+    },
+    "iris": {
+      "name": "Iris",
+      "line": "A black circle closes on one world and opens on the next.",
+      "build": "Close a circular mask on the subject of the outgoing part, hold black for a few frames, then open the same circle on the incoming style."
+    },
+    "sweep": {
+      "name": "Light sweep",
+      "line": "A bright bar wipes across the frame and leaves the new scene.",
+      "build": "Pass a soft bright bar diagonally across the frame. Everything the bar has passed is already the incoming style."
+    },
+    "fold": {
+      "name": "Paper fold",
+      "line": "The frame folds like a page to show the next one.",
+      "build": "Fold the outgoing frame along a crease like a sheet of paper, with a shading gradient on the moving half, to reveal the incoming style underneath."
+    }
+  },
+  "suggest": [
+    { "when": { "to_family": "Paper & Craft" }, "order": ["fold", "iris", "sweep"] },
+    { "when": { "from_family": "Light & Imaging" }, "order": ["burn", "sweep", "iris"] },
+    { "when": { "to_family": "Light & Imaging" }, "order": ["rewind", "iris", "burn"] },
+    { "when": {}, "order": ["iris", "sweep", "fold"] }
+  ]
+}

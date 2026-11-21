@@ -4,7 +4,7 @@ Part of the kit-to-clip skill; `SKILL.md` covers setup and when to come here. Us
 teaser, an email header), website and app loops, loaders, and "make this still move".
 
 ```
-✋ what and where ─▶ ✋ the brief ─▶ ✋ 3 motion ideas as stills ─▶ build ─▶ checks ─▶ ✋ stills ─▶ render ─▶ exports ─▶ deliver
+✋ what and where ─▶ brief questions ─▶ ✋ storyboard: 3 motion ideas as stills ─▶ build ─▶ checks ─▶ render ─▶ exports ─▶ ✋ final film ─▶ deliver
 ```
 
 **Never skip the brief and the motion ideas.** The first real loop (a LinkedIn teaser, 28 Sep 2026) was built straight
@@ -31,7 +31,7 @@ Every web loop also ships a still for people who turn motion off: `finish.py loo
 frame, or `--rest-at <s>` for the moment that reads best at rest, such as a finished logo) and puts it in `embed_html`
 behind `prefers-reduced-motion`. Loops over 5 s get a pause button (WCAG 2.2.2).
 
-## 1b. The brief, then three motion ideas (✋ each)
+## 1b. The brief, then three motion ideas (✋ storyboard)
 
 Ask, one question each, with options named for this piece: **what the loop must do** (stop the scroll, explain the
 product, announce), **what should move** (the words, the product or screen, the brand art, the story from A to B),

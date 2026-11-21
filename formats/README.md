@@ -34,18 +34,19 @@ A broken `format.json` is listed as `(broken)` with the reason: report it, don't
 
 Read the format's journey file and follow it. Every journey keeps the same shape, because renders cost time and
 tokens: nothing is built or rendered that the user did not choose. Use AskUserQuestion at each ✋, one decision each.
+The approval stops are the four in `SKILL.md`; a format's own ✋ choices (content, platforms) are questions, not extra yeses.
 
 ```
-✋ content ─▶ (cheap analysis) ─▶ ✋ platforms ─▶ ✋ approve the plan ─▶ build ─▶ checks ─▶ ✋ render ─▶ deliver
+✋ content ─▶ (cheap analysis) ─▶ ✋ platforms ─▶ ✋ storyboard ─▶ build ─▶ checks ─▶ (✋ music pick) ─▶ render ─▶ ✋ final film ─▶ deliver
 ```
 
-**Checks** on every project, all must pass before offering a render: `npx hyperframes lint`,
+**Checks** on every project, all must pass before rendering: `npx hyperframes lint`,
 `npx hyperframes check`, `python3 <kit-to-clip>/finish/scripts/finish.py check --project <dir>` (script errors, missing
 files) and `python3 <kit-to-clip>/finish/scripts/finish.py safe --project <dir> --platform <p>` (every text and logo stays
 inside the platform's safe box for the whole video). Take stills of the key moments
 (`npx hyperframes snapshot --describe false --at <s>`) and look.
 
-**Deliver** only the confirmed renders, one per platform layout:
+**Deliver** only after the ✋ final film yes, one render per platform layout:
 
 ```bash
 npx hyperframes render -o <file>.mp4            # inside the project, after env.sh

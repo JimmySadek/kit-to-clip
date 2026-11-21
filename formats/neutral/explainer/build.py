@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Explainer (neutral format, trial): a narrated explainer where the voice comes first. Every scene starts on the
 first word of its sentence (anchored, so finish.py anchors can prove it), captions are burned in word by word, and the
-look comes from one of five illustration styles over the brand's tokens. Works with any brand whose video pack has
+look comes from one of nine illustration styles over the brand's tokens. Works with any brand whose video pack has
 token contract v1 (brand/brand-pack.md in Kit to Clip).
 
   build.py --brand <name> --voice voice.wav --transcript transcript.json --scenes scenes.json --out <project-dir>
-           [--style clean|cut-paper|risograph|sketchbook|isometric] [--canvas 1080x1920] [--platform tiktok]
+           [--style clean|cut-paper|risograph|sketchbook|isometric|glass|pixel|chalkboard|flat-vector]
+           [--canvas 1080x1920] [--platform tiktok]
            [--music bed.wav] [--no-captions]
 
 voice.wav: the narration (the voice-over power, or a recording). transcript.json: word timings from

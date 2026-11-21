@@ -58,7 +58,17 @@
       the first three seconds: fails when the first frame shows only background, when no readable text or logo is on
       screen by --by seconds (so it works muted), or when nothing moves in the first second.
 
-  Also in this folder: trace.mjs (motion.json: how each element moves, frame by frame, for sound that follows the picture).
+  Canvas drawings: a project whose HTML loads canvas-bridge.js (references/canvas-reference.md) also gets a Canvas
+      audit in check, safe and hook, after the unchanged DOM check. Every sampled frame's draw-time record must be for
+      that seek and match the pixels on the canvas; check seeks every sample again, backwards, and fails different
+      pixels. Text drawn with fillText/strokeText is measured and counts where it painted pixels; path lettering and
+      logos count where audit.region declares them (taken as said). A missing, empty, stale or failed record, a draw
+      that throws or reads the clock or Math.random, or a canvas label outside the safe box fails. The hook measures a
+      canvas opening on its pixels (a blank canvas is not content). Canvas pixels are never read as text (no OCR).
+      Bridges work in the root composition only; a sub-composition canvas is refused.
+
+  Also in this folder: trace.mjs (motion.json: how each element moves, frame by frame, for sound that follows the picture),
+  canvas-bridge.js (the Canvas bridge to copy into a project).
 
 Stdlib + ffmpeg/ffprobe, plus numpy for sync and audio (the engine's Python has it). Exit codes: 0 pass, 1 check failed, 2 usage/profile problem.
 """
@@ -165,24 +175,31 @@ def master_audio(src, dst_audio, target_i, target_tp, lra_max=11):
     if i0 is None or tp0 is None or i0 < -60:
         raise RuntimeError("the audio is silent or too quiet to master")
     gain, ceiling_db = target_i - i0, target_tp - 0.3
-    wav = Path(dst_audio).with_suffix(".limited.wav")
+    dst = Path(dst_audio)
+    is_wav = dst.suffix.lower() == ".wav"
+    wav = dst if is_wav else dst.with_suffix(".limited.wav")
     for _ in range(10):
         af = (f"volume={gain:.3f}dB,aresample=192000,alimiter=limit={10 ** (ceiling_db / 20):.4f}:attack=5:release=80:level=false,"
               "aresample=48000")
-        rr = run(["ffmpeg", "-v", "error", "-y", "-i", str(src), "-vn", "-af", af, "-c:a", "pcm_f32le", str(wav)])
+        codec = ["-ac", "2", "-ar", "48000", "-c:a", "pcm_s16le"] if is_wav else ["-c:a", "pcm_f32le"]
+        rr = run(["ffmpeg", "-v", "error", "-y", "-i", str(src), "-vn", "-af", af, *codec, str(wav)])
         if rr.returncode:
             raise RuntimeError(rr.stderr)
-        rr = run(["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-c:a", AAC, "-b:a", "256k", str(dst_audio)])
-        if rr.returncode:
-            raise RuntimeError(rr.stderr)
-        after_i, after_lra, after_tp = loudness_stats(dst_audio)
+        if not is_wav:
+            rr = run(["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-c:a", AAC, "-b:a", "256k", str(dst)])
+            if rr.returncode:
+                raise RuntimeError(rr.stderr)
+        after_i, after_lra, after_tp = loudness_stats(dst)
+        if after_i is None:
+            break
         loud_ok, peak_ok = abs(target_i - after_i) <= 0.3, after_tp is None or after_tp <= target_tp
         if loud_ok and peak_ok:
             break
         gain += target_i - after_i
         if not peak_ok:
             ceiling_db = max(-8.0, ceiling_db - (after_tp - target_tp) - 0.1)
-    wav.unlink(missing_ok=True)
+    if not is_wav:
+        wav.unlink(missing_ok=True)
     limiter_db = max(0.0, tp0 + gain - ceiling_db)
     warnings = []
     if limiter_db > 3:
@@ -726,8 +743,255 @@ def cmd_snippet(a):
     sys.exit(r.returncode)
 
 
+# ---------------------------------------------------------------- Canvas audit (canvas-bridge.js projects)
+# The DOM checks cannot see what a <canvas> draws. A project that uses canvas-bridge.js (references/canvas-reference.md)
+# gets a second, Canvas-side audit in check, safe and hook: the composition is loaded the same way (hfpage.mjs), each
+# sampled time is seeked with the player, and every bridge's draw-time record must be for that seek time and match the
+# pixels now on its canvas. A missing, empty, stale or failed record fails; it never falls back to a pass. check also
+# seeks every sample again, backwards, and fails a bridge whose pixels differ the second time.
+CANVAS_MARKERS = re.compile(r"canvas-bridge\.js|KitToClipCanvas|data-k2c-canvas")
+CANVAS_AUDIT_MJS = r"""
+const { withComposition, fail } = await import(process.env.K2C_HFPAGE_URL);
+const a = JSON.parse(process.env.K2C_CANVAS_ARGS);
+const AUDIT = async ({ mode, box, step, by, duration, W, H }) => {
+  const V = window.__reelVisible, K = window.KitToClipCanvas;
+  const problems = new Map(), notes = [];
+  const problem = (key, msg) => { if (!problems.has(key)) problems.set(key, msg); };
+  const out = (extra) => ({ problems: [...problems.values()], notes, ...extra });
+  const FP = (c) => { const d = new Uint32Array(c.getContext("2d").getImageData(0, 0, c.width, c.height).data.buffer);
+    let h = 0x811c9dc5; for (let i = 0; i < d.length; i++) { h ^= d[i]; h = Math.imul(h, 0x01000193); } return h >>> 0; };
+  const marked = [...document.querySelectorAll("canvas[data-k2c-canvas]")];
+  if (!K || typeof K.list !== "function" || !K.audit) {
+    problem("nobridge", `canvas-bridge.js is not loaded, so no Canvas bridge is registered (${marked.length} canvas element(s) marked data-k2c-canvas)`);
+    return out({ bridges: 0, samples: 0 });
+  }
+  const bridges = K.list(), bridged = new Set(bridges.map((b) => b.canvas));
+  for (const c of marked) if (!bridged.has(c)) problem("unbridged:" + V.name(c), `${V.name(c)} is marked data-k2c-canvas but no Canvas bridge is registered for it, so it has no audit`);
+  if (!bridges.length) problem("none", "no Canvas bridge is registered, so no Canvas frame has an audit");
+  for (const c of document.querySelectorAll("canvas")) if (!bridged.has(c) && !marked.includes(c)) notes.push(`${V.name(c)} is not bridged: its pixels and any text in it were not inspected`);
+  for (const b of bridges) {
+    if (b.labels === "none") notes.push(`bridge "${b.id}" declares no text or logo (labels: "none"): taken as said, its pixels were not inspected for lettering`);
+    const c = b.canvas, r = c.getBoundingClientRect();
+    if (Math.abs(r.width - c.offsetWidth) > 0.5 || Math.abs(r.height - c.offsetHeight) > 0.5)
+      notes.push(`bridge "${b.id}": the canvas is CSS-transformed; label boxes were mapped through its on-screen bounding box (rotation is not modelled)`);
+  }
+  K.audit.enable();
+  // the seek, then each bridge's record: for this seek time, and the pixels on the canvas are the ones it drew
+  const sample = async (t) => {
+    const at = t.toFixed(2), rows = [];
+    try { await V.seek(t); } catch (e) { problem("seek:" + at, `seeking to ${at} s failed: ${String(e && e.message || e)}`); }
+    const now = window.__hfThreeTime;
+    if (typeof now !== "number" || Math.abs(now - t) > 1 / 24 + 1e-6) {
+      problem("runtime", `the runtime did not publish a seek to ${at} s (window.__hfThreeTime is ${now}), so no Canvas frame can be matched to it`);
+      return rows;
+    }
+    for (const b of bridges) {
+      const f = b.frame();
+      if (!f) { problem("missing:" + b.id, `bridge "${b.id}" has no frame at ${at} s (never drawn, or never ready): missing audit`); continue; }
+      if (f.error) { problem("error:" + b.id, `bridge "${b.id}" draw failed at ${at} s: ${f.error}`); continue; }
+      if (f.clock.length) problem("clock:" + b.id, `bridge "${b.id}" draw read ${f.clock.join(", ")}: its frames are not reproducible from time alone (use KitToClipCanvas.seeded(seed))`);
+      if (Math.abs(f.time - now) > 1e-6) { problem("stale-time:" + b.id, `bridge "${b.id}" audit is stale at ${at} s: it describes the frame at ${f.time.toFixed(3)} s (a listener stopped hf-seek, or it was drawn outside a seek)`); continue; }
+      if (f.fingerprint === null || f.fingerprint !== FP(b.canvas)) { problem("stale-px:" + b.id, `bridge "${b.id}" audit is stale at ${at} s: the canvas pixels changed after the audited draw (something else draws on this canvas)`); continue; }
+      rows.push({ b, f });
+    }
+    return rows;
+  };
+  // a label's visible box on the page: canvas pixels (clipped to the bitmap) mapped through the canvas's on-screen box,
+  // then what a viewer sees. Measured text counts only when its draw painted pixels; a declared region is taken as said.
+  const place = (b, lab, rect = lab.rect) => {
+    const c = b.canvas, cr = c.getBoundingClientRect();
+    if (!rect || !(lab.alpha > 0.05) || !(c.width > 0 && c.height > 0)) return null;
+    if (lab.source === "measured" && !(lab.painted > 0)) return null;
+    const sx = cr.width / c.width, sy = cr.height / c.height;
+    const [x0, y0, x1, y1] = [Math.max(0, rect[0]), Math.max(0, rect[1]), Math.min(c.width, rect[2]), Math.min(c.height, rect[3])];
+    if (!(x1 > x0 && y1 > y0)) return null;
+    return V.seenRect(c, { L: cr.left + x0 * sx, T: cr.top + y0 * sy, R: cr.left + x1 * sx, B: cr.top + y1 * sy }, W, H);
+  };
+  const liar = (b, f) => { if (b.labels === "none" && f.labels.length)
+    problem("liar:" + b.id, `bridge "${b.id}" declares no text or logo (labels: "none") but drew "${f.labels[0].text.slice(0, 40)}"`); };
+
+  if (mode === "check") {
+    const times = [], first = new Map();
+    for (let t = 0; ; t = +(t + step).toFixed(4)) {
+      const tt = Math.min(t, Math.max(0, duration - 0.001));
+      times.push(tt);
+      for (const { b, f } of await sample(tt)) { liar(b, f); first.set(b.id + "@" + tt, f); }
+      if (tt >= duration - 0.001) break;
+    }
+    // the same times again, backwards: a frame drawn from t alone has the same pixels on every seek. The last time is
+    // skipped, since the runtime does not dispatch a seek to the time it is already at.
+    let again = 0;
+    for (const tt of times.slice(0, -1).reverse()) {
+      again++;
+      for (const { b, f } of await sample(tt)) {
+        const was = first.get(b.id + "@" + tt);
+        if (was && was.fingerprint !== f.fingerprint)
+          problem("diverge:" + b.id, `bridge "${b.id}" drew different pixels when re-seeked to ${tt.toFixed(2)} s (fingerprint ` +
+            `${was.fingerprint} on the first seek, ${f.fingerprint} on the re-seek): its draw keeps state between frames ` +
+            `(a counter, particles stepped each draw, a random source made outside draw) or reads the time another way ` +
+            `(new Date()). Draw the picture from t alone`);
+      }
+    }
+    return out({ bridges: bridges.length, samples: times.length, again });
+  }
+  if (mode === "safe") {
+    const [x0, y0, x1, y1] = box, TOL = 2, found = new Map(), seen = new Map(bridges.map((b) => [b.id, new Set()]));
+    let samples = 0;
+    for (let i = 0; ; i++) {
+      const t = Math.min(+(i * step).toFixed(4), Math.max(0, duration - 0.001));
+      samples++;
+      for (const { b, f } of await sample(t)) {
+        liar(b, f);
+        if (b.labels === "none") continue;
+        for (const lab of f.labels) {
+          const v = place(b, lab);       // the measured box (not just the painted ink), so a half-open reveal is held to its full size
+          if (!v) continue;
+          const k = `bridge "${b.id}" ${lab.source} ${lab.kind} "${lab.text.trim().replace(/\s+/g, " ").slice(0, 40)}"`;
+          seen.get(b.id).add(k);
+          const over = { left: x0 - v.L, top: y0 - v.T, right: v.R - x1, bottom: v.B - y1 };
+          const worst = Math.max(...Object.values(over));
+          if (worst <= TOL) continue;
+          const side = Object.keys(over).filter((s) => over[s] > TOL).join("+"), at = +t.toFixed(2), rect = [v.L, v.T, v.R, v.B].map(Math.round);
+          const prev = found.get(k);
+          if (!prev) found.set(k, { first: at, last: at, over: Math.round(worst), side, rect });
+          else { prev.last = at; if (worst > prev.over) Object.assign(prev, { over: Math.round(worst), side, rect }); }
+        }
+      }
+      if (t >= duration - 0.001) break;
+    }
+    for (const b of bridges) if (b.labels !== "none" && !seen.get(b.id).size)
+      problem("empty:" + b.id, `bridge "${b.id}" recorded no visible text or logo at any of ${samples} sampled times: an empty audit is not a pass ` +
+        `(text that paints no pixels, under a closed clip, in a transparent colour or off the bitmap, is not visible; draw text ` +
+        `with fillText/strokeText, declare path lettering and logos with audit.region, or say labels: "none")`);
+    const keys = [...seen.values()].flatMap((s) => [...s]);
+    return out({ samples, checked: keys.length, measured: keys.filter((k) => k.includes(" measured ")).length,
+      declared: keys.filter((k) => k.includes(" declared ")).length, issues: [...found.entries()].map(([el, v]) => ({ el, ...v })) });
+  }
+  // hook: the opening measured on the canvas pixels (plus every other drawn element, by the hook check's own rule)
+  const end = Math.min(by, duration), minText = H * 0.025, minArea = W * H * 0.02;
+  const rows0 = await sample(0);
+  // the share of the canvas, in cells of about 1% of its size, holding anything but its dominant colour (or anything
+  // opaque on a transparent canvas): a drawn shape or word counts with its cells, like the hook check counts element
+  // boxes; a blank or flat-filled canvas counts as nothing
+  const contentArea = (c) => {
+    const r = c.getBoundingClientRect(), v = V.seenRect(c, { L: r.left, T: r.top, R: r.right, B: r.bottom }, W, H);
+    if (!v || !(c.width > 0 && c.height > 0)) return 0;
+    const cw = c.width, ch = c.height, d = c.getContext("2d").getImageData(0, 0, cw, ch).data;
+    const counts = new Map(), stride = Math.max(1, Math.floor(Math.sqrt(cw * ch / 40000)));
+    for (let y = 0; y < ch; y += stride) for (let x = 0; x < cw; x += stride) {
+      const i = (y * cw + x) * 4, k = ((d[i] >> 3) << 15) | ((d[i + 1] >> 3) << 10) | ((d[i + 2] >> 3) << 5) | (d[i + 3] >> 3);
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+    let mk = 0, mc = -1;
+    for (const [k, n] of counts) if (n > mc) { mc = n; mk = k; }
+    const m = [(mk >> 15) & 31, (mk >> 10) & 31, (mk >> 5) & 31, mk & 31].map((q) => q << 3);
+    const differs = (i) => m[3] < 16 ? d[i + 3] > 16 : Math.abs(d[i] - m[0]) > 24 || Math.abs(d[i + 1] - m[1]) > 24 ||
+      Math.abs(d[i + 2] - m[2]) > 24 || Math.abs(d[i + 3] - m[3]) > 24;
+    const cell = Math.max(2, Math.round(Math.max(cw, ch) / 100));
+    let cells = 0, hit = 0;
+    for (let cy = 0; cy < ch; cy += cell) for (let cx = 0; cx < cw; cx += cell) {
+      cells++;
+      scan: for (let y = cy; y < Math.min(ch, cy + cell); y++) for (let x = cx; x < Math.min(cw, cx + cell); x++)
+        if (differs((y * cw + x) * 4)) { hit++; break scan; }
+    }
+    return (hit / cells) * (v.R - v.L) * (v.B - v.T);
+  };
+  const domDrawn = [...document.querySelectorAll("body *")].filter((el) => {
+    if (bridged.has(el) || el.closest("script, style, template, audio") || el.matches("[data-composition-id]")) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return false;
+    const cs = getComputedStyle(el);
+    return ["IMG", "VIDEO", "CANVAS", "svg"].includes(el.tagName) || el instanceof SVGElement || cs.backgroundImage !== "none" ||
+      (cs.backgroundColor !== "rgba(0, 0, 0, 0)" && cs.backgroundColor !== "transparent") ||
+      [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || parseFloat(cs.borderTopWidth) > 0;
+  });
+  const domArea = domDrawn.reduce((s, el) => { const r = el.getBoundingClientRect(), v = V.seenRect(el, { L: r.left, T: r.top, R: r.right, B: r.bottom }, W, H);
+    return s + (v ? (v.R - v.L) * (v.B - v.T) : 0); }, 0);
+  const canvasArea = rows0.reduce((s, { b }) => s + contentArea(b.canvas), 0);
+  const fp0 = new Map(rows0.map(({ b, f }) => [b.id, f.fingerprint]));
+  let moved = null, readable = null, readableText = "", readableKind = "", readableSource = "";
+  for (let t = 0; t <= end + 1e-6; t = +(t + 0.1).toFixed(3)) {
+    const rows = t === 0 ? rows0 : await sample(Math.min(t, end));
+    if (moved === null && t > 0 && t <= 1.0 + 1e-6 && rows.some(({ b, f }) => fp0.has(b.id) && f.fingerprint !== fp0.get(b.id))) moved = t;
+    for (const { b, f } of rows) {
+      liar(b, f);
+      if (readable !== null || b.labels === "none") continue;
+      for (const lab of f.labels) {
+        // measured text: the pixels it painted must be tall enough (a reveal that shows a sliver is not yet readable);
+        // a declared region: its box, as the author gave it
+        const v = place(b, lab, lab.source === "measured" ? lab.ink : lab.rect);
+        if (v && (lab.kind === "logo" || v.B - v.T >= minText)) {
+          readable = t; readableText = lab.text.trim().slice(0, 40); readableKind = lab.kind; readableSource = lab.source; break;
+        }
+      }
+    }
+    if (readable !== null && (moved !== null || t > 1.0)) break;
+  }
+  return out({ opening: { canvas: canvasArea / (W * H), other: domArea / (W * H), pass: canvasArea + domArea >= minArea },
+    moved, readable, readableText, readableKind, readableSource });
+};
+const r = await withComposition(a.proj, "canvas audit", async ({ page, state }) => {
+  if (!state.ready) fail("the HyperFrames player never became ready, so no Canvas frame was audited");
+  if (!(state.duration > 0)) fail("the composition has zero duration, so no Canvas frame was audited");
+  return page.evaluate(AUDIT, { ...a, duration: state.duration, W: state.size.width, H: state.size.height });
+});
+console.log("@@canvas " + JSON.stringify(r));
+"""
+CANVAS_COVERAGE = ("coverage: text drawn with fillText/strokeText is measured at draw time and counts only where it painted canvas pixels; "
+                   "path lettering, logos and images count only where audit.region declares them (taken as said, not pixel-checked); "
+                   "nothing in the canvas pixels is read as text (no OCR)")
+
+
+def uses_canvas_bridge(proj):
+    """Does any HTML file of the project load or mention the Canvas bridge? Then check, safe and hook also audit it."""
+    for root, dirs, files in os.walk(proj):
+        dirs[:] = [d for d in dirs if d not in SNIPPET_SKIP and not d.startswith(".")]
+        for f in files:
+            if f.endswith((".html", ".htm")):
+                try:
+                    if CANVAS_MARKERS.search((Path(root) / f).read_text(errors="ignore")):
+                        return True
+                except OSError:
+                    continue
+    return False
+
+
+def canvas_audit(proj, mode, **kw):
+    """Run the Canvas audit in headless Chrome. Returns (report, None), or (None, why) when it could not run."""
+    env = dict(os.environ, K2C_HFPAGE_URL=(HERE / "hfpage.mjs").as_uri(),
+               K2C_CANVAS_ARGS=json.dumps({"proj": str(proj), "mode": mode, **kw}))
+    r = subprocess.run(["node", "--input-type=module", "-e", CANVAS_AUDIT_MJS], capture_output=True, text=True, env=env)
+    if r.returncode == 2:
+        print((r.stdout + r.stderr).strip(), file=sys.stderr)
+        sys.exit(2)
+    line = next((ln for ln in r.stdout.splitlines() if ln.startswith("@@canvas ")), None)
+    if line is None:
+        return None, ((r.stdout + r.stderr).strip().splitlines() or ["no output"])[-1]
+    return json.loads(line[len("@@canvas "):]), None
+
+
+def print_canvas_failure(label, rep, why):
+    """Print why the Canvas audit failed; returns False when it did (so callers can AND it in)."""
+    if why:
+        print(f"✗ {label}: the Canvas audit could not run, so no Canvas frame was checked: {why}")
+        return False
+    if rep["problems"]:
+        print(f"✗ {label}: {len(rep['problems'])} Canvas audit problem(s); a missing, empty or stale audit is never a pass")
+        for p in rep["problems"]:
+            print("  - " + p)
+        return False
+    return True
+
+
+def print_canvas_notes(rep):
+    if rep:
+        print("  " + CANVAS_COVERAGE)
+        for n in rep["notes"]:
+            print("  note: " + n)
+
+
 # ---------------------------------------------------------------- safe
-SAFE_BOXES = {"tiktok": "120,252,840,1280", "instagram": "65,269,1015,1248", "instagram-reels": "65,269,1015,1248"}
+SAFE_BOXES ={"tiktok": "120,252,840,1280", "instagram": "65,269,1015,1248", "instagram-reels": "65,269,1015,1248"}
 
 
 def safe_box_for(name):
@@ -748,8 +1012,35 @@ def cmd_safe(a):
         names = sorted(set(SAFE_BOXES) | {n for n, p in PROFILES["profiles"].items() if isinstance(p, dict) and p.get("canvas")})
         print(f"finish safe: unknown platform {a.platform!r}. Use a profile ({', '.join(names)}) or x0,y0,x1,y1", file=sys.stderr)
         sys.exit(2)
-    r = subprocess.run(["node", str(HERE / "safecheck.mjs"), str(Path(a.project).resolve()), box, str(a.step)], env=dict(os.environ))
-    sys.exit(r.returncode)
+    proj = Path(a.project).resolve()
+    argv = ["node", str(HERE / "safecheck.mjs"), str(proj), box, str(a.step)]
+    if not uses_canvas_bridge(proj):
+        sys.exit(subprocess.run(argv, env=dict(os.environ)).returncode)
+    # Canvas project: the DOM check runs unchanged; the Canvas audit adds the labels the DOM cannot see
+    r = subprocess.run(argv, capture_output=True, text=True, env=dict(os.environ))
+    if r.returncode == 2:
+        print((r.stdout + r.stderr).strip(), file=sys.stderr)
+        sys.exit(2)
+    no_dom_text = r.returncode == 1 and "✗ safe check: found no visible text or logo" in r.stdout
+    rep, why = canvas_audit(proj, "safe", box=[float(x) for x in box.split(",")], step=a.step)
+    canvas_ok = print_canvas_failure("safe check (canvas)", rep, why)
+    checked = rep["checked"] if rep else 0
+    if rep and rep["issues"]:
+        canvas_ok = False
+        print(f"✗ safe check (canvas): {len(rep['issues'])} canvas label(s) leave the safe box [{box}] ({rep['samples']} samples every {a.step} s)")
+        for i in rep["issues"]:
+            print(f"  - {i['el']} {i['side']} by {i['over']}px at {i['first']}-{i['last']} s, seen box [{','.join(map(str, i['rect']))}]")
+    elif canvas_ok:
+        print(f"✓ safe check (canvas): {checked} canvas label(s) ({rep['measured']} measured text, {rep['declared']} declared region(s)) "
+              f"stay inside [{box}] ({rep['samples']} samples every {a.step} s, each audit fresh for its seek)")
+    print_canvas_notes(rep)
+    dom_ok = r.returncode == 0 or (no_dom_text and checked > 0)
+    if no_dom_text and checked > 0:
+        print("  DOM: no visible DOM text or logo; the canvas labels above are what was checked")
+    else:
+        sys.stdout.write(r.stdout)
+        sys.stderr.write(r.stderr)
+    sys.exit(0 if dom_ok and canvas_ok else 1)
 
 
 # ---------------------------------------------------------------- anchors
@@ -1091,8 +1382,57 @@ def cmd_hook(a):
     if not (proj / "index.html").exists():
         print(f"finish: no index.html in {proj}", file=sys.stderr)
         sys.exit(2)
-    r = subprocess.run(["node", str(HERE / "hookcheck.mjs"), str(proj), str(a.by)], env=dict(os.environ))
-    sys.exit(r.returncode)
+    argv = ["node", str(HERE / "hookcheck.mjs"), str(proj), str(a.by)]
+    if not uses_canvas_bridge(proj):
+        sys.exit(subprocess.run(argv, env=dict(os.environ)).returncode)
+    # Canvas project: the DOM check runs unchanged and its verdicts are kept; the Canvas audit can supply readable text
+    # or motion the DOM cannot see, and the opening is measured on the canvas pixels (a blank canvas's box is not content)
+    r = subprocess.run(argv, capture_output=True, text=True, env=dict(os.environ))
+    if r.returncode == 2:
+        print((r.stdout + r.stderr).strip(), file=sys.stderr)
+        sys.exit(2)
+    graded = r.returncode == 0 or (r.returncode == 1 and re.search(r"^✗ hook check: \d+ problem\(s\) in the first", r.stdout, re.M))
+    rep, why = canvas_audit(proj, "hook", by=a.by)
+    if not graded:                                     # the DOM check could not grade the opening: its failure stands
+        sys.stdout.write(r.stdout)
+        sys.stderr.write(r.stderr)
+        print_canvas_failure("hook check (canvas)", rep, why)
+        sys.exit(1)
+    dom_bad = [ln[4:] for ln in r.stdout.splitlines() if ln.startswith("  - ")]
+    dom_read = re.search(r'readable muted by [\d.]+ s \("[^"]*"\)', r.stdout)
+    dom_move = re.search(r"moves by [\d.]+ s", r.stdout)
+    lines, bad = [], []
+    if rep:
+        o = rep["opening"]
+        share = f"canvas pixels {o['canvas'] * 100:.0f}% of the frame, other elements {o['other'] * 100:.0f}%"
+        if o["pass"]:
+            lines.append(f"first frame shows content ({share})")
+        else:
+            bad.append(f"the first frame shows only background: open on the subject, a photo or the title ({share}; a blank canvas is not content)")
+        if not any(b.startswith("no readable text or logo") for b in dom_bad) and dom_read:
+            lines.append(dom_read.group(0))
+        elif rep["readable"] is not None:
+            said = ", a declared region: taken as said" if rep.get("readableSource") == "declared" else ""
+            lines.append(f'readable muted by {rep["readable"]:.1f} s (canvas {rep["readableKind"]} "{rep["readableText"]}"{said})')
+        else:
+            bad.append(f"no readable text or logo by {a.by:g} s: a muted viewer gets no reason to stay (show the promise or the brand early)")
+        if not any(b.startswith("nothing moves in the first second") for b in dom_bad) and dom_move:
+            lines.append(dom_move.group(0))
+        elif rep["moved"] is not None:
+            lines.append(f"moves by {rep['moved']:.1f} s (canvas pixels)")
+        else:
+            bad.append("nothing moves in the first second: start the motion at once")
+    canvas_ok = print_canvas_failure("hook check (canvas)", rep, why)
+    if bad or not canvas_ok:
+        print(f"✗ hook check (with Canvas audit): {len(bad)} problem(s) in the first {a.by:g} s" if bad else "✗ hook check (with Canvas audit): the Canvas audit failed")
+        for b in bad:
+            print("  - " + b)
+        for ln in lines:
+            print("  ✓ " + ln)
+        print_canvas_notes(rep)
+        sys.exit(1)
+    print("✓ hook check (with Canvas audit): " + "; ".join(lines))
+    print_canvas_notes(rep)
 
 
 # ---------------------------------------------------------------- check
@@ -1103,7 +1443,18 @@ def cmd_check(a):
         sys.exit(2)
     env = dict(os.environ)
     r = subprocess.run(["node", str(HERE / "consolecheck.mjs"), str(proj)], env=env)
-    sys.exit(r.returncode)
+    if r.returncode == 2 or not uses_canvas_bridge(proj):
+        sys.exit(r.returncode)
+    # Canvas project: every 0.5 s and the last frame must be drawn from its own seek time, with no draw error,
+    # no clock or unseeded random, nothing else drawing over the audited pixels, and the same pixels when seeked again
+    rep, why = canvas_audit(proj, "check", step=0.5)
+    ok = print_canvas_failure("canvas audit", rep, why)
+    if ok:
+        print(f"✓ canvas audit: {rep['bridges']} Canvas bridge(s), {rep['samples']} sampled frames, each drawn from its seek time and "
+              f"{rep['again']} redrawn identically on a backward re-seek (fresh audit, matching pixels, no draw error, no clock or "
+              "unseeded random read)")
+    print_canvas_notes(rep)
+    sys.exit(1 if r.returncode or not ok else 0)
 
 
 def main():

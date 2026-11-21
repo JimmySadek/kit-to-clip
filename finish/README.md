@@ -125,8 +125,10 @@ recomposed cut. Do not "fix" it by stretching or cropping the finished render.
 ## 3a. Sound: does it follow the picture?
 
 A video whose sound was made for its picture (music, effects, a score) must prove the sound lands on the picture.
-Every other check passed a Reel whose sound and picture matched at 0.06, which is chance. Build sound-first (the sound
-module, `sound/README.md`), then check the finished file:
+Every other check passed a Reel whose sound and picture matched at 0.06, which is chance. Agree the timing driver
+and the voice first (`sound/README.md`). Build the visual timeline, make and pick the music on it (✋ music pick),
+derive actual event cues, create effects and mix before encoding. Narration follows the recording rather than musical
+bars; music-led work follows its chosen cues. Then check the finished file:
 
 ```bash
 python3 <kit-to-clip>/finish/scripts/finish.py sync <render.mp4> --cues <cue-sheet.json>

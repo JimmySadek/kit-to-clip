@@ -40,8 +40,8 @@ What it leaves:
   so, and offer more takes (`--takes 5`), other seeds (`--seed 40`) or `score.py`.
 - No ACE-Step installed: it stops with exit 3 and prints the `score.py` command to use instead.
 
-**The listening checkpoint stays ✋.** The takes are unheard by the agent. Play them to the person (all of them, if
-they like) before any picture is built. If they prefer another take, run the same command with `--pick <seed>`: the
+**The ✋ music pick stays.** The takes are unheard by the agent. Make them once the picture is built and play them to
+the person on the built picture (all of them, if they like). If they prefer another take, run the same command with `--pick <seed>`: the
 takes are reused, so it takes seconds.
 
 **What it cannot do:** move the model's drop or write a real ending. After the cut, the music fades over the last half
@@ -52,7 +52,8 @@ follows the plan best. If none does, more seeds or the fallback are the answer.
 
 - **Describe genre, mood, instruments and tempo**, and the shape you want ("a rising build into a big drop, ends on one
   big hit"). Ask for "bright", "airy" or "clear highs" when the brief needs sparkle: the mixes lean on the bass.
-- **Length is whole bars of 4/4** (our sound rule): 8 bars at 128 bpm is exactly 15.00 s. The model makes 10 to 600 s.
+- **Length and timing:** music-led films use whole bars of 4/4 (8 bars at 128 bpm is 15.00 s). Narrated films generate
+  enough whole bars and trim or crossfade to the spoken duration without shifting speech. The model makes 10 to 600 s.
 - **The seed makes the same take again.** Keep the winner's seed in the project notes (`score.json` has it).
 - **Instrumental.** For a sung track, call the helper directly with `--lyrics words.txt`, using only words the person
   wrote or approved, then measure it with `ace_takes.py --measure <file> --bpm ... --bars ...`.

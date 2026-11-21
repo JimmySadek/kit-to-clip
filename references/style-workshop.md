@@ -1,115 +1,82 @@
-# The style workshop: designing a new video style
+# Create a new direction, or design a legacy template
 
-Someone wants a kind of video that none of the listed formats or saved styles covers. Act as their creative
-director: ask, propose, show, adjust, then save it so the next video in this style takes minutes. They decide; you
-do the work. The brand is the one the front door found (or a neutral look); its pack's `guide.md` and the brand
-kit's own references set what is allowed.
+For an ordinary video, selected library reference or supplied prompt/code, use `video-journey.md`. Selecting a
+reference does not start another concept contest. This guide is for a new direction, or an explicitly
+requested reusable slot template. Saving an approved video's treatment uses `personal-references.md`.
 
-```
-✋ name ─▶ ✋ starting point ─▶ ✋ references ─▶ ✋ purpose + platforms ─▶ ✋ mood ─▶ ✋ length + pace ─▶ ✋ words ─▶ ✋ sound
-     ─▶ ✋ pick 1 of 3 concepts ─▶ ✋ approve the recipe ─▶ build ─▶ ✋ stills (≤3 rounds) ─▶ ✋ test render ─▶ ✋ save
-```
+## A new direction for this video
 
-Use AskUserQuestion for every ✋, one decision each. Options below are starting points: adapt the labels to what
-they already told you, mark a recommendation when their earlier answers point to one, and remember that "Other"
-always lets them describe something new. If they answer several questions in one message, skip those questions.
+Start from what the person already supplied: goal, audience, story, footage, destination, duration, visual likes
+and sound choices. Ask only for consequential missing decisions. Do not require a style name, author, brand pack
+or early registry entry. Discovering a brand kit does not choose it; original look, a palette and full identity
+remain separate options.
 
-## 1. The questions
+Use the catalogue and personal references as inspiration when helpful. Read only selected examples' code. Keep
+permitted use and provenance clear, and use `reference-resources.md` for fonts/assets and `open-source-effects.md`
+for deterministic integration. For a video link, first use `reference-video.md`; reuse what its analysis answers.
+Imagery preparation is conditional, through `imagery.md`.
 
-1. **Who and what** (plain chat, not a menu): "What should we call this style, and what's your name?" Save the
-   name in `.reel-kit/user.json` inside a studio folder (`{"name": ...}`) and don't ask again. Then:
-   `styles.py init --title "<title>" --author "<name>" [--brand <id>] [--from <format or style>]`. The style is
-   saved with the brand (`<brand kit>/kit-to-clip/styles/`), in a studio's `styles/`, or in `reels/styles/` without a brand.
-2. **Starting point:** a clip (highlight, match, demo) · words and graphics only (announcement, stat, promo) ·
-   an existing video that needs graphics on top · a short loop (website, screens at a venue) · **a video they like**
-   (a link or a file: read it first with `references/reference-video.md`, then come back here and skip what its
-   `reference.md` already answers).
-3. **References:** "Any pictures or videos of work you like, yours or others'? Drop them in, or skip." Look at
-   each one and say in one line what you take from it (materials, framing, type, pace), never its marks. Keep them
-   with the style: `styles.py refs --style <slug> <files>` (pictures, `reference.md`, contact sheets; not videos).
-   Read them again before drawing the concepts. A video link goes through `reference-video.md` first.
-4. **Purpose + platforms** (multi-select platforms): TikTok · Instagram Reels · Instagram feed 4:5 · YouTube
-   Shorts · YouTube or website 16:9. Ask the purpose in the same question's wording ("to hype a tournament?
-   to teach a shot?") only if it's not clear yet.
-5. **Mood:** Hype (fast cuts, slams, big type) · Premium (slow moves, lots of space, one accent) · Playful
-   (bounces, stickers, surprises) · Coach (freeze, annotate, explain). Tie each to what the brand allows (its
-   pack's `guide.md` names the kit references to read) and to its motion energy (`--reel-energy`).
-6. **Length + pace:** 6-10 s teaser · 15-20 s · 25-30 s · 45-60 s. Say what fits each platform.
-7. **Words on screen:** big titles in the brand's display face · clean captions · numbers and stat chips · almost none.
-8. **Sound:** a score the brand's pack already has (its formats may ship one) · their own track · the clip's own
-   sound · silent (muted autoplay) · a new score made for this style (takes longer; synthesise it in code with fixed
-   seeds: no downloads, no licensed music). Music sets the pace more than any other choice, so ask it before the
-   concepts. With music, name the **beat roles** in plain words and confirm them: *the reveal* lands on the first
-   strong beat, *the big move* on the next strong beat (or the drop), *small accents* on the beats between, and the
-   end card *holds* about two beats (`sound/README.md` has the steps).
+If the direction is still open, offer a few concise textual concepts with a distinct material, motion language and
+signature moment. Three is a useful option, not a compulsory number. When the person has a clear direction,
+develop it directly. Use the engine-pinned frontend-design and impeccable guidance for composition and critique.
+No automatic batch of sketches, helper model downgrade or competing Full/Quick mode is needed.
 
-If they want to remix an existing format or style, start from its files (the format folder that
-`formats.py list --all` shows, or the saved style's folder that `styles.py list --json` shows) and ask only what
-should change.
+Choose timing from the brief: narration, music, visual reading or footage. Music-led transitions can follow chosen
+beats; narrated ideas follow the actual recording and pauses. Preserve selected textures, semantic colours and
+recognisable subjects when branding. Do not flatten every material into a single accent colour.
 
-## 2. Three concepts, then the recipe
+Keep the proposal and meaningful decisions in this video's `film.json`. Then follow the four approval stops in `SKILL.md`:
 
-Plan the look with `frontend-design` and critique the concepts with `impeccable` (`references/director-and-builder.md`,
-section 2). In Quick mode, sketch 5-6 directions with builder helpers first and offer the best three as the concepts
-(section 3 of that guide).
+1. Show the storyboard with the ASCII layout: actual canvas, element sizes/positions and platform safe zones. Get the
+   ✋ storyboard yes. A silent mini comparison can have its own storyboard yes and scope.
+2. Build the approved direction with the existing engine. Canvas2D uses `canvas-reference.md`; no second clock.
+   Name the actual code files in `film.json`.
+3. Inspect/check representative stills yourself. With music, play the takes on the built picture (✋ music pick).
+4. Render without a separate render yes. Build effects/mix before encoding, check the encoded picture and sound, and
+   get the ✋ final film yes. Measurements do not establish taste.
+5. After the finished video is approved, offer to save its treatment with `styles.py capture`. A title is needed
+   only if saving; author is optional. Record reusable instructions/tags separately from this story and brand.
 
-Propose **three concepts** as one question with previews. Each has a name, one line on the feeling, the
-**signature moment** (the one thing people will remember, e.g. "the ball leaves a red fold trail") and a
-tiny beat sheet:
+An adaptable code reference is useful because a fresh builder can rebuild it for another story. It does not need
+promised content slots. Existing saved templates remain available without conversion or deletion.
 
-```
-0-2 s  hook: freeze on the serve, title slams in
-2-9 s  rally at 1.5x, shot counter ticks
-9-12 s key shot: 0.3x + red fold burst
-12-15 s end card: logo + one stat
+## Legacy slot-template workshop, only when requested
+
+Use this route when the person specifically wants a template that can be refilled without redesign. Existing
+`styles.py init`, `save`, `new` and `refs` commands remain supported. They are not the default create-new intake.
+
+Find existing material with `formats.py list --all` or `styles.py list --json`. Agree the intended purpose,
+platform/canvas, content slots, visual structure, timing driver and sound. Reuse settled answers. For a full brand
+identity read its actual kit; an unbranded template needs no invented identity.
+
+When registering the template, use an explicit title and chosen attribution for the legacy command:
+
+```bash
+python3 <kit-to-clip>/scripts/styles.py init --title "<title>" --author "<chosen attribution>" [--brand <id>]
+python3 <kit-to-clip>/scripts/styles.py refs --style <slug> <reference-files>
 ```
 
-Make the three genuinely different (for example one safe, one bold, one unexpected), each grounded in their
-answers and the brand's rules. After they pick, write the **recipe** into the style's `style.md` and `style.json`:
+Do not automatically store the person's name or general preferences. Keep the template recipe in `style.md` and
+`style.json`, using the existing fields:
 
-| Field (style.json) | Meaning |
+| Field | Purpose |
 |---|---|
-| `made_for` | clip, brief, video or loop |
-| `platforms`, `canvas`, `length_s` | where it goes and its main canvas |
-| `mood`, `signature` | the feeling and the memorable moment |
-| `structure` | the beat sheet: `[{"from": 0, "to": 2, "beat": "hook", "does": "..."}]` |
-| `slots` | what each new video must supply: `[{"name": "clip", "kind": "video", "required": true, "note": "..."}]` |
-| `type`, `sound` | words-on-screen treatment, sound choice and file |
-| `references` | the files kept in `refs/` (`styles.py refs` fills it) |
-| `motion_rules` | written moves, one line each: "the title enters left to right in 0.6 s on an arc, motion blur, lands sharply" |
-| `dos`, `donts` | rules learned while designing (add to them during the stills rounds) |
+| `made_for`, `platforms`, `canvas`, `length_s` | Intended use and output shape |
+| `mood`, `signature`, `structure` | Feeling, memorable moment and scene/beat sequence |
+| `slots` | Required/optional content inputs, their kind and limits |
+| `type`, `sound`, `motion_rules` | Typography, audio choices and reusable movement |
+| `references`, `dos`, `donts` | Kept reference files and practical constraints |
 
-Show a short summary (the beat sheet and the slots) and ask ✋ **Approve the recipe** / **Change something**.
+Show the recipe and the ✋ storyboard, build representative content, run checks, then follow the ✋ music pick (with
+music) and the ✋ final film in `SKILL.md`. A slot template should keep content/timing data-driven so a refill changes the intended inputs.
+This slot requirement applies to templates, not adaptable code references.
 
-## 3. Build and show stills
+After actual approval and the person's save choice, save a fresh registered template:
 
-1. Pick sample content: their clip in `clips/`, or placeholder words for a brief style (say it's placeholder).
-   For a clip, find real moments from the frames (a brand's clip formats may bring tools for this).
-2. Make the project in `videos/<slug>-draft/`: follow the `hyperframes` workflow, run the brand bridge for
-   the canvas, and `finish.py plan` for the platform's safe areas. Keep all timing data-driven from the slots so
-   the template can be refilled later.
-3. Run the checks (lint, check, finish `check` and `safe`), then `npx hyperframes snapshot --describe false` at 4-6 key
-   moments. Look at them yourself first; fix anything broken before showing.
-4. Show the stills and ask ✋ **Looks right** / **Change something** (they say what). After three rounds of
-   changes, suggest either saving what works or trying a different concept, so it doesn't loop forever.
+```bash
+python3 <kit-to-clip>/scripts/styles.py save --style <slug> --project <approved-project> --approve
+```
 
-## 4. Test render and save
-
-1. ✋ **Render a test video** (say how long it takes). Render, then `finish.py finish` for one platform and show
-   the contact sheet and the video path.
-2. ✋ **Save this style** / **Keep adjusting** / **Throw it away**. On save:
-   `styles.py save --style <slug> --project videos/<slug>-draft --approve`. It keeps the template, the recipe and
-   the approved stills; footage and brand files are left out and re-created per video.
-3. Tell them: the style now appears in the front door for every future video with this brand, where it lives
-   (the path `styles.py save` printed), and that sharing it means sending that folder (it goes into the other
-   person's styles folder for the same brand).
-
-## Watch out for
-
-- A style is only reusable if its content comes from slots. Hard-coded times or words make every video the same.
-- Plan every title with the text-fit numbers in the project's `frame.md` when the pack gives them; wide display
-  faces overflow first.
-- New effects that could pass for reality (removed players, fire) need a small honesty line on screen.
-- Keep it to one signature moment. Three competing effects read as noise on a phone.
-- A texture or effect the brand does not have (watercolour, particles, a shader) can come from a public project:
-  `references/open-source-effects.md` (licence first, then make it seekable).
+Avoid replacing an existing approved template without the applicable explicit replacement authority. Keep a new
+variant under a new slug when appropriate. Template brand reapplication through `styles.py new` is used only when
+the person explicitly wants that stored identity. Otherwise rebuild from the saved source in a fresh brief.

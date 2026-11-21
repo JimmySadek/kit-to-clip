@@ -20,13 +20,15 @@ First made for a brand's LinkedIn ad teaser (28 Sep 2026): a still with a headli
    where the picture ends inside the canvas), `background_opacity`, `focus`; `media`, `media_box`, `media_edge`;
    `logo_box`, `headline_box`, `headline_size`, `headline_leading`; `background_motion` (`wave` for GIFs, `breathe`
    for video); `duration` (6 to 12 s).
-4. **Build:** `python3 build.py --brand <id> --slots slots.json --out <videos>/<job> --canvas 1080x1080`.
+4. **✋ Storyboard, then build:** show the planned layout (canvas, element boxes, safe zones) and what moves, get the
+   yes, then `python3 build.py --brand <id> --slots slots.json --out <videos>/<job> --canvas 1080x1080`.
 5. **Checks:** `npx hyperframes lint`, `finish.py check`, `finish.py hook`. Take stills of the loop at 0, 1, 2, 3, 5 and
    the last frame (`npx hyperframes snapshot --describe false --at <s>`), and **measure the first frame against the reference** (positions within a few pixels, the
    background colour, the density of the art). Look for seams, darkened areas and clipped lines yourself.
-6. **✋ Stills**, then render: `npx hyperframes render -o renders/<job>.mp4 --quality delivery`.
-7. **Deliver:** `finish.py loop <render> --out <deliveries>/<job>/<platform> --export gif,mp4,webm --gif-profile linkedin-gif`
+6. **Render** (there is no separate render yes): `npx hyperframes render -o renders/<job>.mp4 --quality delivery`.
+7. **Export, then the ✋ final film:** `finish.py loop <render> --out <deliveries>/<job>/<platform> --export gif,mp4,webm --gif-profile linkedin-gif`
    (or `gif` for chat and docs). It fails on a visible seam, a GIF over the size or frame cap, or a missing encoder.
+   The person watches the exported loop (a GIF can lose frames or width); hand it over only after that yes.
 
 ## Why the defaults are what they are
 

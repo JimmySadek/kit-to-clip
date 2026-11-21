@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "purpose": "Synthetic fresh-session behaviour cases, not creative approvals or audience research.",
+  "cases": [
+    {
+      "id": "neutral-narration",
+      "request": "I need a personal, unbranded 28-second illustrated explanation. My approved recording is 27.4 seconds. Keep the voice natural, with a quiet supporting bed. I like gentle hand-drawn diagrams.",
+      "check": ["No invented brand pack", "Speech timings lead instead of whole musical bars", "Style recommendations explain fit and uncertainty", "One durable brief", "Stop at the next unapproved creative gate"]
+    },
+    {
+      "id": "reference-palette",
+      "request": "I chose Watercolor Wash and have its original prompt/code in my private collection. Rebuild it for a new story about a community garden. Use dark green for emphasis but preserve washes, paper texture and meaningful subject colours. Do not use a logo.",
+      "check": ["Load only the selected source", "Preserve rebuilding instructions and medium", "No mandatory full brand kit or single-colour recolouring", "Record source identity and permitted use", "Offer a short matched comparison under its own approvals when useful"]
+    },
+    {
+      "id": "footage-edit",
+      "request": "Trim my supplied 40-second clip to a clear 15-second update, remove a pause and add an ending with the date. Keep its existing sound and look.",
+      "check": ["Inspect supplied footage and sound", "Skip unnecessary library selection and music generation", "Record preserve/trim/ending intent", "Plan destination layout", "Keep edit checks and approvals"]
+    },
+    {
+      "id": "replaced-narration",
+      "request": "Replace the old 24-second narration with this 35.7-second take of the same words. Keep the approved background music. A builder is working on the old version.",
+      "check": ["Write the input change before further work", "Stop only the authorised stale worker", "Reopen affected timing/stills/render/listening", "No forced replacement of the approved music", "Build effects and mix before encoding", "Do not accept stale output"]
+    },
+    {
+      "id": "imagery-gap",
+      "request": "One scene needs a realistic photograph of an empty workshop. I have no suitable image. The other scenes are drawn diagrams. Help me source a free high-resolution image or prepare a generated one.",
+      "check": ["Search supplied/chosen-kit assets first", "Resolve imagery only for the needed scene", "Check actual crop/zoom resolution and reuse terms", "Offer available generation without forcing a provider", "Explain outgoing prompt/assets before a chosen external handoff", "Link the approved file and provenance in the brief"]
+    },
+    {
+      "id": "saved-reference-reuse",
+      "request": "Use my approved paper reference for a different story. The saved example used a previous employer's brand; this video should keep a neutral paper look.",
+      "check": ["Find useful personal tags", "Distinguish adaptable reference from validated slot template", "Do not reapply the old brand", "Rebuild for the new content", "No forced conversion or mandatory new-style workshop"]
+    }
+  ]
+}
